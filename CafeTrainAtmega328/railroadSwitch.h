@@ -1,5 +1,5 @@
 
-
+#include <stdint.h>
 #ifndef RAILROADSWITCH_H_
 #define RAILROADSWITCH_H_
 
@@ -7,7 +7,8 @@
 extern "C" {
 #endif
 
-void initRailRoadSwitch();
+	void initRailRoadSwitch();
+	void setRouteByIndex(uint8_t index);
 
 #ifdef __cplusplus
 }

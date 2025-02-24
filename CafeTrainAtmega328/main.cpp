@@ -31,7 +31,8 @@ int main(void)
         LCD_PrintTwoLines(firstLineText, secondLineText, 0);
         _delay_ms(300);
 
-
+		setRouteByIndex(7); 
+		_delay_ms(1000);
         }
 	
     return 0;

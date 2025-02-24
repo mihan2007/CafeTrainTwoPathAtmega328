@@ -2,61 +2,116 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+// Определение линий управления стрелками
+#define S0 PB4  // Подключено к D12 (PB4)
+#define S1 PB3  // Подключено к D11 (PB3)
+#define S2 PB2  // Подключено к D10 (PB2)
+#define S3 PB0  // Подключено к D8 (PB0)
+#define SIG PD7 // Сигнал управления (D7 - PD7)
 
-#define S0 PB4  // S0 подключен к D12 (PB4)
-#define S1 PB3  // S1 подключен к D11 (PB3)
-#define S2 PB2  // S2 подключен к D10 (PB2)
-#define S3 PB0  // S3 подключен к D8 (PB0)
-#define SIG PD7 // SIG подключен к D7 (PD7)
+#define PWMpin PB1 // Подключено к MOSFET-транзистору (ШИМ)
 
-#define switchPauseTime 1000
+#define SWITCH_PAUSE_TIME 3000 // Время ожидания после переключения стрелки
 
-uint8_t testExecuted = 0; 
-uint8_t i = 0;
+// Маска для управления стрелками (исключая PB1 - ШИМ)
+#define SWITCH_MASK ((1 << S0) | (1 << S1) | (1 << S2) | (1 << S3))
 
+// Таблица масок для выбора каналов (1..16)
+const uint8_t SWITCH_MASKS[17] = {
+	0b00000000, // C0  RailroadSwitch 1 Left
+	0b00010000, // C1  RailroadSwitch 1 Right
+	0b00001000, // C2  RailroadSwitch 2 Left
+	0b00011000, // C3  RailroadSwitch 2 Right
+	0b00000100, // C4  RailroadSwitch 3 Left
+	0b00010100, // C5  RailroadSwitch 3 Right
+	0b00001100, // C6  RailroadSwitch 4 Left
+	0b00011100, // C7  RailroadSwitch 4 Right
+	0b00000001, // C8  RailroadSwitch 5 Left
+	0b00010001, // C9  RailroadSwitch 5 Right
+	0b00001001, // C10 RailroadSwitch 6 Left
+	0b00011001, // C11 RailroadSwitch 6 Right
+	0b00000101, // C12 RailroadSwitch 7 Left
+	0b00010101, // C13 RailroadSwitch 7 Left
+	0b00001101, // C14 Move Backward
+	0b00011101  // C15 Move Forward
+};
+
+//Structure of the Rout
+typedef struct {
+	char* name;          // Имя маршрута
+	uint8_t path[8];     // Максимум 5 стрелок в маршруте (можно увеличить)
+	uint8_t length;      // Количество стрелок в маршруте
+} Route;
+
+Route routes[] = {
+	{"Table 1", {2}, 1},					// Rout to table 1 through C1
+	{"Table 2", {1, 4}, 2},					// Rout to table 2 through C1 ? C4
+	{"Table 3", {1, 3, 6}, 3},				// Rout to table 3 through C1 ? C3 ? C5
+	{"Table 4", {1, 3, 5, 8}, 4},			// Rout to table 4 through C1 ? C3 ? C5 ? C7
+	{"Table 5", {1, 3, 5, 7, 10}, 5},		// Rout to table 5 through C1 ? C3 ? C5 ? C7 ? C10
+	{"Table 6", {1, 3, 5, 7, 9, 12}, 6},	// Rout to table 6 through C1 ? C3 ? C5 ? C7 ? C9 ? C12	
+	{"Table 7", {1, 3, 5, 7, 9, 11, 14}, 7},// Rout to table 7 through C1 ? C3 ? C5 ? C7 ? C9 ? C11 ? C14
+	{"Table 8", {1, 3, 5, 7, 9, 11, 13}, 7},// Rout to table 8 through C1 ? C3 ? C5 ? C7 ? C9 ? C11 ? C13		
+};
+
+#define NUM_ROUTES (sizeof(routes) / sizeof(routes[0]))
+
+void initRailRoadSwitch();
+void railRoadSwitchTest();
+void selectChannel(uint8_t channel);
+
+
+// Функция инициализации стрелочных переводов
 void initRailRoadSwitch() {
-	DDRB |= (1 << S0) | (1 << S1) | (1 << S2) | (1 << S3); // Линии S0-S3 как выходы
-	DDRD |= (1 << SIG); // SIG как выход
-	PORTB &= ~((1 << S0) | (1 << S1) | (1 << S2) | (1 << S3)); // Сбрасываем линии управления
-	PORTD &= ~(1 << SIG); // Выключаем SIG (если он активен HIGH)
-	
-	RailRoadSwitchTest();
+	// Настройка портов: S0-S3 как выходы
+	DDRB |= SWITCH_MASK;
+	// SIG как выход
+	DDRD |= (1 << SIG);
+
+	// Отключаем все стрелки, НЕ затрагивая PB1 (ШИМ)
+	PORTB &= ~SWITCH_MASK;
+	// SIG неактивен
+	PORTD &= ~(1 << SIG);
+
+	// Запуск теста стрелок
+	//railRoadSwitchTest();
 }
 
-void RailRoadSwitchTest(){
-	
-	for (uint8_t i = 1; i <= 16; i++) {
+// Функция тестирования всех стрелок
+void railRoadSwitchTest() {
+	for (uint8_t i = 0; i <= 15; i++) {
 		selectChannel(i);
 		PORTD |= (1 << SIG);
-		_delay_ms(switchPauseTime);
+		_delay_ms(SWITCH_PAUSE_TIME);
 		PORTD &= ~(1 << SIG);
-		_delay_ms(switchPauseTime);
+		_delay_ms(SWITCH_PAUSE_TIME);
 	}
 }
 
+// Функция выбора стрелочного канала
+void selectChannel(uint8_t channel) {
+	if (channel < 1 || channel > 16) return;
 
-void selectChannel(uint8_t ch) {
-	if (ch < 1 || ch > 16) return;
+	PORTB &= ~SWITCH_MASK;  // Сброс текущего состояния
+	PORTB |= (SWITCH_MASKS[channel - 1] & SWITCH_MASK); // Корректный доступ к массиву
+}
 
-	uint8_t masks[17] = {
-		0,
-		0b00000000, // C1  Table 1 Left
-		0b00010000, // C2  Table 1 Right
-		0b00001000, // C3  Table 2 Left
-		0b00011000, // C4  Table 2 Right
-		0b00000100, // C5  Table 3 Left
-		0b00010100, // C6  Table 3 Right
-		0b00001100, // C7  Table 4 Left
-		0b00011100, // C8  Table 4 Right
-		0b00000001, // C9  Table 5 Left
-		0b00010001, // C10 Table 5 Right
-		0b00001001, // C11 Table 6 Left
-		0b00011001, // C12 Table 6 Right
-		0b00000101, // C13 Free
-		0b00010101, // C14 Short circuit switch off
-		0b00001101, // C15 Move Backward
-		0b00011101, // C16 Move Forward
-	};
+void setPath(uint8_t* path, uint8_t length) {
+	for (uint8_t i = 0; i < length; i++) {
+		selectChannel(path[i]); // Выбираем стрелку
+		PORTD |= (1 << SIG);    // Активируем стрелочный механизм
+		_delay_ms(SWITCH_PAUSE_TIME);         // Ждём переключения
+		PORTD &= ~(1 << SIG);   // Отключаем сигнал
+		_delay_ms(SWITCH_PAUSE_TIME);
+	}
+}
 
-	PORTB = (PORTB & 0b00000000) | masks[ch]; // Устанавливаем только нужные биты
+void setRouteByIndex(uint8_t index) {
+	if (index >= NUM_ROUTES || routes[index].length > 8) return;
+
+	// Сбрасываем управление перед новым маршрутом
+	PORTB &= ~SWITCH_MASK;
+	PORTD &= ~(1 << SIG);
+
+	setPath(routes[index].path, routes[index].length);
 }
