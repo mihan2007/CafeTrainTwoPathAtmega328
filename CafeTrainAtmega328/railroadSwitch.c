@@ -1,9 +1,13 @@
-#include "railroadSwitch.h"
 #include <avr/io.h>
 #include <util/delay.h>
+
 #include <avr/io.h>
 #include "config.h"
+#include "routes.h"
 
+#include "railroadSwitch.h"
+extern uint8_t NUM_ROUTES; // ќбъ€вл€ем его перед использованием!
+/*
 // #include "config.h" true table
 const uint8_t SWITCH_MASKS[16] = {
 	0b00000000, // C0  RailroadSwitch 1 Left
@@ -43,7 +47,7 @@ Route routes[] = {
 };
 
 #define NUM_ROUTES (sizeof(routes) / sizeof(routes[0]))
-
+*/
 void initRailRoadSwitch();
 void railRoadSwitchTest();
 void selectChannel(uint8_t channel);
