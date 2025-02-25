@@ -9,7 +9,8 @@ extern "C" {
 
 	void initRailRoadSwitch();
 	void setRouteByIndex(uint8_t index);
-
+	void moveLocomotive(uint8_t forward);
+	void stopLocomotive();
 #ifdef __cplusplus
 }
 #endif

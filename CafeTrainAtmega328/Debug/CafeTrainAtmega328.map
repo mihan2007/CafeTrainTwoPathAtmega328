@@ -32,6 +32,12 @@ Discarded input sections
  .bss           0x00000000        0x0 railroadSwitch.o
  .text.railRoadSwitchTest
                 0x00000000       0x46 railroadSwitch.o
+ .text.setPath  0x00000000       0x5c railroadSwitch.o
+ .text.setRouteByIndex
+                0x00000000       0x48 railroadSwitch.o
+ .rodata.str1.1
+                0x00000000       0x40 railroadSwitch.o
+ .data.routes   0x00000000       0x58 railroadSwitch.o
  .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
  .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
  .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
@@ -242,7 +248,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0x544
+.text           0x00000000      0x4ec
  *(.vectors)
  .vectors       0x00000000       0x68 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
                 0x00000000                __vector_default
@@ -368,34 +374,38 @@ END GROUP
  .text.LCD_PrintTwoLines
                 0x00000334       0x48 lcd.o
                 0x00000334                LCD_PrintTwoLines
- .text.main     0x0000037c       0x86 main.o
+ .text.main     0x0000037c       0x9e main.o
                 0x0000037c                main
  .text.initRailRoadSwitch
-                0x00000402       0x1a railroadSwitch.o
-                0x00000402                initRailRoadSwitch
+                0x0000041a       0x1a railroadSwitch.o
+                0x0000041a                initRailRoadSwitch
  .text.selectChannel
-                0x0000041c       0x22 railroadSwitch.o
-                0x0000041c                selectChannel
- .text.setPath  0x0000043e       0x5c railroadSwitch.o
-                0x0000043e                setPath
- .text.setRouteByIndex
-                0x0000049a       0x48 railroadSwitch.o
-                0x0000049a                setRouteByIndex
+                0x00000434       0x22 railroadSwitch.o
+                0x00000434                selectChannel
+ .text.clearChannels
+                0x00000456        0xe railroadSwitch.o
+                0x00000456                clearChannels
+ .text.stopLocomotive
+                0x00000464        0x6 railroadSwitch.o
+                0x00000464                stopLocomotive
+ .text.moveLocomotive
+                0x0000046a       0x20 railroadSwitch.o
+                0x0000046a                moveLocomotive
  .text.libgcc.div
-                0x000004e2       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
-                0x000004e2                _div
-                0x000004e2                __divmodhi4
+                0x0000048a       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
+                0x0000048a                _div
+                0x0000048a                __divmodhi4
  .text.libgcc.div
-                0x0000050a       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_udivmodhi4.o)
-                0x0000050a                __udivmodhi4
+                0x000004b2       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_udivmodhi4.o)
+                0x000004b2                __udivmodhi4
  .text.avr-libc
-                0x00000532        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(memset.o)
-                0x00000532                memset
-                0x00000540                . = ALIGN (0x2)
+                0x000004da        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(memset.o)
+                0x000004da                memset
+                0x000004e8                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00000540        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
-                0x00000540                _exit
-                0x00000540                exit
+ .fini9         0x000004e8        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+                0x000004e8                _exit
+                0x000004e8                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -414,50 +424,45 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00000540        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+ .fini0         0x000004e8        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x00000544                _etext = .
+                0x000004ec                _etext = .
 
-.data           0x00800100       0xb6 load address 0x00000544
+.data           0x00800100       0x1c load address 0x000004ec
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
- .data.routes   0x00800100       0x58 railroadSwitch.o
-                0x00800100                routes
  *(.gnu.linkonce.d*)
  *(.rodata)
  *(.rodata*)
  .rodata.str1.1
-                0x00800158        0xc main.o
- .rodata.str1.1
-                0x00800164       0x40 railroadSwitch.o
+                0x00800100        0xc main.o
  .rodata.SWITCH_MASKS
-                0x008001a4       0x11 railroadSwitch.o
-                0x008001a4                SWITCH_MASKS
+                0x0080010c       0x10 railroadSwitch.o
+                0x0080010c                SWITCH_MASKS
  *(.gnu.linkonce.r*)
-                0x008001b6                . = ALIGN (0x2)
- *fill*         0x008001b5        0x1 
-                0x008001b6                _edata = .
-                0x008001b6                PROVIDE (__data_end, .)
+                0x0080011c                . = ALIGN (0x2)
+                0x0080011c                _edata = .
+                0x0080011c                PROVIDE (__data_end, .)
 
-.bss            0x008001b6        0x2
-                0x008001b6                PROVIDE (__bss_start, .)
+.bss            0x0080011c        0x2
+                0x0080011c                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
  .bss.toggle.1811
-                0x008001b6        0x1 lcd.o
+                0x0080011c        0x1 lcd.o
  .bss.counter.1812
-                0x008001b7        0x1 lcd.o
+                0x0080011d        0x1 lcd.o
  *(COMMON)
-                0x008001b8                PROVIDE (__bss_end, .)
-                0x00000544                __data_load_start = LOADADDR (.data)
-                0x000005fa                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x0080011e                PROVIDE (__bss_end, .)
+                0x000004ec                __data_load_start = LOADADDR (.data)
+                0x00000508                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x008001b8        0x0
+.noinit         0x0080011e        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
  *(.noinit*)
                 [!provide]                PROVIDE (__noinit_end, .)
-                0x008001b8                _end = .
+                0x0080011e                _end = .
                 [!provide]                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0
@@ -524,60 +529,60 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000       0xe0
+.debug_aranges  0x00000000       0xf8
  *(.debug_aranges)
  .debug_aranges
                 0x00000000       0x80 lcd.o
  .debug_aranges
                 0x00000080       0x20 main.o
  .debug_aranges
-                0x000000a0       0x40 railroadSwitch.o
+                0x000000a0       0x58 railroadSwitch.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x13d2
+.debug_info     0x00000000     0x14e4
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_info    0x000005f4      0x80f lcd.o
- .debug_info    0x00000e03      0x271 main.o
- .debug_info    0x00001074      0x35e railroadSwitch.o
+ .debug_info    0x00000e03      0x2bd main.o
+ .debug_info    0x000010c0      0x424 railroadSwitch.o
 
-.debug_abbrev   0x00000000      0xa89
+.debug_abbrev   0x00000000      0xac8
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_abbrev  0x000005a2      0x1fb lcd.o
  .debug_abbrev  0x0000079d      0x15a main.o
- .debug_abbrev  0x000008f7      0x192 railroadSwitch.o
+ .debug_abbrev  0x000008f7      0x1d1 railroadSwitch.o
 
-.debug_line     0x00000000      0x8cf
+.debug_line     0x00000000      0x958
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x134 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_line    0x00000134      0x3c0 lcd.o
- .debug_line    0x000004f4      0x17d main.o
- .debug_line    0x00000671      0x25e railroadSwitch.o
+ .debug_line    0x000004f4      0x197 main.o
+ .debug_line    0x0000068b      0x2cd railroadSwitch.o
 
-.debug_frame    0x00000000      0x220
+.debug_frame    0x00000000      0x264
  *(.debug_frame)
  .debug_frame   0x00000000      0x16c lcd.o
  .debug_frame   0x0000016c       0x34 main.o
- .debug_frame   0x000001a0       0x80 railroadSwitch.o
+ .debug_frame   0x000001a0       0xc4 railroadSwitch.o
 
-.debug_str      0x00000000      0x65e
+.debug_str      0x00000000      0x692
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_str     0x00000208      0x2d3 lcd.o
                                 0x30c (size before relaxing)
- .debug_str     0x000004db      0x112 main.o
-                                0x272 (size before relaxing)
- .debug_str     0x000005ed       0x71 railroadSwitch.o
-                                0x263 (size before relaxing)
+ .debug_str     0x000004db      0x111 main.o
+                                0x271 (size before relaxing)
+ .debug_str     0x000005ec       0xa6 railroadSwitch.o
+                                0x297 (size before relaxing)
 
-.debug_loc      0x00000000      0x953
+.debug_loc      0x00000000      0xa2b
  *(.debug_loc)
  .debug_loc     0x00000000      0x64c lcd.o
- .debug_loc     0x0000064c       0x8f main.o
- .debug_loc     0x000006db      0x278 railroadSwitch.o
+ .debug_loc     0x0000064c       0xd7 main.o
+ .debug_loc     0x00000723      0x308 railroadSwitch.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -597,11 +602,11 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000       0xb0
+.debug_ranges   0x00000000       0xc8
  *(.debug_ranges)
  .debug_ranges  0x00000000       0x70 lcd.o
  .debug_ranges  0x00000070       0x10 main.o
- .debug_ranges  0x00000080       0x30 railroadSwitch.o
+ .debug_ranges  0x00000080       0x48 railroadSwitch.o
 
 .debug_macro
  *(.debug_macro)

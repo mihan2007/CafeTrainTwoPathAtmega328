@@ -16,8 +16,8 @@
 // Маска для управления стрелками (исключая PB1 - ШИМ)
 #define SWITCH_MASK ((1 << S0) | (1 << S1) | (1 << S2) | (1 << S3))
 
-// Таблица масок для выбора каналов (1..16)
-const uint8_t SWITCH_MASKS[17] = {
+// Muliplecser true table
+const uint8_t SWITCH_MASKS[16] = {
 	0b00000000, // C0  RailroadSwitch 1 Left
 	0b00010000, // C1  RailroadSwitch 1 Right
 	0b00001000, // C2  RailroadSwitch 2 Left
@@ -38,20 +38,20 @@ const uint8_t SWITCH_MASKS[17] = {
 
 //Structure of the Rout
 typedef struct {
-	char* name;          // Имя маршрута
-	uint8_t path[8];     // Максимум 5 стрелок в маршруте (можно увеличить)
-	uint8_t length;      // Количество стрелок в маршруте
+	char* name;          // Rout name
+	uint8_t path[8];     // Number of rail switches in the rout 
+	uint8_t length;      // Quantity of rail switches in the rout 
 } Route;
 
 Route routes[] = {
 	{"Table 1", {2}, 1},					// Rout to table 1 through C1
-	{"Table 2", {1, 4}, 2},					// Rout to table 2 through C1 ? C4
-	{"Table 3", {1, 3, 6}, 3},				// Rout to table 3 through C1 ? C3 ? C5
-	{"Table 4", {1, 3, 5, 8}, 4},			// Rout to table 4 through C1 ? C3 ? C5 ? C7
-	{"Table 5", {1, 3, 5, 7, 10}, 5},		// Rout to table 5 through C1 ? C3 ? C5 ? C7 ? C10
-	{"Table 6", {1, 3, 5, 7, 9, 12}, 6},	// Rout to table 6 through C1 ? C3 ? C5 ? C7 ? C9 ? C12	
-	{"Table 7", {1, 3, 5, 7, 9, 11, 14}, 7},// Rout to table 7 through C1 ? C3 ? C5 ? C7 ? C9 ? C11 ? C14
-	{"Table 8", {1, 3, 5, 7, 9, 11, 13}, 7},// Rout to table 8 through C1 ? C3 ? C5 ? C7 ? C9 ? C11 ? C13		
+	{"Table 2", {1, 4}, 2},					// Rout to table 2 through C1 -> C4
+	{"Table 3", {1, 3, 6}, 3},				// Rout to table 3 through C1 -> C3 -> C5
+	{"Table 4", {1, 3, 5, 8}, 4},			// Rout to table 4 through C1 -> C3 -> C5 -> C7
+	{"Table 5", {1, 3, 5, 7, 10}, 5},		// Rout to table 5 through C1 -> C3 -> C5 -> C7 -> C10
+	{"Table 6", {1, 3, 5, 7, 9, 12}, 6},	// Rout to table 6 through C1 -> C3 -> C5 -> C7 -> C9 -> C12	
+	{"Table 7", {1, 3, 5, 7, 9, 11, 14}, 7},// Rout to table 7 through C1 -> C3 -> C5 -> C7 -> C9 -> C11 -> C14
+	{"Table 8", {1, 3, 5, 7, 9, 11, 13}, 7},// Rout to table 8 through C1 -> C3 -> C5 -> C7 -> C9 -> C11 -> C13		
 };
 
 #define NUM_ROUTES (sizeof(routes) / sizeof(routes[0]))
@@ -79,7 +79,7 @@ void initRailRoadSwitch() {
 
 // Функция тестирования всех стрелок
 void railRoadSwitchTest() {
-	for (uint8_t i = 0; i <= 15; i++) {
+	for (uint8_t i = 0; i <= 13; i++) {
 		selectChannel(i);
 		PORTD |= (1 << SIG);
 		_delay_ms(SWITCH_PAUSE_TIME);
@@ -109,9 +109,27 @@ void setPath(uint8_t* path, uint8_t length) {
 void setRouteByIndex(uint8_t index) {
 	if (index >= NUM_ROUTES || routes[index].length > 8) return;
 
-	// Сбрасываем управление перед новым маршрутом
-	PORTB &= ~SWITCH_MASK;
-	PORTD &= ~(1 << SIG);
+	clearChannels();
 
 	setPath(routes[index].path, routes[index].length);
+}
+
+void moveLocomotive(uint8_t forward) {
+	stopLocomotive();
+	
+	uint8_t channel = forward ? 15 : 14;  // 15 - вперёд, 14 - назад
+
+	selectChannel(channel);
+	
+	PORTD |= (1 << SIG);  // Включаем сигнал движения
+}
+
+void stopLocomotive() {
+
+	clearChannels();
+}
+
+void clearChannels() {
+	PORTD &= ~(1 << SIG);  // Отключаем сигнал движения
+	PORTB &= ~SWITCH_MASK; // Сбрасываем все каналы (включая 14 и 15)
 }
