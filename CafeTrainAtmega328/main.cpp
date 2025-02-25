@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "lcd.h"
 #include "railroadSwitch.h"
+#include "config.h"
 
 char firstLineText[16]; // Text for the first line
 char secondLineText[16]; // Text for the second line

@@ -1,22 +1,10 @@
 #include "railroadSwitch.h"
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/io.h>
+#include "config.h"
 
-// Определение линий управления стрелками
-#define S0 PB4  // Подключено к D12 (PB4)
-#define S1 PB3  // Подключено к D11 (PB3)
-#define S2 PB2  // Подключено к D10 (PB2)
-#define S3 PB0  // Подключено к D8 (PB0)
-#define SIG PD7 // Сигнал управления (D7 - PD7)
-
-#define PWMpin PB1 // Подключено к MOSFET-транзистору (ШИМ)
-
-#define SWITCH_PAUSE_TIME 3000 // Время ожидания после переключения стрелки
-
-// Маска для управления стрелками (исключая PB1 - ШИМ)
-#define SWITCH_MASK ((1 << S0) | (1 << S1) | (1 << S2) | (1 << S3))
-
-// Muliplecser true table
+// #include "config.h" true table
 const uint8_t SWITCH_MASKS[16] = {
 	0b00000000, // C0  RailroadSwitch 1 Left
 	0b00010000, // C1  RailroadSwitch 1 Right
