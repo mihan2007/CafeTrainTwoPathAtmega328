@@ -79,6 +79,7 @@ void moveLocomotive(uint8_t forward) {
 void stopLocomotive() {
 
 	clearChannels();
+	OCR1A = 0;
 }
 
 void clearChannels() {

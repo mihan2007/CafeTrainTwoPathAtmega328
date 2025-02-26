@@ -3,29 +3,29 @@ CafeTrainAtmega328.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000010  00800100  000002be  00000332  2**0
+  0 .data         00000010  00800100  0000032a  0000039e  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000002be  00000000  00000000  00000074  2**1
+  1 .text         0000032a  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  00000342  2**0
+  2 .comment      00000030  00000000  00000000  000003ae  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000374  2**2
+  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000003e0  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000140  00000000  00000000  000003b4  2**0
+  4 .debug_aranges 00000150  00000000  00000000  00000420  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00001705  00000000  00000000  000004f4  2**0
+  5 .debug_info   00001799  00000000  00000000  00000570  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000c00  00000000  00000000  00001bf9  2**0
+  6 .debug_abbrev 00000c3d  00000000  00000000  00001d09  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   00000b25  00000000  00000000  000027f9  2**0
+  7 .debug_line   00000be1  00000000  00000000  00002946  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  000002b0  00000000  00000000  00003320  2**2
+  8 .debug_frame  000002b8  00000000  00000000  00003528  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    000006f2  00000000  00000000  000035d0  2**0
+  9 .debug_str    00000707  00000000  00000000  000037e0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000a45  00000000  00000000  00003cc2  2**0
+ 10 .debug_loc    00000a76  00000000  00000000  00003ee7  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 000000e8  00000000  00000000  00004707  2**0
+ 11 .debug_ranges 000000f8  00000000  00000000  0000495d  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -70,8 +70,8 @@ Disassembly of section .text:
   74:	11 e0       	ldi	r17, 0x01	; 1
   76:	a0 e0       	ldi	r26, 0x00	; 0
   78:	b1 e0       	ldi	r27, 0x01	; 1
-  7a:	ee eb       	ldi	r30, 0xBE	; 190
-  7c:	f2 e0       	ldi	r31, 0x02	; 2
+  7a:	ea e2       	ldi	r30, 0x2A	; 42
+  7c:	f3 e0       	ldi	r31, 0x03	; 3
   7e:	02 c0       	rjmp	.+4      	; 0x84 <__do_copy_data+0x10>
   80:	05 90       	lpm	r0, Z+
   82:	0d 92       	st	X+, r0
@@ -93,7 +93,7 @@ Disassembly of section .text:
   96:	b2 07       	cpc	r27, r18
   98:	e1 f7       	brne	.-8      	; 0x92 <.do_clear_bss_loop>
   9a:	0e 94 f2 00 	call	0x1e4	; 0x1e4 <main>
-  9e:	0c 94 5d 01 	jmp	0x2ba	; 0x2ba <_exit>
+  9e:	0c 94 93 01 	jmp	0x326	; 0x326 <_exit>
 
 000000a2 <__bad_interrupt>:
   a2:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -298,159 +298,243 @@ int main(void)
  1ec:	0e 94 e8 00 	call	0x1d0	; 0x1d0 <LCD_Clear>
 	
 	initRailRoadSwitch();
- 1f0:	0e 94 25 01 	call	0x24a	; 0x24a <initRailRoadSwitch>
+ 1f0:	0e 94 57 01 	call	0x2ae	; 0x2ae <initRailRoadSwitch>
 	
 	initPWM();
- 1f4:	0e 94 17 01 	call	0x22e	; 0x22e <initPWM>
+ 1f4:	0e 94 16 01 	call	0x22c	; 0x22c <initPWM>
+        /*snprintf(firstLineText, sizeof(firstLineText), "Table" );
         snprintf(secondLineText, sizeof(secondLineText),"Right");
 
         LCD_PrintTwoLines(firstLineText, secondLineText, 0);
         _delay_ms(300);*/
-		
+		LocomotiveSpeedUp();
+ 1f8:	0e 94 3d 01 	call	0x27a	; 0x27a <LocomotiveSpeedUp>
 		moveLocomotive(1);
- 1f8:	81 e0       	ldi	r24, 0x01	; 1
- 1fa:	0e 94 4d 01 	call	0x29a	; 0x29a <moveLocomotive>
- 1fe:	2f ef       	ldi	r18, 0xFF	; 255
- 200:	83 ed       	ldi	r24, 0xD3	; 211
- 202:	90 e3       	ldi	r25, 0x30	; 48
- 204:	21 50       	subi	r18, 0x01	; 1
- 206:	80 40       	sbci	r24, 0x00	; 0
- 208:	90 40       	sbci	r25, 0x00	; 0
- 20a:	e1 f7       	brne	.-8      	; 0x204 <main+0x20>
- 20c:	00 c0       	rjmp	.+0      	; 0x20e <main+0x2a>
- 20e:	00 00       	nop
-		_delay_ms(1000);
+ 1fc:	81 e0       	ldi	r24, 0x01	; 1
+ 1fe:	0e 94 83 01 	call	0x306	; 0x306 <moveLocomotive>
+ 202:	2f ef       	ldi	r18, 0xFF	; 255
+ 204:	83 e2       	ldi	r24, 0x23	; 35
+ 206:	94 ef       	ldi	r25, 0xF4	; 244
+ 208:	21 50       	subi	r18, 0x01	; 1
+ 20a:	80 40       	sbci	r24, 0x00	; 0
+ 20c:	90 40       	sbci	r25, 0x00	; 0
+ 20e:	e1 f7       	brne	.-8      	; 0x208 <main+0x24>
+ 210:	00 c0       	rjmp	.+0      	; 0x212 <main+0x2e>
+ 212:	00 00       	nop
+		_delay_ms(5000);
 		stopLocomotive();
- 210:	0e 94 4a 01 	call	0x294	; 0x294 <stopLocomotive>
-		moveLocomotive(0);
- 214:	80 e0       	ldi	r24, 0x00	; 0
- 216:	0e 94 4d 01 	call	0x29a	; 0x29a <moveLocomotive>
- 21a:	2f ef       	ldi	r18, 0xFF	; 255
- 21c:	83 ed       	ldi	r24, 0xD3	; 211
- 21e:	90 e3       	ldi	r25, 0x30	; 48
- 220:	21 50       	subi	r18, 0x01	; 1
- 222:	80 40       	sbci	r24, 0x00	; 0
- 224:	90 40       	sbci	r25, 0x00	; 0
- 226:	e1 f7       	brne	.-8      	; 0x220 <main+0x3c>
- 228:	00 c0       	rjmp	.+0      	; 0x22a <main+0x46>
- 22a:	00 00       	nop
- 22c:	e5 cf       	rjmp	.-54     	; 0x1f8 <main+0x14>
+ 214:	0e 94 7c 01 	call	0x2f8	; 0x2f8 <stopLocomotive>
+ 218:	2f ef       	ldi	r18, 0xFF	; 255
+ 21a:	83 e2       	ldi	r24, 0x23	; 35
+ 21c:	94 ef       	ldi	r25, 0xF4	; 244
+ 21e:	21 50       	subi	r18, 0x01	; 1
+ 220:	80 40       	sbci	r24, 0x00	; 0
+ 222:	90 40       	sbci	r25, 0x00	; 0
+ 224:	e1 f7       	brne	.-8      	; 0x21e <main+0x3a>
+ 226:	00 c0       	rjmp	.+0      	; 0x228 <main+0x44>
+ 228:	00 00       	nop
+ 22a:	e6 cf       	rjmp	.-52     	; 0x1f8 <main+0x14>
 
-0000022e <initPWM>:
-#include "PWM.h"
+0000022c <initPWM>:
 #include "config.h"
+#include <util/delay.h>
 
 // Инициализация ШИМ на PB1 (OC1A) с 10-битной разрядностью и частотой 20 кГц
 void initPWM() {
 	DDRB |= (1 << PWM_PIN);  // Настраиваем PB1 как выход
- 22e:	84 b1       	in	r24, 0x04	; 4
- 230:	82 60       	ori	r24, 0x02	; 2
- 232:	84 b9       	out	0x04, r24	; 4
-
+ 22c:	84 b1       	in	r24, 0x04	; 4
+ 22e:	82 60       	ori	r24, 0x02	; 2
+ 230:	84 b9       	out	0x04, r24	; 4
+	DDRD |= (1<< PWM_SWITCH_PIN);
+ 232:	8a b1       	in	r24, 0x0a	; 10
+ 234:	80 64       	ori	r24, 0x40	; 64
+ 236:	8a b9       	out	0x0a, r24	; 10
 	// Включаем 10-битный Fast PWM
 	TCCR1A = (1 << COM1A1) | (1 << WGM10) | (1 << WGM11);
- 234:	83 e8       	ldi	r24, 0x83	; 131
- 236:	80 93 80 00 	sts	0x0080, r24	; 0x800080 <__TEXT_REGION_LENGTH__+0x7f8080>
+ 238:	83 e8       	ldi	r24, 0x83	; 131
+ 23a:	80 93 80 00 	sts	0x0080, r24	; 0x800080 <__TEXT_REGION_LENGTH__+0x7f8080>
 	TCCR1B = (1 << WGM12) | (1 << CS10);  // Без делителя, частота 20 кГц
- 23a:	89 e0       	ldi	r24, 0x09	; 9
- 23c:	80 93 81 00 	sts	0x0081, r24	; 0x800081 <__TEXT_REGION_LENGTH__+0x7f8081>
+ 23e:	89 e0       	ldi	r24, 0x09	; 9
+ 240:	80 93 81 00 	sts	0x0081, r24	; 0x800081 <__TEXT_REGION_LENGTH__+0x7f8081>
 
 	OCR1A = 0;  // Начальное значение = 0 (двигатель выключен)
- 240:	10 92 89 00 	sts	0x0089, r1	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
- 244:	10 92 88 00 	sts	0x0088, r1	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
- 248:	08 95       	ret
+ 244:	10 92 89 00 	sts	0x0089, r1	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
+ 248:	10 92 88 00 	sts	0x0088, r1	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
+ 24c:	08 95       	ret
 
-0000024a <initRailRoadSwitch>:
+0000024e <enablePWM>:
+}
+
+void enablePWM() {
+	TCCR1A |= (1 << COM1A1); // Включаем выход ШИМ
+ 24e:	e0 e8       	ldi	r30, 0x80	; 128
+ 250:	f0 e0       	ldi	r31, 0x00	; 0
+ 252:	80 81       	ld	r24, Z
+ 254:	80 68       	ori	r24, 0x80	; 128
+ 256:	80 83       	st	Z, r24
+	DDRB |= (1 << PWM_PIN);  // Устанавливаем пин как выход
+ 258:	84 b1       	in	r24, 0x04	; 4
+ 25a:	82 60       	ori	r24, 0x02	; 2
+ 25c:	84 b9       	out	0x04, r24	; 4
+ 25e:	08 95       	ret
+
+00000260 <disablePWM>:
+}
+
+void disablePWM() {
+	OCR1A = 0;
+ 260:	10 92 89 00 	sts	0x0089, r1	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
+ 264:	10 92 88 00 	sts	0x0088, r1	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
+	TCCR1A &= ~(1 << COM1A1); // Отключаем выход ШИМ
+ 268:	e0 e8       	ldi	r30, 0x80	; 128
+ 26a:	f0 e0       	ldi	r31, 0x00	; 0
+ 26c:	80 81       	ld	r24, Z
+ 26e:	8f 77       	andi	r24, 0x7F	; 127
+ 270:	80 83       	st	Z, r24
+	PORTB &= ~(1 << PWM_PIN); // Принудительно ставим 0
+ 272:	85 b1       	in	r24, 0x05	; 5
+ 274:	8d 7f       	andi	r24, 0xFD	; 253
+ 276:	85 b9       	out	0x05, r24	; 5
+ 278:	08 95       	ret
+
+0000027a <LocomotiveSpeedUp>:
+
+// Soft Start
+void LocomotiveSpeedUp() {
+
+	//PORTD  |= (1 << PWM_SWITCH_PIN);
+	enablePWM();
+ 27a:	0e 94 27 01 	call	0x24e	; 0x24e <enablePWM>
+	
+	for (uint16_t duty  = 0; duty <= 1000; duty +=10 ){
+ 27e:	80 e0       	ldi	r24, 0x00	; 0
+ 280:	90 e0       	ldi	r25, 0x00	; 0
+ 282:	0e c0       	rjmp	.+28     	; 0x2a0 <LocomotiveSpeedUp+0x26>
+		OCR1A = duty;
+ 284:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
+ 288:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
+ 28c:	2f e3       	ldi	r18, 0x3F	; 63
+ 28e:	3d e0       	ldi	r19, 0x0D	; 13
+ 290:	43 e0       	ldi	r20, 0x03	; 3
+ 292:	21 50       	subi	r18, 0x01	; 1
+ 294:	30 40       	sbci	r19, 0x00	; 0
+ 296:	40 40       	sbci	r20, 0x00	; 0
+ 298:	e1 f7       	brne	.-8      	; 0x292 <LocomotiveSpeedUp+0x18>
+ 29a:	00 c0       	rjmp	.+0      	; 0x29c <LocomotiveSpeedUp+0x22>
+ 29c:	00 00       	nop
+void LocomotiveSpeedUp() {
+
+	//PORTD  |= (1 << PWM_SWITCH_PIN);
+	enablePWM();
+	
+	for (uint16_t duty  = 0; duty <= 1000; duty +=10 ){
+ 29e:	0a 96       	adiw	r24, 0x0a	; 10
+ 2a0:	89 3e       	cpi	r24, 0xE9	; 233
+ 2a2:	23 e0       	ldi	r18, 0x03	; 3
+ 2a4:	92 07       	cpc	r25, r18
+ 2a6:	70 f3       	brcs	.-36     	; 0x284 <LocomotiveSpeedUp+0xa>
+		OCR1A = duty;
+		_delay_ms(PWM_DELAY);
+	}
+
+	disablePWM();
+ 2a8:	0e 94 30 01 	call	0x260	; 0x260 <disablePWM>
+ 2ac:	08 95       	ret
+
+000002ae <initRailRoadSwitch>:
 	if (index >= NUM_ROUTES || routes[index].length > 8) return;
 
 	clearChannels();
 
 	setPath(routes[index].path, routes[index].length);
 }
- 24a:	84 b1       	in	r24, 0x04	; 4
- 24c:	8d 61       	ori	r24, 0x1D	; 29
- 24e:	84 b9       	out	0x04, r24	; 4
- 250:	8a b1       	in	r24, 0x0a	; 10
- 252:	80 68       	ori	r24, 0x80	; 128
- 254:	8a b9       	out	0x0a, r24	; 10
- 256:	85 b1       	in	r24, 0x05	; 5
- 258:	82 7e       	andi	r24, 0xE2	; 226
- 25a:	85 b9       	out	0x05, r24	; 5
- 25c:	8b b1       	in	r24, 0x0b	; 11
- 25e:	8f 77       	andi	r24, 0x7F	; 127
- 260:	8b b9       	out	0x0b, r24	; 11
- 262:	08 95       	ret
+ 2ae:	84 b1       	in	r24, 0x04	; 4
+ 2b0:	8d 61       	ori	r24, 0x1D	; 29
+ 2b2:	84 b9       	out	0x04, r24	; 4
+ 2b4:	8a b1       	in	r24, 0x0a	; 10
+ 2b6:	80 68       	ori	r24, 0x80	; 128
+ 2b8:	8a b9       	out	0x0a, r24	; 10
+ 2ba:	85 b1       	in	r24, 0x05	; 5
+ 2bc:	82 7e       	andi	r24, 0xE2	; 226
+ 2be:	85 b9       	out	0x05, r24	; 5
+ 2c0:	8b b1       	in	r24, 0x0b	; 11
+ 2c2:	8f 77       	andi	r24, 0x7F	; 127
+ 2c4:	8b b9       	out	0x0b, r24	; 11
+ 2c6:	08 95       	ret
 
-00000264 <selectChannel>:
- 264:	9f ef       	ldi	r25, 0xFF	; 255
- 266:	98 0f       	add	r25, r24
- 268:	90 31       	cpi	r25, 0x10	; 16
- 26a:	60 f4       	brcc	.+24     	; 0x284 <selectChannel+0x20>
- 26c:	95 b1       	in	r25, 0x05	; 5
- 26e:	92 7e       	andi	r25, 0xE2	; 226
- 270:	95 b9       	out	0x05, r25	; 5
- 272:	95 b1       	in	r25, 0x05	; 5
- 274:	e8 2f       	mov	r30, r24
- 276:	f0 e0       	ldi	r31, 0x00	; 0
- 278:	e1 50       	subi	r30, 0x01	; 1
- 27a:	ff 4f       	sbci	r31, 0xFF	; 255
- 27c:	80 81       	ld	r24, Z
- 27e:	8d 71       	andi	r24, 0x1D	; 29
- 280:	89 2b       	or	r24, r25
- 282:	85 b9       	out	0x05, r24	; 5
- 284:	08 95       	ret
+000002c8 <selectChannel>:
+ 2c8:	9f ef       	ldi	r25, 0xFF	; 255
+ 2ca:	98 0f       	add	r25, r24
+ 2cc:	90 31       	cpi	r25, 0x10	; 16
+ 2ce:	60 f4       	brcc	.+24     	; 0x2e8 <selectChannel+0x20>
+ 2d0:	95 b1       	in	r25, 0x05	; 5
+ 2d2:	92 7e       	andi	r25, 0xE2	; 226
+ 2d4:	95 b9       	out	0x05, r25	; 5
+ 2d6:	95 b1       	in	r25, 0x05	; 5
+ 2d8:	e8 2f       	mov	r30, r24
+ 2da:	f0 e0       	ldi	r31, 0x00	; 0
+ 2dc:	e1 50       	subi	r30, 0x01	; 1
+ 2de:	ff 4f       	sbci	r31, 0xFF	; 255
+ 2e0:	80 81       	ld	r24, Z
+ 2e2:	8d 71       	andi	r24, 0x1D	; 29
+ 2e4:	89 2b       	or	r24, r25
+ 2e6:	85 b9       	out	0x05, r24	; 5
+ 2e8:	08 95       	ret
 
-00000286 <clearChannels>:
- 286:	8b b1       	in	r24, 0x0b	; 11
- 288:	8f 77       	andi	r24, 0x7F	; 127
- 28a:	8b b9       	out	0x0b, r24	; 11
- 28c:	85 b1       	in	r24, 0x05	; 5
- 28e:	82 7e       	andi	r24, 0xE2	; 226
- 290:	85 b9       	out	0x05, r24	; 5
- 292:	08 95       	ret
+000002ea <clearChannels>:
+ 2ea:	8b b1       	in	r24, 0x0b	; 11
+ 2ec:	8f 77       	andi	r24, 0x7F	; 127
+ 2ee:	8b b9       	out	0x0b, r24	; 11
+ 2f0:	85 b1       	in	r24, 0x05	; 5
+ 2f2:	82 7e       	andi	r24, 0xE2	; 226
+ 2f4:	85 b9       	out	0x05, r24	; 5
+ 2f6:	08 95       	ret
 
-00000294 <stopLocomotive>:
+000002f8 <stopLocomotive>:
 	PORTD |= (1 << SIG);  // Включаем сигнал движения
 }
 
 void stopLocomotive() {
 
 	clearChannels();
- 294:	0e 94 43 01 	call	0x286	; 0x286 <clearChannels>
- 298:	08 95       	ret
+ 2f8:	0e 94 75 01 	call	0x2ea	; 0x2ea <clearChannels>
+	OCR1A = 0;
+ 2fc:	10 92 89 00 	sts	0x0089, r1	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
+ 300:	10 92 88 00 	sts	0x0088, r1	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
+ 304:	08 95       	ret
 
-0000029a <moveLocomotive>:
+00000306 <moveLocomotive>:
 	clearChannels();
 
 	setPath(routes[index].path, routes[index].length);
 }
 
 void moveLocomotive(uint8_t forward) {
- 29a:	cf 93       	push	r28
- 29c:	c8 2f       	mov	r28, r24
+ 306:	cf 93       	push	r28
+ 308:	c8 2f       	mov	r28, r24
 	stopLocomotive();
- 29e:	0e 94 4a 01 	call	0x294	; 0x294 <stopLocomotive>
+ 30a:	0e 94 7c 01 	call	0x2f8	; 0x2f8 <stopLocomotive>
 	
 	uint8_t channel = forward ? 15 : 14;  // 15 - вперёд, 14 - назад
- 2a2:	cc 23       	and	r28, r28
- 2a4:	11 f0       	breq	.+4      	; 0x2aa <moveLocomotive+0x10>
- 2a6:	8f e0       	ldi	r24, 0x0F	; 15
- 2a8:	01 c0       	rjmp	.+2      	; 0x2ac <moveLocomotive+0x12>
- 2aa:	8e e0       	ldi	r24, 0x0E	; 14
+ 30e:	cc 23       	and	r28, r28
+ 310:	11 f0       	breq	.+4      	; 0x316 <moveLocomotive+0x10>
+ 312:	8f e0       	ldi	r24, 0x0F	; 15
+ 314:	01 c0       	rjmp	.+2      	; 0x318 <moveLocomotive+0x12>
+ 316:	8e e0       	ldi	r24, 0x0E	; 14
 
 	selectChannel(channel);
- 2ac:	0e 94 32 01 	call	0x264	; 0x264 <selectChannel>
+ 318:	0e 94 64 01 	call	0x2c8	; 0x2c8 <selectChannel>
 	
 	PORTD |= (1 << SIG);  // Включаем сигнал движения
- 2b0:	8b b1       	in	r24, 0x0b	; 11
- 2b2:	80 68       	ori	r24, 0x80	; 128
- 2b4:	8b b9       	out	0x0b, r24	; 11
+ 31c:	8b b1       	in	r24, 0x0b	; 11
+ 31e:	80 68       	ori	r24, 0x80	; 128
+ 320:	8b b9       	out	0x0b, r24	; 11
 }
- 2b6:	cf 91       	pop	r28
- 2b8:	08 95       	ret
+ 322:	cf 91       	pop	r28
+ 324:	08 95       	ret
 
-000002ba <_exit>:
- 2ba:	f8 94       	cli
+00000326 <_exit>:
+ 326:	f8 94       	cli
 
-000002bc <__stop_program>:
- 2bc:	ff cf       	rjmp	.-2      	; 0x2bc <__stop_program>
+00000328 <__stop_program>:
+ 328:	ff cf       	rjmp	.-2      	; 0x328 <__stop_program>

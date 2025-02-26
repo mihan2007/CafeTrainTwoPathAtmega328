@@ -1,8 +1,9 @@
 #define F_CPU 16000000UL
-#include <util/delay.h>
 
+#include <util/delay.h>
 #include <avr/io.h>
 #include <stdio.h>
+
 #include "lcd.h"
 #include "railroadSwitch.h"
 #include "config.h"
@@ -33,14 +34,11 @@ int main(void)
 
         LCD_PrintTwoLines(firstLineText, secondLineText, 0);
         _delay_ms(300);*/
-		
-		moveLocomotive(1);
 		LocomotiveSpeedUp();
-		_delay_ms(1000);
+		moveLocomotive(1);
+		_delay_ms(5000);
 		stopLocomotive();
-		moveLocomotive(0);
-		_delay_ms(1000);
-				
+		_delay_ms(5000);				
         }
 	
     return 0;
