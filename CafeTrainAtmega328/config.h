@@ -11,7 +11,13 @@
 #define S3 PB0  // connected to D8 (PB0)
 #define SIG PD7 // Sinal (D7 - PD7)
 
-#define PWMpin PB1 // Подключено к MOSFET-транзистору (ШИМ)
+#define PWM_PIN PB1   // ШИМ на выводе OC1A (PB1)
+#define PWM_SWITCH_PIN PD6 // Switch into PWM mode pin
+#define PWM_MAX 1023  // Максимальный уровень ШИМ (10 бит)
+#define PWM_MIN 50    // Минимальный уровень ШИМ (начало разгона)
+#define PWM_STEP 10   // Шаг увеличения ШИМ
+#define PWM_DELAY 10  // Задержка между шагами (мягкость разгона)
+
 
 #define SWITCH_PAUSE_TIME 3000 // Время ожидания после переключения стрелки
 

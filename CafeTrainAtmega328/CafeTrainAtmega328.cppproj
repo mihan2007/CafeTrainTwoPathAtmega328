@@ -178,6 +178,12 @@
     <Compile Include="main.cpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="PWM.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="PWM.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="railroadSwitch.c">
       <SubType>compile</SubType>
     </Compile>
