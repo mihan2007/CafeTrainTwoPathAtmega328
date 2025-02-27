@@ -1,3 +1,4 @@
+#define F_CPU 16000000UL
 
 #ifndef CONFIG_H_
 #define CONFIG_H_
@@ -18,11 +19,15 @@
 #define PWM_STEP 10   // Шаг увеличения ШИМ
 #define PWM_DELAY 1000  // Задержка между шагами (мягкость разгона)
 
-
 #define SWITCH_PAUSE_TIME 3000 // Время ожидания после переключения стрелки
 
 // Маска для управления стрелками (исключая PB1 - ШИМ)
 #define SWITCH_MASK ((1 << S0) | (1 << S1) | (1 << S2) | (1 << S3))
+
+//  UART
+
+	#define BAUD 9600
+	#define UBRR_VALUE ((unsigned long)(F_CPU / 16 / BAUD) - 1)
 
 
 #endif /* CONFIG_H_ */
