@@ -44,7 +44,7 @@ int main(void) {
 		snprintf(secondLineText, sizeof(secondLineText), "Cmd: %02X", cmd_code);
 		LCD_PrintTwoLines(firstLineText, secondLineText, 0);
 
-		_delay_ms(300);
+		_delay_ms(10);
 	}
 
 	return 0;

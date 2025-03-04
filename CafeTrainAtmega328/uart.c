@@ -3,6 +3,7 @@
 #include <avr/io.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <util/delay.h>
 
 void UART_init(void) {
 	UBRR0H = (UBRR_VALUE >> 8);
@@ -65,23 +66,23 @@ void process_command(uint8_t *data) {
 	}
 
 	switch (cmd) {
-		case 0x20: // MOVE_FORWARD
-		setRouteByIndex(table_id);
+		
+	case 0x30: // EMERGENCY_STOP
+		stopLocomotive();
+		//send_command(0x40, 0x30, 0x00); // Подтверждение экстренной остановки
+		return; // Завершаем выполнение без отправки COMMAND_COMPLETE
+
+	case 0x20: // MOVE_FORWARD
+	setRouteByIndex(table_id);
 		moveLocomotive(1);
-		send_command(0x40, 0x20, table_id); // Подтверждение с номером стола
 		break;
 
 		case 0x21: // MOVE_BACKWARD
 		moveLocomotive(0);
-		send_command(0x40, 0x21, table_id); // Подтверждение с номером стола
+		//send_command(0x40, 0x21, table_id); // Подтверждение с номером стола
 		break;
-
-		case 0x30: // EMERGENCY_STOP
-		stopLocomotive();
-		send_command(0x40, 0x30, 0x00); // Подтверждение экстренной остановки
-		return; // Завершаем выполнение без отправки COMMAND_COMPLETE
 	}
 
 	// Отчет о завершении команды
-	send_command(0x50, cmd, table_id);
+	//send_command(0x50, cmd, table_id);
 }

@@ -8,9 +8,9 @@
 #include "railroadSwitch.h"
 extern uint8_t NUM_ROUTES; // Объявляем его перед использованием!
 
-void initRailRoadSwitch();
-void railRoadSwitchTest();
-void selectChannel(uint8_t channel);
+//void initRailRoadSwitch();
+//void railRoadSwitchTest();
+//void selectChannel(uint8_t channel);
 
 
 // Функция инициализации стрелочных переводов
@@ -77,9 +77,8 @@ void moveLocomotive(uint8_t forward) {
 }
 
 void stopLocomotive() {
-
-	clearChannels();
-	OCR1A = 0;
+    PORTD &= ~(1 << SIG); // Отключаем сигнал SIG перед очисткой каналов
+    _delay_ms(100); // Даем немного времени на отключение
 }
 
 void clearChannels() {
