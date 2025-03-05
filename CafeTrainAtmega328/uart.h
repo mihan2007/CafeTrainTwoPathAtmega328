@@ -39,6 +39,9 @@ extern "C" {
 		void send_command(uint8_t cmd, uint8_t table_id, uint8_t data);
 		void process_command(uint8_t *data);
 		uint8_t crc8(const uint8_t *data, uint8_t len);
+		uint8_t UART_receive_packet(void);
+		
+		uint8_t UART_read_command(uint8_t *cmd, uint8_t *table_id, uint8_t *param);
 	
 	#ifdef __cplusplus
 }

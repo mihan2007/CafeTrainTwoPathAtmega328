@@ -1,4 +1,3 @@
-#include <util/delay.h>
 #include <avr/io.h>
 #include <stdio.h>
 #include <avr/interrupt.h>
@@ -11,8 +10,9 @@
 #include "PWM.h"
 #include "uart.h"
 
-char firstLineText[16];
-char secondLineText[16];
+        uint8_t cmd;
+        uint8_t table_id;
+        uint8_t param;
 
 int main(void) {
 	I2C_Init();
@@ -21,37 +21,38 @@ int main(void) {
 	UART_init();
 	timer0_init();
 	initRailRoadSwitch();
-	// Разрешаем глобальные прерывания
-	sei();	
+	sei();
+	
+	LCD_Clear();
+	LCD_PrintTwoLines("Waiting for Cmd", "Cmd: ?", 0);
 
 	while (1) {
+			
+		uint8_t cmd_code = UART_receive_packet();
 		
-		uint8_t received_packet[6]; // Буфер для приема пакета
-		uint8_t cmd_code = 0xFF;    // Код команды
+		if (UART_read_command(&cmd, &table_id, &param)) {
 
-		// Ожидание первого байта (STX)
-		if (UART_receive() == 0x02) {
-			received_packet[0] = 0x02; // Запоминаем STX
+			switch (cmd) {
+				case 0x30: // STOP
+				stopLocomotive();
+				break;
 
-			// Получаем остальные 5 байтов пакета
-			for (uint8_t i = 1; i < 6; i++) {
-				received_packet[i] = UART_receive();
+				case 0x20: // MOVE_FORWARD
+				routSetup(table_id - 1);
+				break;
+
+				case 0x21: // MOVE_BACKWARD
+				moveLocomotive(0);
+				break;
+
 			}
 
-			// Проверяем корректность пакета (CRC, структура)
-			if (crc8(&received_packet[1], 3) == received_packet[4]) {
-				process_command(received_packet);
-				cmd_code = received_packet[1]; // Правильный байт команды
-			}
+            LCD_Clear();
+            char buffer[16];
+            snprintf(buffer, sizeof(buffer), "Cmd: %02X", cmd);
+            LCD_PrintTwoLines("Received", buffer, 0);
 		}
-
-		// Выводим данные на LCD
-		snprintf(firstLineText, sizeof(firstLineText), "Control Panel");
-		snprintf(secondLineText, sizeof(secondLineText), "Cmd: %02X", cmd_code);
-		LCD_PrintTwoLines(firstLineText, secondLineText, 0);
-
-		_delay_ms(10);
 	}
-
+	
 	return 0;
 }

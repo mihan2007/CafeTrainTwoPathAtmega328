@@ -74,7 +74,7 @@ void process_command(uint8_t *data) {
 		return; // Завершаем выполнение без отправки COMMAND_COMPLETE
 
 	case 0x20: // MOVE_FORWARD
-		start_route(table_id-1);
+		routSetup(table_id-1);
 		//moveLocomotive(1);
 		break;
 
@@ -86,4 +86,56 @@ void process_command(uint8_t *data) {
 
 	// Отчет о завершении команды
 	//send_command(0x50, cmd, table_id);
+}
+
+uint8_t UART_receive_packet(void) {
+	uint8_t received_packet[6];
+	uint8_t cmd_code = 0xFF; // Код команды по умолчанию
+
+	// Ожидаем STX (0x02)
+	if (UART_receive() == 0x02) {
+		received_packet[0] = 0x02; // Сохраняем STX
+
+		// Считываем оставшиеся 5 байт
+		for (uint8_t i = 1; i < 6; i++) {
+			received_packet[i] = UART_receive();
+		}
+
+		// Проверяем корректность пакета (CRC, структура)
+		if (crc8(&received_packet[1], 3) == received_packet[4]) {
+			// Обрабатываем команду
+			process_command(received_packet);
+			// Сохраняем код команды
+			cmd_code = received_packet[1];
+		}
+	}
+
+	return cmd_code;
+}
+
+uint8_t UART_read_command(uint8_t *cmd, uint8_t *table_id, uint8_t *param) {
+	uint8_t received_packet[6];
+
+	// Ожидаем STX (0x02)
+	if (UART_receive() != 0x02) {
+		return 0; // Нет корректного STX
+	}
+
+	received_packet[0] = 0x02; // Сохраняем STX
+
+	// Считываем оставшиеся 5 байт
+	for (uint8_t i = 1; i < 6; i++) {
+		received_packet[i] = UART_receive();
+	}
+
+	// Проверяем контрольную сумму
+	if (crc8(&received_packet[1], 3) == received_packet[4]) {
+		// Если CRC верен — возвращаем значения «наверх»
+		*cmd       = received_packet[1];
+		*table_id  = received_packet[2];
+		*param     = received_packet[3];
+		return 1; // Успешно
+		} else {
+		return 0; // Ошибка CRC
+	}
 }

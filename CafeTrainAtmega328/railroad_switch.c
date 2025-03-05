@@ -33,7 +33,7 @@ void initRailRoadSwitch(void) {
 }
 
 // Запуск заданного маршрута
-void start_route(uint8_t route_index) {
+void routSetup(uint8_t route_index) {
     if (route_index >= NUM_ROUTES) return; // Проверяем, что маршрут существует
 
     current_route = route_index;  // Сохраняем номер маршрута

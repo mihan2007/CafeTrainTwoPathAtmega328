@@ -19,7 +19,7 @@ extern "C" {
 	void selectChannel(uint8_t channel);
 
 	// Запуск маршрута
-	void start_route(uint8_t route_index);
+	void routSetup(uint8_t route_index);
 
 	// Обработка маршрута (вызывается из прерывания)
 	void process_route(void);
