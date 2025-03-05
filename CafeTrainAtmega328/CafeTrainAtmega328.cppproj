@@ -184,10 +184,10 @@
     <Compile Include="PWM.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="railroadSwitch.c">
+    <Compile Include="railroad_switch.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="railroadSwitch.h">
+    <Compile Include="railroad_switch.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="routes.c">

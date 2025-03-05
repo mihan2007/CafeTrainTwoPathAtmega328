@@ -21,7 +21,8 @@ extern "C" {
 	extern Route routes[];
 
 	// Убираем `#define NUM_ROUTES` отсюда!
-
+	extern const uint8_t NUM_ROUTES;
+	
 	#ifdef __cplusplus
 }
 #endif

@@ -1,5 +1,6 @@
 #include "uart.h"
 #include "config.h"
+#include "railroad_switch.h"
 #include <avr/io.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -73,8 +74,7 @@ void process_command(uint8_t *data) {
 		return; // Завершаем выполнение без отправки COMMAND_COMPLETE
 
 	case 0x20: // MOVE_FORWARD
-
-		//selectChannel(4);
+		start_route(table_id-1);
 		//moveLocomotive(1);
 		break;
 

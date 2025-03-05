@@ -1,16 +1,15 @@
 #include <util/delay.h>
 #include <avr/io.h>
 #include <stdio.h>
+#include <avr/interrupt.h>
 
 #include "lcd.h"
-#include "railroadSwitch.h"
+#include "railroad_switch.h"
 #include "timer0.h"
 #include "config.h"
 #include "routes.h"
 #include "PWM.h"
 #include "uart.h"
-
-
 
 char firstLineText[16];
 char secondLineText[16];
@@ -20,9 +19,10 @@ int main(void) {
 	LCD_Init();
 	LCD_Clear();
 	UART_init();
+	timer0_init();
 	initRailRoadSwitch();
-	
-	start_route(4);
+	// Разрешаем глобальные прерывания
+	sei();	
 
 	while (1) {
 		
