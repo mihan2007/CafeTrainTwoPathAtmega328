@@ -12,5 +12,7 @@ railroadSwitch.c
 
 routes.c
 
+timer0.c
+
 uart.c
 

@@ -5,14 +5,19 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+	#endif
 
-	void initRailRoadSwitch();
-	void setRouteByIndex(uint8_t index);
-	void moveLocomotive(uint8_t forward);
-	void selectChannel(uint8_t index);
-	void stopLocomotive();
-#ifdef __cplusplus
+		void initRailRoadSwitch();
+
+		void start_route(uint8_t route_index);
+
+		void process_route(void);
+
+		void moveLocomotive(uint8_t forward);
+		void stopLocomotive();
+		void selectChannel(uint8_t index);
+				
+	#ifdef __cplusplus
 }
 #endif
 

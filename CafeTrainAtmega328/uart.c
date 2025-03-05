@@ -73,8 +73,9 @@ void process_command(uint8_t *data) {
 		return; // Завершаем выполнение без отправки COMMAND_COMPLETE
 
 	case 0x20: // MOVE_FORWARD
-	setRouteByIndex(table_id);
-		moveLocomotive(1);
+
+		//selectChannel(4);
+		//moveLocomotive(1);
 		break;
 
 		case 0x21: // MOVE_BACKWARD

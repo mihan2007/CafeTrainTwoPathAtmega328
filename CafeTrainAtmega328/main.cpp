@@ -4,10 +4,13 @@
 
 #include "lcd.h"
 #include "railroadSwitch.h"
+#include "timer0.h"
 #include "config.h"
 #include "routes.h"
 #include "PWM.h"
 #include "uart.h"
+
+
 
 char firstLineText[16];
 char secondLineText[16];
@@ -18,8 +21,11 @@ int main(void) {
 	LCD_Clear();
 	UART_init();
 	initRailRoadSwitch();
+	
+	start_route(4);
 
 	while (1) {
+		
 		uint8_t received_packet[6]; // Буфер для приема пакета
 		uint8_t cmd_code = 0xFF;    // Код команды
 

@@ -42,6 +42,7 @@ C_SRCS +=  \
 ../PWM.c \
 ../railroadSwitch.c \
 ../routes.c \
+../timer0.c \
 ../uart.c
 
 
@@ -57,6 +58,7 @@ main.o \
 PWM.o \
 railroadSwitch.o \
 routes.o \
+timer0.o \
 uart.o
 
 OBJS_AS_ARGS +=  \
@@ -65,6 +67,7 @@ main.o \
 PWM.o \
 railroadSwitch.o \
 routes.o \
+timer0.o \
 uart.o
 
 C_DEPS +=  \
@@ -73,6 +76,7 @@ main.d \
 PWM.d \
 railroadSwitch.d \
 routes.d \
+timer0.d \
 uart.d
 
 C_DEPS_AS_ARGS +=  \
@@ -81,6 +85,7 @@ main.d \
 PWM.d \
 railroadSwitch.d \
 routes.d \
+timer0.d \
 uart.d
 
 OUTPUT_FILE_PATH +=CafeTrainAtmega328.elf
@@ -126,6 +131,13 @@ LINKER_SCRIPT_DEP+=
 	
 
 ./routes.o: .././routes.c
+	@echo Building file: $<
+	@echo Invoking: AVR8/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+./timer0.o: .././timer0.c
 	@echo Building file: $<
 	@echo Invoking: AVR8/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
