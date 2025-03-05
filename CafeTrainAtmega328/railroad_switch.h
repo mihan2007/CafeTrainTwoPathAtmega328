@@ -12,6 +12,10 @@ extern "C" {
 	extern volatile uint8_t poceess_done;
 	extern volatile uint8_t current_route;
 	
+	extern volatile uint8_t emergency_stop; 
+	
+	extern volatile uint8_t current_switch_index;
+	
 	// Инициализация стрелок
 	void initRailRoadSwitch(void);
 

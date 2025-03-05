@@ -34,14 +34,20 @@ int main(void) {
 
 			switch (cmd) {
 				case 0x30: // STOP
+				emergency_stop = 1;
+				processing_route = 0;
 				stopLocomotive();
 				break;
 
 				case 0x20: // MOVE_FORWARD
+				emergency_stop = 0;
+				//current_switch_index = 0; // обнуляем индекс стрелок (на случай, если маршрут был в процессе)
 				routSetup(table_id - 1);
 				break;
 
 				case 0x21: // MOVE_BACKWARD
+				emergency_stop = 0;
+				processing_route = 0;
 				moveLocomotive(0);
 				break;
 

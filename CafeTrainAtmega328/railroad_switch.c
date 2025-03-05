@@ -9,8 +9,10 @@ volatile uint8_t processing_route = 0;
 volatile uint8_t poceess_done     = 0;  
 volatile uint8_t current_route = 0;
 
+volatile uint8_t emergency_stop = 0; 
+
 // Индекс текущей стрелки в маршруте
-static volatile uint8_t current_switch_index = 0;
+volatile uint8_t current_switch_index = 0;
 
 // Выбор канала: отключаем все стрелки, затем включаем нужные биты
 void selectChannel(uint8_t channel) {
@@ -34,6 +36,9 @@ void initRailRoadSwitch(void) {
 
 // Запуск заданного маршрута
 void routSetup(uint8_t route_index) {
+	
+	if (emergency_stop == 1) return;
+	
     if (route_index >= NUM_ROUTES) return; // Проверяем, что маршрут существует
 
     current_route = route_index;  // Сохраняем номер маршрута
@@ -47,7 +52,7 @@ void routSetup(uint8_t route_index) {
 // Меняет стрелку раз в 500 мс (100*5 мс).
 void process_route(void) {
 	if (!processing_route) return;
-
+	if (emergency_stop == 1) return;
 	// Берем маршрут
 	Route selected_route = routes[current_route];
 
@@ -75,10 +80,11 @@ void process_route(void) {
 	}
 }
 
-
-
 void moveLocomotive(uint8_t forward) {
+	
 	stopLocomotive();
+	
+	if (emergency_stop == 1) return;
 	
 	uint8_t channel = forward ? 15 : 14;  // 15 - вперёд, 14 - назад
 
