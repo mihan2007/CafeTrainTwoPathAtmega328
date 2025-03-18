@@ -4,7 +4,7 @@
 #include <avr/io.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <util/delay.h>
+//#include <util/delay.h>
 
 void UART_init(void) {
 	UBRR0H = (UBRR_VALUE >> 8);
