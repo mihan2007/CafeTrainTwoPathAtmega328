@@ -12,6 +12,8 @@ railroad_switch.c
 
 routes.c
 
+shift_registers.c
+
 timer0.c
 
 uart.c

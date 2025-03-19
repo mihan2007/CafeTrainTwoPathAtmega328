@@ -196,6 +196,12 @@
     <Compile Include="routes.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="shift_registers.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="shift_registers.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="timer0.c">
       <SubType>compile</SubType>
     </Compile>

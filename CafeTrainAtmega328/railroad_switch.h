@@ -7,23 +7,7 @@ extern "C" {
 
 	#include <stdint.h>
 
-	// Глобальные флаги/переменные, влияющие на состояние процессов
-	extern volatile uint8_t processing_route;
-	extern volatile uint8_t poceess_done;
-	extern volatile uint8_t current_route;
-	
-	extern volatile uint8_t emergency_stop; 
-	
-	extern volatile uint8_t current_switch_index;
-	
-	// Инициализация стрелок
-	void initRailRoadSwitch(void);
 
-	// Выбор канала (переключение стрелки)
-	void selectChannel(uint8_t channel);
-
-	// Запуск маршрута
-	void routSetup(uint8_t route_index);
 
 	// Обработка маршрута (вызывается из прерывания)
 	void process_route(void);

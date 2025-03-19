@@ -6,6 +6,8 @@
 #include <stddef.h>
 //#include <util/delay.h>
 
+#define TIMEOUT_MS 100  // Таймаут ожидания в миллисекундах
+
 void UART_init(void) {
 	UBRR0H = (UBRR_VALUE >> 8);
 	UBRR0L = UBRR_VALUE;
@@ -19,8 +21,15 @@ void UART_send(uint8_t data) {
 }
 
 uint8_t UART_receive(void) {
-	while (!(UCSR0A & (1 << RXC0)));
-	return UDR0;
+    uint16_t timeout = TIMEOUT_MS * (F_CPU / 1000 / 64); // Пересчёт в итерации
+
+    while (!(UCSR0A & (1 << RXC0))) {
+	    if (--timeout == 0) {
+		    return 0xFF; // Ошибка (данные не пришли)
+	    }
+    }
+    
+    return UDR0;
 }
 
 void send_command(uint8_t cmd, uint8_t table_id, uint8_t data) {
