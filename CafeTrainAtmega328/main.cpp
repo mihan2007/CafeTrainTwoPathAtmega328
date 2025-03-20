@@ -42,10 +42,13 @@ int main(void) {
 		
 		if (packet.valid) {
 			switch (packet.cmd) {
+				
 				case 0x30: // STOP
-				LOCO_CTRL = LOCO_STOP;
-				SWITCH_A_CTRL = 0;
+				
 				SWITCH_B_CTRL = 0;
+				SWITCH_A_CTRL = 0;
+				
+				LOCO_CTRL = LOCO_STOP;
 				break;
 				
 				case 0x20:
@@ -67,13 +70,19 @@ int main(void) {
 					// Разделяем mask на два байта:
 					SWITCH_A_CTRL = (uint8_t)(mask & 0xFF);       // Младшие 8 бит
 					SWITCH_B_CTRL = (uint8_t)((mask >> 8) & 0xFF); // Старшие 8 бит
-
+					
+					LOCO_CTRL = LOCO_FORWARD ;
+		
 					break;					
 				} // MOVE_FORWARD
-				
-				
+							
 				case 0x21: // MOVE_BACKWARD
+				
+				SWITCH_B_CTRL = 0;
+				SWITCH_A_CTRL = 0;
+				
 				LOCO_CTRL = LOCO_BACKWARD;
+				
 				break;
 				
 				// Другие команды можно добавить здесь
