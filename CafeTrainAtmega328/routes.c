@@ -19,7 +19,8 @@ const uint8_t SWITCH_MASKS[16] = {
 	0b00000010, // RailroadSwitch 8 Left
 	0b00000001, // RailroadSwitch 8 Right
 };
-
+// Table1 = 0b01
+// Table2 = 0b101
 // Определение маршрутов
 Route routes[] = {
 	{"Table 1", {1}, 1},

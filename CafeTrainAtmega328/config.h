@@ -5,6 +5,10 @@
 
 #include <avr/io.h>
 
+#define LOCO_STOP        0b00000000  // Остановка локомотива
+#define LOCO_FORWARD     0b00000001  // Движение вперёд
+#define LOCO_BACKWARD    0b00000010  // Движение назад
+
 // Определение линий управления стрелками
 #define S0 PB4  // connected to к D12 (PB4)
 #define S1 PB3  // connected to D11 (PB3)
