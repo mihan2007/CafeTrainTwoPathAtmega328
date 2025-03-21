@@ -35,6 +35,7 @@ int main(void) {
 	uint8_t SWITCH_B_CTRL = 0;
 
 	while (1) {
+		
 		sensorStates = read_74HC165();
 		
 		// Получаем пакет единовременно
@@ -49,9 +50,10 @@ int main(void) {
 				SWITCH_A_CTRL = 0;
 				
 				LOCO_CTRL = LOCO_STOP;
+				send_ack(packet.cmd);
 				break;
 				
-				case 0x20:
+				case 0x20: // MOVE_FORWARD
 				{
 					SWITCH_B_CTRL = 0;
 					SWITCH_A_CTRL = 0;
@@ -72,9 +74,11 @@ int main(void) {
 					SWITCH_B_CTRL = (uint8_t)((mask >> 8) & 0xFF); // Старшие 8 бит
 					
 					LOCO_CTRL = LOCO_FORWARD ;
-		
+					
+					send_ack(packet.cmd);
+					
 					break;					
-				} // MOVE_FORWARD
+				} 
 							
 				case 0x21: // MOVE_BACKWARD
 				
@@ -83,9 +87,13 @@ int main(void) {
 				
 				LOCO_CTRL = LOCO_BACKWARD;
 				
+				send_ack(packet.cmd);
 				break;
 				
-				// Другие команды можно добавить здесь
+				default:
+				// Для неизвестных команд можно отправить NACK
+				send_nack(packet.cmd);
+				break;		
 			}
 			
 			// Инвертирование для синхронизации с LCD (если требуется)
@@ -93,6 +101,7 @@ int main(void) {
 
 			// Формирование данных для сдвиговых регистров (74HC595)
 			uint8_t shiftData[MUM_OF_74HC595] = { LOCO_CTRL, SWITCH_A_CTRL, SWITCH_B_CTRL };
+			
 			shiftOutMultiple(shiftData, MUM_OF_74HC595);
 			
 			LCD_Clear();

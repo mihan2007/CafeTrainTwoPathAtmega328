@@ -86,3 +86,12 @@ UART_Packet UART_receive_full_packet(void) {
 
 	return packet;
 }
+void send_ack(uint8_t cmd) {
+	// Отправляем ACK с указанием команды, для которой подтверждение
+	send_command(ACK, cmd, 0x00);
+}
+
+void send_nack(uint8_t cmd) {
+	// Отправляем NACK с указанием команды, для которой отказ
+	send_command(NACK, cmd, 0x00);
+}
