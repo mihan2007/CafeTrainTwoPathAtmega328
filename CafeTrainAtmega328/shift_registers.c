@@ -63,3 +63,8 @@ void shiftOutMultiple(uint8_t *data, uint8_t count) {
 	}
 	latchData();
 }
+
+void update_shift_registers() {
+	uint8_t shiftData[MUM_OF_74HC595] = { LOCO_CTRL, SWITCH_A_CTRL, SWITCH_B_CTRL };
+	shiftOutMultiple(shiftData, MUM_OF_74HC595);
+}

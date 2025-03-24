@@ -131,3 +131,9 @@ void LCD_PrintTwoLines(char* firstLineText, char* secondLineText, int blink) {
 		}
 }
 
+void update_lcd(uint8_t cmd) {
+	char buffer[16];
+	snprintf(buffer, sizeof(buffer), "Cmd: %02X", cmd);
+	LCD_Clear();
+	LCD_PrintTwoLines("Received", buffer, 0);
+}

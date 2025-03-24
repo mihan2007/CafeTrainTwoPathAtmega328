@@ -30,8 +30,8 @@
 
 //  UART
 
-	#define BAUD 9600
-	#define UBRR_VALUE ((unsigned long)(F_CPU / 16 / BAUD) - 1)
+#define BAUD 9600
+#define UBRR_VALUE ((unsigned long)(F_CPU / 16 / BAUD) - 1)
 
 
 #endif /* CONFIG_H_ */

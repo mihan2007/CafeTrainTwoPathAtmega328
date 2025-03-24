@@ -14,11 +14,12 @@
 volatile uint16_t tick_counter = 0;
 
 static uint8_t sensorStates = 0;
-static uint8_t LOCO_CTRL = 0;
-static uint8_t SWITCH_A_CTRL = 0;
-static uint8_t SWITCH_B_CTRL = 0;
 
-void init_all() {
+uint8_t LOCO_CTRL = 0;
+uint8_t SWITCH_A_CTRL = 0;
+uint8_t SWITCH_B_CTRL = 0;
+
+void initAllComponents() {
 	I2C_Init();
 	LCD_Init();
 	LCD_Clear();
@@ -38,16 +39,21 @@ void init_all() {
 	LCD_PrintTwoLines("Waiting for Cmd", "Cmd: ?", 0);
 }
 
-void update_shift_registers() {
-	uint8_t shiftData[MUM_OF_74HC595] = { LOCO_CTRL, SWITCH_A_CTRL, SWITCH_B_CTRL };
-	shiftOutMultiple(shiftData, MUM_OF_74HC595);
-}
 
-void update_lcd(uint8_t cmd) {
-	char buffer[16];
-	snprintf(buffer, sizeof(buffer), "Cmd: %02X", cmd);
-	LCD_Clear();
-	LCD_PrintTwoLines("Received", buffer, 0);
+void move_forward(uint8_t table_id, uint8_t cmd) {
+	uint8_t enb_bit = (table_id - 1) * 2;
+	uint16_t mask = 0;
+
+	for (uint8_t i = 1; i < enb_bit; i += 2) {
+		mask |= (1 << i);
+	}
+	mask |= (1 << enb_bit);
+
+	SWITCH_A_CTRL = (uint8_t)(mask & 0xFF);
+	SWITCH_B_CTRL = (uint8_t)((mask >> 8) & 0xFF);
+	LOCO_CTRL = LOCO_FORWARD;
+
+	send_ack(cmd);
 }
 
 void process_packet(UART_Packet packet) {
@@ -65,22 +71,8 @@ void process_packet(UART_Packet packet) {
 		break;
 
 		case 0x20: // MOVE_FORWARD
-		{
-			uint8_t enb_bit = (packet.table_id - 1) * 2;
-			uint16_t mask = 0;
-
-			for (uint8_t i = 1; i < enb_bit; i += 2) {
-				mask |= (1 << i);
-			}
-			mask |= (1 << enb_bit);
-
-			SWITCH_A_CTRL = (uint8_t)(mask & 0xFF);
-			SWITCH_B_CTRL = (uint8_t)((mask >> 8) & 0xFF);
-			LOCO_CTRL = LOCO_FORWARD;
-
-			send_ack(packet.cmd);
-			break;
-		}
+		move_forward(packet.table_id, packet.cmd);
+		break;
 
 		case 0x21: // MOVE_BACKWARD
 		LOCO_CTRL = LOCO_BACKWARD;
@@ -92,18 +84,22 @@ void process_packet(UART_Packet packet) {
 		break;
 	}
 
-	update_shift_registers();
-	update_lcd(packet.cmd);
+		update_shift_registers();
+		update_lcd(packet.cmd);
 }
 
 int main(void) {
-	init_all();
+	initAllComponents();
 
 	while (1) {
 		sensorStates = read_74HC165();
 		UART_Packet packet = UART_receive_full_packet();
 		process_packet(packet);
+				
+
+
 	}
 
 	return 0;
 }
+

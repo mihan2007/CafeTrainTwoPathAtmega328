@@ -7,6 +7,10 @@ extern "C" {
 
 	#include <avr/io.h>
 	#include <util/delay.h>
+	
+	extern uint8_t LOCO_CTRL;
+	extern uint8_t SWITCH_A_CTRL;
+	extern uint8_t SWITCH_B_CTRL;
 
 	#define NUM_BITS_74HC595 8  // Количество бит в байте
 	#define MUM_OF_74HC595 3    // Количество включенных в каскад 74HC595
@@ -29,6 +33,8 @@ extern "C" {
 	void latchData(void);
 	
 	void shiftOutMultiple(uint8_t *data, uint8_t count);
+	
+	void update_shift_registers();
 
 	#ifdef __cplusplus
 }

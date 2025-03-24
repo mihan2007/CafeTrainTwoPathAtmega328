@@ -42,6 +42,8 @@ extern "C" {
 	void LCD_Blink(char* buffer);
 	
 	void LCD_PrintTwoLines(char* firstLineText, char* secondLineText, int blink);
+	
+	void update_lcd(uint8_t cmd);
 
 	#ifdef __cplusplus
 
