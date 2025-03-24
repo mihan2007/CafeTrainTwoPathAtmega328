@@ -4,6 +4,9 @@ void init_74HC165_ports(void) {
 	DDRD |= (1 << CLOCK_74HC165) | (1 << LATCH_74HC165); // PD5 и PD6 - выходы
 	DDRD &= ~(1 << DATA_74HC165);                        // PD7 - вход
 	PORTD &= ~(1 << DATA_74HC165);
+	
+	uint8_t initialData[MUM_OF_74HC595] = {0};
+	shiftOutMultiple(initialData, MUM_OF_74HC595);
 }
 
 uint8_t read_74HC165(void) {
@@ -52,11 +55,6 @@ void latchData(void) {
 	PORTD |= (1 << LATCH_74HC595);
 	_delay_us(1);
 	PORTD &= ~(1 << LATCH_74HC595);
-}
-
-void displayNumber(uint8_t number) {
-	shiftOut(number);  // Отправляем число в регистр
-	latchData();       // Защёлкиваем данные
 }
 
 void shiftOutMultiple(uint8_t *data, uint8_t count) {

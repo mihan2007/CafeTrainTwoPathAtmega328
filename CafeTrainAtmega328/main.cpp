@@ -11,105 +11,99 @@
 #include "uart.h"
 #include "shift_registers.h"
 
-volatile uint16_t tick_counter = 0; // Счётчик для 1 мс прерываний
+volatile uint16_t tick_counter = 0;
 
-int main(void) {
+static uint8_t sensorStates = 0;
+static uint8_t LOCO_CTRL = 0;
+static uint8_t SWITCH_A_CTRL = 0;
+static uint8_t SWITCH_B_CTRL = 0;
+
+void init_all() {
 	I2C_Init();
 	LCD_Init();
 	LCD_Clear();
-	
+
 	UART_init();
 	timer0_init();
-	
+
 	init_74HC165_ports();
 	init_74HC595_ports();
-	
-	sei();
-	
-	LCD_Clear();
-	LCD_PrintTwoLines("Waiting for Cmd", "Cmd: ?", 0);
 
-	uint8_t sensorStates = 0;
-	uint8_t LOCO_CTRL = 0;
-	uint8_t SWITCH_A_CTRL = 0;
-	uint8_t SWITCH_B_CTRL = 0;
+	// Очистка регистров при старте
+	uint8_t initData[MUM_OF_74HC595] = {0};
+	shiftOutMultiple(initData, MUM_OF_74HC595);
+
+	sei();
+
+	LCD_PrintTwoLines("Waiting for Cmd", "Cmd: ?", 0);
+}
+
+void update_shift_registers() {
+	uint8_t shiftData[MUM_OF_74HC595] = { LOCO_CTRL, SWITCH_A_CTRL, SWITCH_B_CTRL };
+	shiftOutMultiple(shiftData, MUM_OF_74HC595);
+}
+
+void update_lcd(uint8_t cmd) {
+	char buffer[16];
+	snprintf(buffer, sizeof(buffer), "Cmd: %02X", cmd);
+	LCD_Clear();
+	LCD_PrintTwoLines("Received", buffer, 0);
+}
+
+void process_packet(UART_Packet packet) {
+	if (!packet.valid) {
+		return;
+	}
+
+	SWITCH_A_CTRL = 0;
+	SWITCH_B_CTRL = 0;
+
+	switch (packet.cmd) {
+		case 0x30: // STOP
+		LOCO_CTRL = LOCO_STOP;
+		send_ack(packet.cmd);
+		break;
+
+		case 0x20: // MOVE_FORWARD
+		{
+			uint8_t enb_bit = (packet.table_id - 1) * 2;
+			uint16_t mask = 0;
+
+			for (uint8_t i = 1; i < enb_bit; i += 2) {
+				mask |= (1 << i);
+			}
+			mask |= (1 << enb_bit);
+
+			SWITCH_A_CTRL = (uint8_t)(mask & 0xFF);
+			SWITCH_B_CTRL = (uint8_t)((mask >> 8) & 0xFF);
+			LOCO_CTRL = LOCO_FORWARD;
+
+			send_ack(packet.cmd);
+			break;
+		}
+
+		case 0x21: // MOVE_BACKWARD
+		LOCO_CTRL = LOCO_BACKWARD;
+		send_ack(packet.cmd);
+		break;
+
+		default:
+		send_nack(packet.cmd);
+		break;
+	}
+
+	update_shift_registers();
+	update_lcd(packet.cmd);
+}
+
+int main(void) {
+	init_all();
 
 	while (1) {
-		
 		sensorStates = read_74HC165();
-		
-		// Получаем пакет единовременно
 		UART_Packet packet = UART_receive_full_packet();
-		
-		if (packet.valid) {
-			switch (packet.cmd) {
-				
-				case 0x30: // STOP
-				
-				SWITCH_B_CTRL = 0;
-				SWITCH_A_CTRL = 0;
-				
-				LOCO_CTRL = LOCO_STOP;
-				send_ack(packet.cmd);
-				break;
-				
-				case 0x20: // MOVE_FORWARD
-				{
-					SWITCH_B_CTRL = 0;
-					SWITCH_A_CTRL = 0;
-
-					uint8_t enb_bit = (packet.table_id - 1) * 2;
-					uint16_t mask = 0;
-
-					// Устанавливаем все нечетные биты до enb_bit
-					for (uint8_t i = 1; i < enb_bit; i += 2) {
-						mask |= (1 << i);
-					}
-
-					// Устанавливаем целевой enb_bit
-					mask |= (1 << enb_bit);
-
-					// Разделяем mask на два байта:
-					SWITCH_A_CTRL = (uint8_t)(mask & 0xFF);       // Младшие 8 бит
-					SWITCH_B_CTRL = (uint8_t)((mask >> 8) & 0xFF); // Старшие 8 бит
-					
-					LOCO_CTRL = LOCO_FORWARD ;
-					
-					send_ack(packet.cmd);
-					
-					break;					
-				} 
-							
-				case 0x21: // MOVE_BACKWARD
-				
-				SWITCH_B_CTRL = 0;
-				SWITCH_A_CTRL = 0;
-				
-				LOCO_CTRL = LOCO_BACKWARD;
-				
-				send_ack(packet.cmd);
-				break;
-				
-				default:
-				// Для неизвестных команд можно отправить NACK
-				send_nack(packet.cmd);
-				break;		
-			}
-			
-			// Инвертирование для синхронизации с LCD (если требуется)
-			uint8_t invertedSensorStates = ~sensorStates;
-
-			// Формирование данных для сдвиговых регистров (74HC595)
-			uint8_t shiftData[MUM_OF_74HC595] = { LOCO_CTRL, SWITCH_A_CTRL, SWITCH_B_CTRL };
-			
-			shiftOutMultiple(shiftData, MUM_OF_74HC595);
-			
-			LCD_Clear();
-			char buffer[16];
-			snprintf(buffer, sizeof(buffer), "Cmd: %02X", packet.cmd);
-			LCD_PrintTwoLines("Received", buffer, 0);
-		}
+		process_packet(packet);
 	}
-	
+
 	return 0;
 }

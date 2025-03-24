@@ -27,7 +27,6 @@ extern "C" {
 	void init_74HC595_ports(void);
 	void shiftOut(uint8_t data);
 	void latchData(void);
-	void displayNumber(uint8_t number);
 	
 	void shiftOutMultiple(uint8_t *data, uint8_t count);
 
