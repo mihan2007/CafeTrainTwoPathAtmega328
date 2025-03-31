@@ -166,6 +166,9 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CFile1.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="config.h">
       <SubType>compile</SubType>
     </Compile>
@@ -184,10 +187,10 @@
     <Compile Include="PWM.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="railroad_switch.c">
+    <Compile Include="railroad_control.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="railroad_switch.h">
+    <Compile Include="railroad_control.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="routes.c">
@@ -200,6 +203,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="shift_registers.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="system_init.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="timer0.c">

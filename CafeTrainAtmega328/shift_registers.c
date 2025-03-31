@@ -1,12 +1,13 @@
 #include "shift_registers.h"
+#include "config.h"
 
 void init_74HC165_ports(void) {
 	DDRD |= (1 << CLOCK_74HC165) | (1 << LATCH_74HC165); // PD5 и PD6 - выходы
 	DDRD &= ~(1 << DATA_74HC165);                        // PD7 - вход
 	PORTD &= ~(1 << DATA_74HC165);
 	
-	uint8_t initialData[MUM_OF_74HC595] = {0};
-	shiftOutMultiple(initialData, MUM_OF_74HC595);
+	uint8_t initialData[NUM_OF_74HC595] = {0};
+	shiftOutMultiple(initialData, NUM_OF_74HC595);
 }
 
 uint8_t read_74HC165(void) {
@@ -64,7 +65,6 @@ void shiftOutMultiple(uint8_t *data, uint8_t count) {
 	latchData();
 }
 
-void update_shift_registers() {
-	uint8_t shiftData[MUM_OF_74HC595] = { LOCO_CTRL, SWITCH_A_CTRL, SWITCH_B_CTRL };
-	shiftOutMultiple(shiftData, MUM_OF_74HC595);
+void update_shift_registers(uint8_t *shiftData, uint8_t count) {
+	shiftOutMultiple(shiftData, count);
 }

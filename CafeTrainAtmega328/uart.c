@@ -1,6 +1,5 @@
 #include "uart.h"
 #include "config.h"
-#include "railroad_switch.h"
 #include <avr/io.h>
 #include <stdint.h>
 #include <stddef.h>
