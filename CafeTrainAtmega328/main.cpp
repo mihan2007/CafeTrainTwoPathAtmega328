@@ -40,7 +40,8 @@ void process_packet(UART_Packet packet) {
 			send_ack(packet.cmd);
 
 			//step_counter = 0;
-			move_forward(packet.table_id);
+			//move_forward(packet.table_id);
+
             break;
             
         case 0x21: // MOVE_BACKWARD
@@ -72,6 +73,11 @@ int main(void) {
         sensorStates = read_74HC165();
         UART_Packet packet = UART_receive_full_packet();
         process_packet(packet);
+		
+		if (rail_switch_step_counter <= 500)
+		{
+			rail_switch_step_counter = 0;
+		}
 		
     }
 

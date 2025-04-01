@@ -11,7 +11,7 @@ extern "C" {
 
 	// Если счётчик шага нужен за пределами этого модуля,
 	// можно объявить его extern (или хранить в другом модуле).
-	extern volatile uint16_t step_counter;
+	extern volatile uint16_t rail_switch_step_counter;
 
 	#ifdef __cplusplus
 }

@@ -3,7 +3,7 @@
 #include "timer0.h"
 
 // Можно хранить счётчик здесь
-volatile uint16_t step_counter = 0;
+volatile uint16_t rail_switch_step_counter = 0;
 
 // Нужно вызвать функцию process_route(), которая определена в другом файле.
 extern void process_route(void);
@@ -20,5 +20,5 @@ void timer0_init(void) {
 
 // Обработчик прерывания по совпадению с OCR0A
 ISR(TIMER0_COMPA_vect) {
-	step_counter++;    // Увеличиваем счётчик каждые ~5 мс
+	rail_switch_step_counter++;    // Увеличиваем счётчик каждые ~5 мс
 }
