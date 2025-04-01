@@ -13,7 +13,7 @@
 #include "shift_registers.h"
 
 static uint8_t sensorStates = 0;
-
+uint8_t switchMask[NUM_SWITCH_REGS];
 
 
 void process_packet(UART_Packet packet) {
@@ -31,16 +31,16 @@ void process_packet(UART_Packet packet) {
                 for (uint8_t i = 1; i < NUM_OF_74HC595; i++) {
                     shiftData[i] = 0;
                 }
-                update_shift_registers(shiftData, NUM_OF_74HC595);
+                shiftOutMultiple(shiftData, NUM_OF_74HC595);
             }
             send_ack(packet.cmd);
             break;
             
         case 0x20: // MOVE_FORWARD
 			send_ack(packet.cmd);
-
+			calculate_mask(packet.table_id, switchMask);
 			//step_counter = 0;
-			//move_forward(packet.table_id);
+			move_forward(packet.table_id);
 
             break;
             
@@ -52,7 +52,7 @@ void process_packet(UART_Packet packet) {
                 for (uint8_t i = 1; i < NUM_OF_74HC595; i++) {
                     shiftData[i] = 0;
                 }
-                update_shift_registers(shiftData, NUM_OF_74HC595);
+                shiftOutMultiple(shiftData, NUM_OF_74HC595);
             }
             send_ack(packet.cmd);
             break;
@@ -73,6 +73,7 @@ int main(void) {
         sensorStates = read_74HC165();
         UART_Packet packet = UART_receive_full_packet();
         process_packet(packet);
+		    
 		
 		if (rail_switch_step_counter <= 500)
 		{

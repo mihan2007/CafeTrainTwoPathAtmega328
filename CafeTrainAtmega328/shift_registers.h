@@ -20,7 +20,7 @@ extern "C" {
 	
 	void shiftOutMultiple(uint8_t *data, uint8_t count);
 	
-	void update_shift_registers(uint8_t *shiftData, uint8_t count);
+	void shiftOutMultiple(uint8_t *shiftData, uint8_t count);
 
 	#ifdef __cplusplus
 }

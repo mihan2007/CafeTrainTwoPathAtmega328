@@ -1,5 +1,5 @@
 #include "railroad_control.h"
-#include "shift_registers.h"   // Äëÿ update_shift_registers
+#include "shift_registers.h"   // Äëÿ shiftOutMultiple
 #include "config.h"
 #include "timer0.h"
 #include <string.h>
@@ -10,7 +10,7 @@
 static void animate_switch(uint8_t reg, uint8_t bit) {
     uint8_t tempData[NUM_OF_74HC595] = {0};
     tempData[reg + 1] = (1 << bit);
-    update_shift_registers(tempData, NUM_OF_74HC595);
+    shiftOutMultiple(tempData, NUM_OF_74HC595);
 }
 
 
@@ -61,10 +61,6 @@ void move_forward(uint8_t table_id) {
     
     uint8_t finalData[NUM_OF_74HC595] = {0};
     finalData[0] = LOCO_FORWARD;
-    update_shift_registers(finalData, NUM_OF_74HC595);
+    shiftOutMultiple(finalData, NUM_OF_74HC595);
 }
 
-void updat_switches(){
-	if (rail_switch_step_counter <= 500) return;
-	rail_switch_step_counter = 0;
-}

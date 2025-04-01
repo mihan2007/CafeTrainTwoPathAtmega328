@@ -2,8 +2,8 @@
 #include "config.h"
 
 void init_74HC165_ports(void) {
-	DDRD |= (1 << CLOCK_74HC165) | (1 << LATCH_74HC165); // PD5 и PD6 - выходы
-	DDRD &= ~(1 << DATA_74HC165);                        // PD7 - вход
+	DDRD |= (1 << CLOCK_74HC165) | (1 << LATCH_74HC165); // PD5 ? PD6 - ??????
+	DDRD &= ~(1 << DATA_74HC165);                        // PD7 - ????
 	PORTD &= ~(1 << DATA_74HC165);
 	
 	uint8_t initialData[NUM_OF_74HC595] = {0};
@@ -63,8 +63,4 @@ void shiftOutMultiple(uint8_t *data, uint8_t count) {
 		shiftOut(data[i]);
 	}
 	latchData();
-}
-
-void update_shift_registers(uint8_t *shiftData, uint8_t count) {
-	shiftOutMultiple(shiftData, count);
 }
