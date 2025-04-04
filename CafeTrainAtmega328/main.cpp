@@ -22,7 +22,6 @@
 #define	ROUTE_TO_TABLE_8 0b0110101010101010
 #define	ROUTE_TO_TABLE_9 0b1010101010101010
 
-
 static uint8_t sensorStates = 0;
 uint8_t currentRegister = 0;    // Индекс текущего регистра
 uint32_t enableBit = 0;         // Конечный бит, который зажигается последним
@@ -50,22 +49,21 @@ void activate_route() {
 				} else {
 				shiftData[1] = (1 << (i - 8));  // Устанавливаем бит во втором байте
 			}
-		}
-		
-		// Отправляем текущий бит (массив shiftData) в регистры сдвига
-		shiftOutMultiple(shiftData, NUM_OF_74HC595);
-		
-		// Задержка, чтобы увидеть последовательное загорание
-		_delay_ms(100);  // Задержка 100 мс между отправкой каждого бита
-	}
-			shiftData[0] = 0;
-			shiftData[1] = 0;
-			shiftData[2] = LOCO_FORWARD;
+
+			// Отправляем текущий бит (массив shiftData) в регистры сдвига
 			shiftOutMultiple(shiftData, NUM_OF_74HC595);
+			
+			// Задержка, чтобы увидеть последовательное загорание
+			_delay_ms(100);  // Задержка применяется только при установке бита в 1
+		}
+	}
+
+	shiftData[0] = 0;
+	shiftData[1] = 0;
+	shiftData[2] = LOCO_FORWARD;
+	shiftOutMultiple(shiftData, NUM_OF_74HC595);
 	moveForwardActive = 0;  // Завершаем процесс зажигания битов
 }
-
-
 
 
 void process_packet(UART_Packet packet) {
@@ -86,8 +84,7 @@ void process_packet(UART_Packet packet) {
 		
 		case 0x20: // MOVE_FORWARD
 		if (!moveForwardActive) {
-			send_ack(packet.cmd);
-			
+			send_ack(packet.cmd);			
 			currentRegister = packet.table_id - 1;
 			moveForwardActive = 1;
 		}
@@ -118,9 +115,8 @@ int main(void) {
 		UART_Packet packet = UART_receive_full_packet();
 		process_packet(packet);
 		
-		if (moveForwardActive && rail_switch_step_counter >= 500)
+		if (moveForwardActive)
 		{
-			rail_switch_step_counter = 0;
 			activate_route();
 		}
 	}
