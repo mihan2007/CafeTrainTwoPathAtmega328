@@ -1,9 +1,9 @@
-#define F_CPU 16000000UL
-
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
 #include <avr/io.h>
+
+#define F_CPU 16000000UL
 
 #define LOCO_STOP        0b00000000  // Остановка локомотива
 #define LOCO_FORWARD     0b00000001  // Движение вперёд
@@ -29,7 +29,6 @@
 #define SWITCH_MASK ((1 << S0) | (1 << S1) | (1 << S2) | (1 << S3))
 
 //  UART
-
 #define BAUD 9600
 #define UBRR_VALUE ((unsigned long)(F_CPU / 16 / BAUD) - 1)
 
@@ -37,14 +36,38 @@
 #define NUM_OF_74HC595 3    // Количество включенных в каскад 74HC595
 #define NUM_SWITCH_REGS (NUM_OF_74HC595 - 1) // Колличесиво сдвиговых регистров подключенных к стрелкам 
 
-	// Определение пинов для 74HC165
+// Определение пинов для 74HC165
 #define LATCH_74HC165 PD6   // LATCH для 74HC165
 #define CLOCK_74HC165 PD5   // CLOCK для 74HC165
 #define DATA_74HC165  PD7   // DATA для 74HC165
 
-	// Определение пинов для 74HC595
+// Определение пинов для 74HC595
 #define DATA_74HC595    PD2
 #define CLOCK_74HC595   PD3
 #define LATCH_74HC595   PD4
+
+// Определение маршрутов
+#define ROUTE_TO_TABLE_1 0b0000000000000001
+#define ROUTE_TO_TABLE_2 0b0000000000000110
+#define ROUTE_TO_TABLE_3 0b0000000000011010
+#define ROUTE_TO_TABLE_4 0b0000000001101010
+#define ROUTE_TO_TABLE_5 0b0000000110101010
+#define ROUTE_TO_TABLE_6 0b0000011010101010
+#define ROUTE_TO_TABLE_7 0b0001101010101010
+#define ROUTE_TO_TABLE_8 0b0110101010101010
+#define ROUTE_TO_TABLE_9 0b1010101010101010
+
+// Добавляем массив маршрутов
+extern const uint16_t routeMasks[] = {
+    ROUTE_TO_TABLE_1,
+    ROUTE_TO_TABLE_2,
+    ROUTE_TO_TABLE_3,
+    ROUTE_TO_TABLE_4,
+    ROUTE_TO_TABLE_5,
+    ROUTE_TO_TABLE_6,
+    ROUTE_TO_TABLE_7,
+    ROUTE_TO_TABLE_8,
+    ROUTE_TO_TABLE_9
+};
 
 #endif /* CONFIG_H_ */

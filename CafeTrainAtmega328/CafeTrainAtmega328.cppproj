@@ -193,12 +193,6 @@
     <Compile Include="railroad_control.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="routes.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="routes.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="shift_registers.c">
       <SubType>compile</SubType>
     </Compile>
