@@ -9,12 +9,10 @@ void activate_route_non_blocking(uint8_t tableIndex) {
 
 	static uint32_t lastTick = 0;
 	static uint8_t initialized = 0;
-	static uint16_t mask = 0;
 	static uint8_t currentBit = 0;  // Индекс текущего проверяемого бита
 	uint8_t shiftData[NUM_OF_74HC595] = {0};
 
 	if (!initialized) {
-		mask = routeMasks[tableIndex];  // Загружаем выбранную маску из config.h
 		currentBit = 0;                  // Начинаем с первого бита
 		lastTick = rail_switch_step_counter;
 		initialized = 1;
@@ -23,10 +21,12 @@ void activate_route_non_blocking(uint8_t tableIndex) {
 	if ((rail_switch_step_counter - lastTick) >= 500) {  // Интервал переключения для каждого бита
 		lastTick = rail_switch_step_counter;
 
-		if (mask & (1 << currentBit)) {  // Если текущий бит установлен в 1
+		// Проверка бита непосредственно из массива routeMasks
+		if (routeMasks[tableIndex] & (1 << currentBit)) {  // Если текущий бит установлен в 1
 			if (currentBit < 8) {
 				shiftData[0] |= (1 << currentBit);
-				} else {
+				}
+				else {
 				shiftData[1] |= (1 << (currentBit - 8));
 			}
 		}
