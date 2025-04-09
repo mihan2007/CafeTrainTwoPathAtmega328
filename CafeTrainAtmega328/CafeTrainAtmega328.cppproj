@@ -166,7 +166,7 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CFile1.c">
+    <Compile Include="InitFile.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="config.h">

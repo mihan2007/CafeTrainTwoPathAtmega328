@@ -58,16 +58,5 @@
 #define ROUTE_TO_TABLE_9 0b1010101010101010
 
 // Добавляем массив маршрутов
-extern const uint16_t routeMasks[] = {
-    ROUTE_TO_TABLE_1,
-    ROUTE_TO_TABLE_2,
-    ROUTE_TO_TABLE_3,
-    ROUTE_TO_TABLE_4,
-    ROUTE_TO_TABLE_5,
-    ROUTE_TO_TABLE_6,
-    ROUTE_TO_TABLE_7,
-    ROUTE_TO_TABLE_8,
-    ROUTE_TO_TABLE_9
-};
 
 #endif /* CONFIG_H_ */
