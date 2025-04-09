@@ -8,7 +8,8 @@ extern "C" {
 		#include <stdint.h>
 
 		void activate_route_non_blocking(uint8_t tableIndex);
-		extern uint8_t moveForwardActive;
+		void reset_route_state();
+		extern uint8_t routeSetupInProgress;
 
 	#ifdef __cplusplus
 }

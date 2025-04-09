@@ -25,16 +25,17 @@ void process_packet(UART_Packet packet) {
 			uint8_t shiftData[NUM_OF_74HC595] = {0};
 			shiftData[0] = LOCO_STOP;
 			shiftOutMultiple(shiftData, NUM_OF_74HC595);
-			moveForwardActive = 0;
+			reset_route_state();
+			routeSetupInProgress = 0;
 		}
 		send_ack(packet.cmd);
 		break;
 		
 		case 0x20: // MOVE_FORWARD
 		send_ack(packet.cmd);
-		if (!moveForwardActive) {
+		if (!routeSetupInProgress) {
 			currentRegister = packet.table_id - 1;
-			moveForwardActive = 1;
+			routeSetupInProgress = 1;
 		}
 		break;
 		
@@ -43,7 +44,7 @@ void process_packet(UART_Packet packet) {
 			uint8_t shiftData[NUM_OF_74HC595] = {0};
 			shiftData[NUM_OF_74HC595 - 1] = LOCO_BACKWARD;
 			shiftOutMultiple(shiftData, NUM_OF_74HC595);
-			moveForwardActive = 0;
+			routeSetupInProgress = 0;
 		}
 		send_ack(packet.cmd);
 		break;
@@ -63,7 +64,7 @@ int main(void) {
 		UART_Packet packet = UART_receive_full_packet();
 		process_packet(packet);
 		
-		if (moveForwardActive) {
+		if (routeSetupInProgress) {
 			// Передаём номер стола в функцию
 			activate_route_non_blocking(currentRegister);
 		}
