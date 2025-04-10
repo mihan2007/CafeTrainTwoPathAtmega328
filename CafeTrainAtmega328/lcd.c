@@ -137,3 +137,17 @@ void update_lcd(uint8_t cmd) {
 	LCD_Clear();
 	LCD_PrintTwoLines("Received", buffer, 0);
 }
+
+void print_triggered_sensor(uint8_t states) {
+	char line1[] = "Sensor triggered";
+	char line2[16];
+
+	// Заполняем строку бинарным представлением
+	for (uint8_t i = 0; i < 8; i++) {
+		line2[i] = (states & (1 << (7 - i))) ? '1' : '0';
+	}
+	line2[8] = '\0'; // Завершаем строку
+
+	LCD_Clear();
+	LCD_PrintTwoLines(line1, line2, 0);
+}

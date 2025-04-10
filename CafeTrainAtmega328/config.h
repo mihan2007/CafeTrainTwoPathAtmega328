@@ -57,6 +57,11 @@
 #define ROUTE_TO_TABLE_8 0b0110101010101010
 #define ROUTE_TO_TABLE_9 0b1010101010101010
 
-// Добавляем массив маршрутов
+// Команды от передатчика 
+#define CMD_FORWARD 0x20
+#define CMD_STOP	0x30
+#define CMD_BACKWARD 0x21
+
+
 
 #endif /* CONFIG_H_ */

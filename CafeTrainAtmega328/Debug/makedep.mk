@@ -6,6 +6,8 @@ InitFile.c
 
 lcd.c
 
+loco_control.c
+
 main.cpp
 
 PWM.c

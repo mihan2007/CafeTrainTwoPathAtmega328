@@ -178,6 +178,12 @@
     <Compile Include="lcd.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="loco_control.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="loco_control.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.cpp">
       <SubType>compile</SubType>
     </Compile>

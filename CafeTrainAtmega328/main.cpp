@@ -9,10 +9,27 @@
 #include "PWM.h"
 #include "uart.h"
 #include "shift_registers.h"
+#include "loco_control.h"
 
 static uint8_t sensorStates = 0;
 uint8_t currentRegister = 0;    // Индекс текущего регистра
-uint32_t enableBit = 0;         // Конечный бит, который зажигается последним
+uint8_t routeSetupInProgress = 0;  // Флаг, что команда MOVE_FORWARD активна и процесс ещё не завершён
+uint8_t previousSensorStates = 0xFF;
+
+void LocoStop() {
+	uint8_t shiftData[NUM_OF_74HC595] = {0};
+	shiftOutMultiple(shiftData, NUM_OF_74HC595);
+	reset_route_state();
+	routeSetupInProgress = 0;
+}
+
+void MoveLocoBackward() {
+	uint8_t shiftData[NUM_OF_74HC595] = {0};
+	shiftData[NUM_OF_74HC595 - 1] = LOCO_BACKWARD;
+	shiftOutMultiple(shiftData, NUM_OF_74HC595);
+	routeSetupInProgress = 0;
+}
+
 
 void process_packet(UART_Packet packet) {
 	if (!packet.valid) {
@@ -20,18 +37,14 @@ void process_packet(UART_Packet packet) {
 	}
 	
 	switch (packet.cmd) {
-		case 0x30: // STOP
+		case CMD_STOP: // STOP
 		{
-			uint8_t shiftData[NUM_OF_74HC595] = {0};
-			shiftData[0] = LOCO_STOP;
-			shiftOutMultiple(shiftData, NUM_OF_74HC595);
-			reset_route_state();
-			routeSetupInProgress = 0;
+			LocoStop();
 		}
 		send_ack(packet.cmd);
 		break;
 		
-		case 0x20: // MOVE_FORWARD
+		case CMD_FORWARD: // MOVE_FORWARD
 		send_ack(packet.cmd);
 		if (!routeSetupInProgress) {
 			currentRegister = packet.table_id - 1;
@@ -39,12 +52,9 @@ void process_packet(UART_Packet packet) {
 		}
 		break;
 		
-		case 0x21: // MOVE_BACKWARD
+		case CMD_BACKWARD: // MOVE_BACKWARD
 		{
-			uint8_t shiftData[NUM_OF_74HC595] = {0};
-			shiftData[NUM_OF_74HC595 - 1] = LOCO_BACKWARD;
-			shiftOutMultiple(shiftData, NUM_OF_74HC595);
-			routeSetupInProgress = 0;
+			MoveLocoBackward();
 		}
 		send_ack(packet.cmd);
 		break;
@@ -60,12 +70,18 @@ int main(void) {
 	system_init();
 
 	while (1) {
-		sensorStates = read_74HC165();
+		
+		sensorStates = ~read_74HC165();
+		
+	if (sensorStates != previousSensorStates) {
+		previousSensorStates = sensorStates;
+		print_triggered_sensor(sensorStates);
+	}		
+			
 		UART_Packet packet = UART_receive_full_packet();
 		process_packet(packet);
 		
 		if (routeSetupInProgress) {
-			// Передаём номер стола в функцию
 			activate_route_non_blocking(currentRegister);
 		}
 	}

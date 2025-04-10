@@ -4,7 +4,7 @@
 #include "timer0.h"
 #include <avr/delay.h>
 
-uint8_t routeSetupInProgress = 0;  // Флаг, что команда MOVE_FORWARD активна и процесс ещё не завершён
+
 static uint8_t initialized = 0;
 
 const uint16_t routeMasks[] = {
