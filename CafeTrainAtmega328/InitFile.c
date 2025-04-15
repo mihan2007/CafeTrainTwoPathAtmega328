@@ -8,6 +8,8 @@
 
 #include <avr/interrupt.h>
 
+uint8_t routeSetupInProgress = 0;
+
 void system_init(void) {
 	I2C_Init();
 	LCD_Init();

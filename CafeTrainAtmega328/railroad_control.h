@@ -1,18 +1,17 @@
-#ifndef RAILROAD_CONTROL_H
-#define RAILROAD_CONTROL_H
+#ifndef CAFE_TRAIN_RAILROAD_CONTROL_H_
+#define CAFE_TRAIN_RAILROAD_CONTROL_H_
+
+#include <stdint.h>
+#include "uart.h"
 
 #ifdef __cplusplus
 extern "C" {
 	#endif
 
-		#include <stdint.h>
-
-		void activate_route_non_blocking(uint8_t tableIndex);
-		void reset_route_state();
-		extern uint8_t routeSetupInProgress;
-
+	void activate_route_non_blocking(uint8_t tableIndex);
+	
 	#ifdef __cplusplus
 }
 #endif
 
-#endif // RAILROAD_CONTROL_H
+#endif /* LOCO_CONTROL_H_ */

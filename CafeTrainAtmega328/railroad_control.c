@@ -1,5 +1,6 @@
 #include "shift_registers.h"
 #include "railroad_control.h"
+#include "loco_control.h"
 #include "config.h"
 #include "timer0.h"
 #include <avr/delay.h>
@@ -24,6 +25,8 @@ void reset_route_state(void) {
 }
 
 void activate_route_non_blocking(uint8_t tableIndex) {
+	
+		tableIndex = tableIndex - 1;
 	
 		static uint32_t lastTick = 0;
 		static uint8_t currentBit = 0;  // Индекс текущего проверяемого бита
@@ -53,10 +56,7 @@ void activate_route_non_blocking(uint8_t tableIndex) {
 			currentBit++;
 			} 
 			else {
-			shiftData[0] = 0;
-			shiftData[1] = 0;
-			shiftData[2] = LOCO_FORWARD;
-			shiftOutMultiple(shiftData, NUM_OF_74HC595);
+			MoveLocoForward();
 			routeSetupInProgress = 0;
 			initialized = 0;
 		}
