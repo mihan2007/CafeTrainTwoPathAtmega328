@@ -8,11 +8,11 @@
 
 static uint8_t initialized = 0;
 
-const uint16_t routeMasks[] = {
+const uint16_t routeSwitches[] = {
 	ROUTE_TO_TABLE_1,
-	ROUTE_TO_TABLE_4,
 	ROUTE_TO_TABLE_2,
 	ROUTE_TO_TABLE_3,
+	ROUTE_TO_TABLE_4,
 	ROUTE_TO_TABLE_5,
 	ROUTE_TO_TABLE_6,
 	ROUTE_TO_TABLE_7,
@@ -20,18 +20,20 @@ const uint16_t routeMasks[] = {
 	ROUTE_TO_TABLE_9
 };
 
+
+
 void reset_route_state(void) {
 	initialized = 0;
 }
 
 void activate_route_non_blocking(uint8_t tableIndex) {
-	
-		tableIndex = tableIndex - 1;
+
+	tableIndex = tableIndex - 1;
 	
 		static uint32_t lastTick = 0;
 		static uint8_t currentBit = 0;  // Индекс текущего проверяемого бита
 		uint8_t shiftData[NUM_OF_74HC595] = {0};
-
+		
 		if (!initialized) {
 			currentBit = 0;                  // Начинаем с первого бита
 			lastTick = rail_switch_step_counter;
@@ -42,7 +44,7 @@ void activate_route_non_blocking(uint8_t tableIndex) {
 		lastTick = rail_switch_step_counter;
 
 		// Пропускаем нули
-		while (currentBit < 16 && !(routeMasks[tableIndex] & (1 << currentBit))) {
+		while (currentBit < 16 && !(routeSwitches[tableIndex] & (1 << currentBit))) {
 			currentBit++;
 		}
 
@@ -56,7 +58,7 @@ void activate_route_non_blocking(uint8_t tableIndex) {
 			currentBit++;
 			} 
 			else {
-			MoveLocoForward();
+			MoveLocoForward(tableIndex);
 			routeSetupInProgress = 0;
 			initialized = 0;
 		}

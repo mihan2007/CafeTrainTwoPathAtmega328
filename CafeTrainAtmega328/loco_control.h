@@ -10,7 +10,7 @@ extern "C" {
 
 	void LocoStop(void);
 	void MoveLocoBackward(void);
-	void MoveLocoForward(void);
+	void MoveLocoForward(uint8_t tableIndex);
 	void SlowMode(void);
 
 	#ifdef __cplusplus

@@ -3,7 +3,20 @@
 #include "shift_registers.h"
 #include "railroad_control.h"
 
+const uint8_t powerRoutesSuplly[] = {
+	DC_SUPLLY_TABLE_1,
+	DC_SUPLLY_TABLE_2,
+	DC_SUPLLY_TABLE_3,
+	DC_SUPLLY_TABLE_4,
+	DC_SUPLLY_TABLE_5,
+	DC_SUPLLY_TABLE_6,
+	DC_SUPLLY_TABLE_7,
+	DC_SUPLLY_TABLE_8
+
+};
+
 void LocoStop(void) {
+	PORTB  &= ~(1 << REVERS_PIN);
 	disablePWM();
 	uint8_t shiftData[NUM_OF_74HC595] = {0};
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
@@ -11,17 +24,21 @@ void LocoStop(void) {
 	routeSetupInProgress = 0;
 }
 
-void MoveLocoForward(void) {
+void MoveLocoForward(uint8_t tableIndex) {
+	PORTB  &= ~(1 << REVERS_PIN);
 	uint8_t shiftData[NUM_OF_74HC595] = {0};
-	shiftData[2] = LOCO_FORWARD;
+	shiftData[2] = powerRoutesSuplly[tableIndex]; //LOCO_BACKWARD;
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
 	startPWMUp();
 }
 
 void MoveLocoBackward(void) {
+	LocoStop();
 	uint8_t shiftData[NUM_OF_74HC595] = {0};
-	shiftData[NUM_OF_74HC595 - 1] = LOCO_BACKWARD;
+	//shiftData[NUM_OF_74HC595 - 1] = LOCO_BACKWARD;
+	PORTB |= (1<<REVERS_PIN);
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
+	
 	routeSetupInProgress = 0;
 }
 

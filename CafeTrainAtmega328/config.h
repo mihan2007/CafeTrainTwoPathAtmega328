@@ -7,13 +7,13 @@
 
 #define LOCO_STOP        0b00000000  // Остановка локомотива
 #define LOCO_FORWARD     0b00000001  // Движение вперёд
-#define LOCO_BACKWARD    0b00000010  // Движение назад
+//#define LOCO_BACKWARD    0b00000010  // Движение назад
 
 // Определение линий управления стрелками
 #define S0 PB4  // connected to к D12 (PB4)
 #define S1 PB3  // connected to D11 (PB3)
 #define S2 PB2  // connected to к D10 (PB2)
-#define S3 PB0  // connected to D8 (PB0)
+#define REVERS_PIN PB0  // connected to D8 (PB0)
 #define SIG PD7 // Sinal (D7 - PD7)
 
 #define PWM_PIN PB1   // ШИМ на выводе OC1A (PB1)
@@ -26,7 +26,7 @@
 #define SWITCH_PAUSE_TIME 100 // Время ожидания после переключения стрелки
 
 // Маска для управления стрелками (исключая PB1 - ШИМ)
-#define SWITCH_MASK ((1 << S0) | (1 << S1) | (1 << S2) | (1 << S3))
+#define SWITCH_MASK ((1 << S0) | (1 << S1) | (1 << S2) | (1 << REVERS_PIN))
 
 //  UART
 #define BAUD 9600
@@ -56,6 +56,15 @@
 #define ROUTE_TO_TABLE_7 0b0001101010101010
 #define ROUTE_TO_TABLE_8 0b0110101010101010
 #define ROUTE_TO_TABLE_9 0b1010101010101010
+
+#define DC_SUPLLY_TABLE_1 0b10000000
+#define DC_SUPLLY_TABLE_2 0b01000000
+#define DC_SUPLLY_TABLE_3 0b00100000
+#define DC_SUPLLY_TABLE_4 0b00010000
+#define DC_SUPLLY_TABLE_5 0b00001000
+#define DC_SUPLLY_TABLE_6 0b00000100
+#define DC_SUPLLY_TABLE_7 0b00000010
+#define DC_SUPLLY_TABLE_8 0b00000001
 
 // Команды от передатчика 
 #define CMD_FORWARD 0x20
