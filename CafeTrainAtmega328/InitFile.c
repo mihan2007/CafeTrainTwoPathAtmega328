@@ -20,6 +20,9 @@ void system_init(void) {
 
 	init_74HC165_ports();
 	init_74HC595_ports();
+	
+	initPWM();
+	disablePWM(); // избавляемся от паразитного свечения
 
 	// Очистка регистров при старте
 	uint8_t initData[NUM_OF_74HC595] = {0};

@@ -1,19 +1,27 @@
 #include "PWM.h"
 #include "config.h"
+#include "timer0.h"
 #include <util/delay.h>
+
+static uint8_t pwmIncreasing = 0;
+static uint16_t currentDuty = 0;
+static uint32_t pwmLastTick = 0;
 
 // Инициализация ШИМ на PB1 (OC1A) с 10-битной разрядностью и частотой 20 кГц
 void initPWM() {
-	DDRB |= (1 << PWM_PIN);  // Настраиваем PB1 как выход
-	DDRD |= (1<< PWM_SWITCH_PIN);
-	// Включаем 10-битный Fast PWM
-	TCCR1A = (1 << COM1A1) | (1 << WGM10) | (1 << WGM11);
-	TCCR1B = (1 << WGM12) | (1 << CS10);  // Без делителя, частота 20 кГц
 
-	OCR1A = 0;  // Начальное значение = 0 (двигатель выключен)
+	DDRB |= (1 << PWM_PIN);  // Настраиваем PB1 как выход
+	DDRD |= (1 << PWM_SWITCH_PIN);
+
+	// Включаем 8-битный Fast PWM
+	TCCR1A = (1 << COM1A1) | (1 << WGM10);  // 8-bit
+	TCCR1B = (1 << WGM12) | (1 << CS10);   // Fast PWM, без делителя
+
+	OCR1A = 0;  // Стартовое значение
 }
 
 void enablePWM() {
+	OCR1A = 0; // ? на всякий случай	
 	TCCR1A |= (1 << COM1A1); // Включаем выход ШИМ
 	DDRB |= (1 << PWM_PIN);  // Устанавливаем пин как выход
 }
@@ -25,24 +33,36 @@ void disablePWM() {
 }
 
 // Soft Start
-void LocomotiveSpeedUp() {
-
-	//PORTD  |= (1 << PWM_SWITCH_PIN);
+void startPWMUp() {
+	currentDuty = 0;
+	OCR1A = 0;          // ? ОБЯЗАТЕЛЬНО, иначе будет всплеск
 	enablePWM();
-	
-	for (uint16_t duty  = 0; duty <= 1000; duty +=10 ){
-		OCR1A = duty;
-		_delay_ms(PWM_DELAY);
-	}
+	pwmLastTick = rail_switch_step_counter;
+	pwmIncreasing = 1;	
+}
 
-	disablePWM();
+
+
+void processPWMUp() {
+	if (!pwmIncreasing) return;
+
+	if ((rail_switch_step_counter - pwmLastTick) >= PWM_DELAY) {
+		pwmLastTick = rail_switch_step_counter;
+
+		if (currentDuty <= PWM_MAX) {
+			OCR1A = currentDuty++;
+			} else {
+			//MoveLocoForward();         // запускаем движение вперед (включает PWM)
+			pwmIncreasing = 0;
+		}
+	}
+}
+
+uint8_t isPWMUpRunning() {
+	return pwmIncreasing;
 }
 
 // Soft Slow Down
 void LocomotiveSpeedDown() {
-	for (uint16_t duty = PWM_MAX; duty >= PWM_MIN; duty -= PWM_STEP) {
-		OCR1A = duty;
-		_delay_ms(PWM_DELAY);
-	}
-	OCR1A = 0;  // Полная остановка
+
 }

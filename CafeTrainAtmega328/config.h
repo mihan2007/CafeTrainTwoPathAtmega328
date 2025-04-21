@@ -18,10 +18,10 @@
 
 #define PWM_PIN PB1   // ШИМ на выводе OC1A (PB1)
 #define PWM_SWITCH_PIN PD6 // Switch into PWM mode pin
-#define PWM_MAX 1023  // Максимальный уровень ШИМ (10 бит)
+#define PWM_MAX 255  // Максимальный уровень ШИМ (10 бит)
 #define PWM_MIN 50    // Минимальный уровень ШИМ (начало разгона)
-#define PWM_STEP 10   // Шаг увеличения ШИМ
-#define PWM_DELAY 1000  // Задержка между шагами (мягкость разгона)
+#define PWM_STEP 1   // Шаг увеличения ШИМ
+#define PWM_DELAY 100  // Задержка между шагами (мягкость разгона)
 
 #define SWITCH_PAUSE_TIME 100 // Время ожидания после переключения стрелки
 

@@ -4,6 +4,7 @@
 #include "railroad_control.h"
 
 void LocoStop(void) {
+	disablePWM();
 	uint8_t shiftData[NUM_OF_74HC595] = {0};
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
 	reset_route_state();
@@ -14,6 +15,7 @@ void MoveLocoForward(void) {
 	uint8_t shiftData[NUM_OF_74HC595] = {0};
 	shiftData[2] = LOCO_FORWARD;
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
+	startPWMUp();
 }
 
 void MoveLocoBackward(void) {
@@ -21,5 +23,10 @@ void MoveLocoBackward(void) {
 	shiftData[NUM_OF_74HC595 - 1] = LOCO_BACKWARD;
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
 	routeSetupInProgress = 0;
+}
+
+void SlowMode(void){
+	enablePWM();
+	OCR1A = (PWM_MAX/2);
 }
 

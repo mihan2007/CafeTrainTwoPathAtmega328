@@ -11,8 +11,6 @@
 #include "uart.h"
 #include "shift_registers.h"
 
-
-
 static uint8_t sensorStates = 0;
 
 uint8_t triggeredBitMask = 0;
@@ -66,6 +64,8 @@ void process_packet(UART_Packet packet) {
 		break;
 		
 		case CMD_FORWARD: // MOVE_FORWARD
+			LocoStop();
+
 		send_ack(packet.cmd);
 		if (!routeSetupInProgress) {
 			SelectedTable = packet.table_id;
@@ -94,6 +94,7 @@ int main(void) {
 	while (1) {
 		
 	checkSensorsState();
+	
 		
 	if (sensorStates != previousSensorStates) {
 		previousSensorStates = sensorStates;
@@ -102,7 +103,9 @@ int main(void) {
 			
 		UART_Packet packet = UART_receive_full_packet();
 		process_packet(packet);
-		
+
+		processPWMUp();  // обрабатываем плавный разгон	
+			
 		if (routeSetupInProgress) {
 			activate_route_non_blocking(SelectedTable);
 		}

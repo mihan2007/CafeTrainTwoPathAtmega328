@@ -11,6 +11,7 @@ extern "C" {
 	void LocoStop(void);
 	void MoveLocoBackward(void);
 	void MoveLocoForward(void);
+	void SlowMode(void);
 
 	#ifdef __cplusplus
 }

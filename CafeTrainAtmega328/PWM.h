@@ -1,12 +1,16 @@
 #ifndef PWM_H_
 #define PWM_H_
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 	#endif
 
 	void initPWM();
-	void LocomotiveSpeedUp();
+	void startPWMUp();
+	void processPWMUp(void);
+	uint8_t isPWMUpRunning(void);
 	void LocomotiveSpeedDown();
 
 	#ifdef __cplusplus
