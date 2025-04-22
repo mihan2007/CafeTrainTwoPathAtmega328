@@ -35,8 +35,8 @@ void MoveLocoForward(uint8_t tableIndex) {
 void MoveLocoBackward(void) {
 	LocoStop();
 	uint8_t shiftData[NUM_OF_74HC595] = {0};
-	//shiftData[NUM_OF_74HC595 - 1] = LOCO_BACKWARD;
-	PORTB |= (1<<REVERS_PIN);
+
+	PORTB |= (1 << REVERS_PIN);
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
 	
 	routeSetupInProgress = 0;

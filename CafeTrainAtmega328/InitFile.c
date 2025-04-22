@@ -23,6 +23,8 @@ void system_init(void) {
 	
 	initPWM();
 	disablePWM(); // избавляемся от паразитного свечения
+	
+	DDRB |= (1 << REVERS_PIN);
 
 	// Очистка регистров при старте
 	uint8_t initData[NUM_OF_74HC595] = {0};

@@ -26,7 +26,7 @@
 #define SWITCH_PAUSE_TIME 100 // Время ожидания после переключения стрелки
 
 // Маска для управления стрелками (исключая PB1 - ШИМ)
-#define SWITCH_MASK ((1 << S0) | (1 << S1) | (1 << S2) | (1 << REVERS_PIN))
+#define SWITCH_MASK ((1 << S0) | (1 << S1) | (1 << S2))
 
 //  UART
 #define BAUD 9600
@@ -45,6 +45,8 @@
 #define DATA_74HC595    PD2
 #define CLOCK_74HC595   PD3
 #define LATCH_74HC595   PD4
+
+
 
 // Определение маршрутов
 #define ROUTE_TO_TABLE_1 0b0000000000000001
