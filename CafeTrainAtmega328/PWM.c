@@ -11,7 +11,6 @@ static uint32_t pwmLastTick = 0;
 void initPWM() {
 
 	DDRB |= (1 << PWM_PIN);  // Настраиваем PB1 как выход
-	//DDRD |= (1 << PWM_SWITCH_PIN);
 
 	// Включаем 8-битный Fast PWM
 	TCCR1A = (1 << COM1A1) | (1 << WGM10);  // 8-bit
@@ -52,7 +51,7 @@ void processPWMUp() {
 		if (currentDuty <= PWM_MAX) {
 			OCR1A = currentDuty++;
 			} else {
-			//MoveLocoForward();         // запускаем движение вперед (включает PWM)
+			
 			pwmIncreasing = 0;
 		}
 	}
