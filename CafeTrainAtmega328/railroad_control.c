@@ -5,7 +5,6 @@
 #include "timer0.h"
 #include <avr/delay.h>
 
-
 static uint8_t initialized = 0;
 
 const uint16_t routeSwitches[] = {
@@ -19,8 +18,6 @@ const uint16_t routeSwitches[] = {
 	ROUTE_TO_TABLE_8,
 	ROUTE_TO_TABLE_9
 };
-
-
 
 void reset_route_state(void) {
 	initialized = 0;
@@ -40,19 +37,19 @@ void activate_route_non_blocking(uint8_t tableIndex) {
 			initialized = 1;
 		}
 
-	if ((rail_switch_step_counter - lastTick) >= 500) {
+	if ((rail_switch_step_counter - lastTick) >= SWITCH_PAUSE_TIME) {
 		lastTick = rail_switch_step_counter;
 
 		// Пропускаем нули
-		while (currentBit < 16 && !(routeSwitches[tableIndex] & (1 << currentBit))) {
+		while (currentBit < (NUM_BITS_74HC595*2) && !(routeSwitches[tableIndex] & (1 << currentBit))) {
 			currentBit++;
 		}
 
-		if (currentBit < 16) {
-			if (currentBit < 8) {
+		if (currentBit < (NUM_BITS_74HC595*2)) {
+			if (currentBit < NUM_BITS_74HC595) {
 				shiftData[0] |= (1 << currentBit);
 				} else {
-				shiftData[1] |= (1 << (currentBit - 8));
+				shiftData[1] |= (1 << (currentBit - NUM_BITS_74HC595));
 			}
 			shiftOutMultiple(shiftData, NUM_OF_74HC595);
 			currentBit++;

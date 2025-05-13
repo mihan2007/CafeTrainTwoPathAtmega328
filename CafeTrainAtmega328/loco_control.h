@@ -9,7 +9,7 @@ extern "C" {
 	#endif
 
 	void LocoStop(void);
-	void MoveLocoBackward(void);
+	void MoveLocoBackward(uint8_t tableIndex);
 	void MoveLocoForward(uint8_t tableIndex);
 	void SlowMode(void);
 

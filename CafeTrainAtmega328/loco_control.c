@@ -16,30 +16,55 @@ const uint8_t powerRoutesSuplly[] = {
 };
 
 void LocoStop(void) {
+	
 	PORTB  &= ~(1 << REVERS_PIN);
+	PORTB &= ~(1 << PWM_SWITCH_PIN);
+	PORTB &= ~(1 << POWER_SWITCH_PIN); 
+	
 	disablePWM();
+	
 	uint8_t shiftData[NUM_OF_74HC595] = {0};
+		
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
+	
 	reset_route_state();
+	
 	routeSetupInProgress = 0;
 }
 
 void MoveLocoForward(uint8_t tableIndex) {
+	
 	PORTB  &= ~(1 << REVERS_PIN);
+	PORTB |= (1 << PWM_SWITCH_PIN);
+	PORTB |= (1 << POWER_SWITCH_PIN);
+	
 	uint8_t shiftData[NUM_OF_74HC595] = {0};
-	shiftData[2] = powerRoutesSuplly[tableIndex]; //LOCO_BACKWARD;
+	
+	shiftData[2] = powerRoutesSuplly[tableIndex];
+	
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
+	
 	startPWMUp();
 }
 
-void MoveLocoBackward(void) {
+void MoveLocoBackward(uint8_t tableIndex) {
+	
 	LocoStop();
-	uint8_t shiftData[NUM_OF_74HC595] = {0};
-
+	
+	PORTB |= (1 << PWM_SWITCH_PIN);
+	PORTB |= (1 << POWER_SWITCH_PIN);
 	PORTB |= (1 << REVERS_PIN);
+	
+	startPWMUp();
+	
+	uint8_t shiftData[NUM_OF_74HC595] = {0};
+	
+	shiftData[2] = powerRoutesSuplly[tableIndex];
+			
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
 	
 	routeSetupInProgress = 0;
+	
 }
 
 void SlowMode(void){

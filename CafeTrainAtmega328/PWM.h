@@ -10,6 +10,7 @@ extern "C" {
 	void initPWM();
 	void startPWMUp();
 	void processPWMUp(void);
+	void disablePWM(void);
 	uint8_t isPWMUpRunning(void);
 	void LocomotiveSpeedDown();
 

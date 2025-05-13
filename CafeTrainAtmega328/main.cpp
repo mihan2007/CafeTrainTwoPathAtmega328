@@ -64,18 +64,22 @@ void process_packet(UART_Packet packet) {
 		break;
 		
 		case CMD_FORWARD: // MOVE_FORWARD
+			
 			LocoStop();
 
-		send_ack(packet.cmd);
+			send_ack(packet.cmd);
+		
 		if (!routeSetupInProgress) {
+			
 			SelectedTable = packet.table_id;
+			
 			routeSetupInProgress = 1;
 		}
 		break;
 		
 		case CMD_BACKWARD: // MOVE_BACKWARD
 		{
-			MoveLocoBackward();
+			MoveLocoBackward(SelectedTable);
 		}
 		send_ack(packet.cmd);
 		break;
@@ -107,7 +111,9 @@ int main(void) {
 		processPWMUp();  // обрабатываем плавный разгон	
 			
 		if (routeSetupInProgress) {
+			
 			activate_route_non_blocking(SelectedTable);
+			
 		}
 	}
 

@@ -4,7 +4,7 @@
 #include <util/delay.h>
 
 static uint8_t pwmIncreasing = 0;
-static uint16_t currentDuty = 0;
+static uint16_t currentDuty = PWM_INITIAL_DUTY; // star PWM 
 static uint32_t pwmLastTick = 0;
 
 // »нициализаци€ Ў»ћ на PB1 (OC1A) с 10-битной разр€дностью и частотой 20 к√ц
@@ -26,12 +26,12 @@ void enablePWM() {
 }
 
 void disablePWM() {
+	pwmIncreasing = 0;
 	OCR1A = 0;
 	TCCR1A &= ~(1 << COM1A1); // ќтключаем выход Ў»ћ
 	PORTB &= ~(1 << PWM_PIN); // ѕринудительно ставим 0
 }
 
-// Soft Start
 void startPWMUp() {
 	currentDuty = 0;
 	OCR1A = 0;          // ? ќЅя«ј“≈Ћ№Ќќ, иначе будет всплеск
@@ -43,14 +43,22 @@ void startPWMUp() {
 
 
 void processPWMUp() {
+	
 	if (!pwmIncreasing) return;
-
+	
 	if ((rail_switch_step_counter - pwmLastTick) >= PWM_DELAY) {
+		
 		pwmLastTick = rail_switch_step_counter;
 
 		if (currentDuty <= PWM_MAX) {
+			
 			OCR1A = currentDuty++;
+			
 			} else {
+			
+			PORTB &= ~(1 << PWM_SWITCH_PIN);
+			
+			disablePWM();
 			
 			pwmIncreasing = 0;
 		}
