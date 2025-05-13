@@ -100,7 +100,6 @@ int main(void) {
 		
 	checkSensorsState();
 	
-		
 	if (sensorStates != previousSensorStates) {
 		previousSensorStates = sensorStates;
 		print_triggered_sensor(sensorStates);

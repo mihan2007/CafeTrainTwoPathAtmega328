@@ -34,6 +34,8 @@ extern "C" {
 	void LCD_Init(void);
 
 	void LCD_Clear(void);
+	
+	void LCD_ClearLine(uint8_t row);
 
 	void LCD_SetCursor(uint8_t col, uint8_t row);
 

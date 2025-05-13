@@ -82,6 +82,14 @@ void LCD_Clear(void) {
 	_delay_ms(2);
 }
 
+void LCD_ClearLine(uint8_t row) {
+	LCD_SetCursor(0, row);
+	for (uint8_t i = 0; i < 16; i++) {
+		LCD_Data(' ');
+	}
+	LCD_SetCursor(0, row);  // вернуться в начало строки
+}
+
 void LCD_SetCursor(uint8_t col, uint8_t row) {
 	uint8_t row_offsets[] = {0x00, 0x40, 0x14, 0x54};
 	LCD_Command(0x80 | (col + row_offsets[row])); // Установка адреса DDRAM
@@ -132,29 +140,29 @@ void LCD_PrintTwoLines(char* firstLineText, char* secondLineText, int blink) {
 }
 
 void update_lcd(uint8_t cmd, uint8_t table_id) {
-	LCD_Clear();
-
 	char line1[17];
-	char line2[17];
-
-	// Формат: CMD:xxx TBL:yy (максимум 16 символов)
 	snprintf(line1, sizeof(line1), "CMD:%03d TBL:%02d", cmd, table_id);
-	line2[0] = '\0'; // Вторая строка — пустая
 
-	LCD_PrintTwoLines(line1, line2, 0);  // blink = 0 — не мигает
+	// Заполняем оставшиеся символы пробелами
+	uint8_t len = strlen(line1);
+	for (uint8_t i = len; i < 16; i++) {
+		line1[i] = ' ';
+	}
+	line1[16] = '\0';
+
+	LCD_SetCursor(0, 0);
+	LCD_Print(line1);
 }
 
 
 void print_triggered_sensor(uint8_t states) {
-	char line1[] = "Sensor triggered";
-	char line2[16];
+	char line2[17];
 
-	// Заполняем строку бинарным представлением
 	for (uint8_t i = 0; i < 8; i++) {
 		line2[i] = (states & (1 << (7 - i))) ? '1' : '0';
 	}
-	line2[8] = '\0'; // Завершаем строку
+	line2[8] = '\0';
 
-	LCD_Clear();
-	LCD_PrintTwoLines(line1, line2, 0);
+	LCD_SetCursor(0, 1);  // только нижняя строка
+	LCD_Print(line2);
 }
