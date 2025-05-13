@@ -43,7 +43,7 @@ extern "C" {
 	
 	void LCD_PrintTwoLines(char* firstLineText, char* secondLineText, int blink);
 	
-	void update_lcd(uint8_t cmd);
+	void update_lcd(uint8_t cmd, uint8_t table_id);
 	
 	void print_triggered_sensor(uint8_t states);
 

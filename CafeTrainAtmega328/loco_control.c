@@ -49,6 +49,8 @@ void MoveLocoForward(uint8_t tableIndex) {
 
 void MoveLocoBackward(uint8_t tableIndex) {
 	
+	uint8_t shiftRegisterMask = tableIndex - 1;
+	
 	LocoStop();
 	
 	PORTB |= (1 << PWM_SWITCH_PIN);
@@ -59,7 +61,7 @@ void MoveLocoBackward(uint8_t tableIndex) {
 	
 	uint8_t shiftData[NUM_OF_74HC595] = {0};
 	
-	shiftData[2] = powerRoutesSuplly[tableIndex];
+	shiftData[2] = powerRoutesSuplly[shiftRegisterMask];
 			
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
 	

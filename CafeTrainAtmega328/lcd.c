@@ -131,12 +131,19 @@ void LCD_PrintTwoLines(char* firstLineText, char* secondLineText, int blink) {
 		}
 }
 
-void update_lcd(uint8_t cmd) {
-	char buffer[16];
-	snprintf(buffer, sizeof(buffer), "Cmd: %02X", cmd);
+void update_lcd(uint8_t cmd, uint8_t table_id) {
 	LCD_Clear();
-	LCD_PrintTwoLines("Received", buffer, 0);
+
+	char line1[17];
+	char line2[17];
+
+	// ‘ормат: CMD:xxx TBL:yy (максимум 16 символов)
+	snprintf(line1, sizeof(line1), "CMD:%03d TBL:%02d", cmd, table_id);
+	line2[0] = '\0'; // ¬тора€ строка Ч пуста€
+
+	LCD_PrintTwoLines(line1, line2, 0);  // blink = 0 Ч не мигает
 }
+
 
 void print_triggered_sensor(uint8_t states) {
 	char line1[] = "Sensor triggered";

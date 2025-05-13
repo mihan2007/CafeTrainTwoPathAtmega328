@@ -79,6 +79,7 @@ void process_packet(UART_Packet packet) {
 		
 		case CMD_BACKWARD: // MOVE_BACKWARD
 		{
+			SelectedTable = packet.table_id;
 			MoveLocoBackward(SelectedTable);
 		}
 		send_ack(packet.cmd);
@@ -88,7 +89,7 @@ void process_packet(UART_Packet packet) {
 		break;
 	}
 	
-	update_lcd(packet.cmd);
+	update_lcd(packet.cmd, SelectedTable);
 }
 
 
