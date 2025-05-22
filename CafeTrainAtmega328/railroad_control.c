@@ -24,6 +24,8 @@ void reset_route_state(void) {
 }
 
 void activate_route_non_blocking(uint8_t tableIndex) {
+	
+	PowerSupplyOn();
 
 	tableIndex = tableIndex - 1;
 	

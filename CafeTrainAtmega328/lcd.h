@@ -48,6 +48,7 @@ extern "C" {
 	void update_lcd(uint8_t cmd, uint8_t table_id);
 	
 	void print_triggered_sensor(uint8_t states);
+	
 
 	#ifdef __cplusplus
 

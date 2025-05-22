@@ -9,9 +9,16 @@ extern "C" {
 	#endif
 
 	void LocoStop(void);
+	
 	void MoveLocoBackward(uint8_t tableIndex);
+	
 	void MoveLocoForward(uint8_t tableIndex);
+	
 	void SlowMode(void);
+	
+	void PowerSupplyOff(void);
+	
+	void PowerSupplyOn(void);
 
 	#ifdef __cplusplus
 }

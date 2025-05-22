@@ -25,12 +25,14 @@ void system_init(void) {
 	disablePWM(); // избавляемся от паразитного свечения
 	
 	DDRB |= (1 << REVERS_PIN);
-	DDRB |= (1 << POWER_SWITCH_PIN);
+	DDRB |= (1 << REGISTER_SWITCH);
 	DDRB |= (1 << PWM_SWITCH_PIN);
-
+	
 	// Очистка регистров при старте
 	uint8_t initData[NUM_OF_74HC595] = {0};
 	shiftOutMultiple(initData, NUM_OF_74HC595);
+	
+	PowerSupplyOff();
 
 	sei(); // Включаем глобальные прерывания
 

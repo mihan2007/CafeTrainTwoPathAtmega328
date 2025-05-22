@@ -19,7 +19,6 @@ void LocoStop(void) {
 	
 	PORTB  &= ~(1 << REVERS_PIN);
 	PORTB &= ~(1 << PWM_SWITCH_PIN);
-	PORTB &= ~(1 << POWER_SWITCH_PIN); 
 	
 	disablePWM();
 	
@@ -30,13 +29,16 @@ void LocoStop(void) {
 	reset_route_state();
 	
 	routeSetupInProgress = 0;
+	
+	PowerSupplyOff();
 }
 
 void MoveLocoForward(uint8_t tableIndex) {
 	
-	PORTB  &= ~(1 << REVERS_PIN);
+	PORTB &= ~(1 << REVERS_PIN);
 	PORTB |= (1 << PWM_SWITCH_PIN);
-	PORTB |= (1 << POWER_SWITCH_PIN);
+	
+	PowerSupplyOn();
 	
 	uint8_t shiftData[NUM_OF_74HC595] = {0};
 	
@@ -54,8 +56,10 @@ void MoveLocoBackward(uint8_t tableIndex) {
 	LocoStop();
 	
 	PORTB |= (1 << PWM_SWITCH_PIN);
-	PORTB |= (1 << POWER_SWITCH_PIN);
+
 	PORTB |= (1 << REVERS_PIN);
+	
+	PowerSupplyOn();
 	
 	startPWMUp();
 	
@@ -74,3 +78,12 @@ void SlowMode(void){
 	OCR1A = (PWM_MAX/2);
 }
 
+void PowerSupplyOn() {
+
+	PORTB |= (1 << REGISTER_SWITCH);	
+}
+
+void PowerSupplyOff() {
+	
+	PORTB &= ~ (1 << REGISTER_SWITCH);
+}
