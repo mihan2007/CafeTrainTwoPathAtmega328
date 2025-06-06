@@ -70,9 +70,9 @@ extern uint8_t routeSetupInProgress;
 #define SENSOR_2 (1 << 1)
 #define SENSOR_3 (1 << 2)
 #define SENSOR_4 (1 << 3)
-#define SENSOR_5 (1 << 4)
-#define TABLE_START_SENSOR (1 << 5)
-#define SLOW_MODE_SENSOR (1 << 6)
-#define TABLE_END_WAY_SENSOR (1 << 7)
+#define KITCHEN_STOP_SENSOR (1 << 4)
+#define KITCHEN_SLOW_SENSOR (1 << 5)
+#define TABLE_SLOW_SENSOR (1 << 6)
+#define TABLE_STOP_SENSOR (1 << 7)
 
 #endif /* CONFIG_H_ */

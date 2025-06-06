@@ -8,9 +8,6 @@ extern "C" {
 	#include <avr/io.h>
 	#include <util/delay.h>
 	
-
-
-
 	void init_74HC165_ports(void);
 	uint8_t read_74HC165(void);
 
