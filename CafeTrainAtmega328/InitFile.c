@@ -25,7 +25,7 @@ void system_init(void) {
 	disablePWM(); // избавляемся от паразитного свечения
 	
 	DDRB |= (1 << REVERS_PIN);
-	DDRB |= (1 << REGISTER_SWITCH);
+	DDRB |= (1 << RAIL_POWER_ENABLE);
 	DDRB |= (1 << PWM_SWITCH_PIN);
 	
 	// Очистка регистров при старте

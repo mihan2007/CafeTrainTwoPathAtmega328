@@ -36,7 +36,6 @@ void LocoStop(void) {
 void MoveLocoForward(uint8_t tableIndex) {
 	
 	PORTB &= ~(1 << REVERS_PIN);
-	PORTB |= (1 << PWM_SWITCH_PIN);
 	
 	PowerSupplyOn();
 	
@@ -55,9 +54,7 @@ void MoveLocoBackward(uint8_t tableIndex) {
 	
 	LocoStop();
 	
-	PORTB |= (1 << PWM_SWITCH_PIN);
-
-	PORTB |= (1 << REVERS_PIN);
+	ReversOn();
 	
 	PowerSupplyOn();
 	
@@ -80,10 +77,14 @@ void SlowMode(void){
 
 void PowerSupplyOn() {
 
-	PORTB |= (1 << REGISTER_SWITCH);	
+	PORTB |= (1 << RAIL_POWER_ENABLE);	
 }
 
 void PowerSupplyOff() {
 	
-	PORTB &= ~ (1 << REGISTER_SWITCH);
+	PORTB &= ~ (1 << RAIL_POWER_ENABLE);
+}
+
+void ReversOn(){
+		PORTB |= (1 << REVERS_PIN);
 }

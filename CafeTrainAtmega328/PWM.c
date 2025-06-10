@@ -20,7 +20,8 @@ void initPWM() {
 }
 
 void enablePWM() {
-	OCR1A = 0; // ? на вс€кий случай	
+	OCR1A = 0; // ? на вс€кий случай
+	PORTB |= (1 << PWM_SWITCH_PIN);	
 	TCCR1A |= (1 << COM1A1); // ¬ключаем выход Ў»ћ
 	DDRB |= (1 << PWM_PIN);  // ”станавливаем пин как выход
 }
@@ -34,13 +35,11 @@ void disablePWM() {
 
 void startPWMUp() {
 	currentDuty = 0;
-	OCR1A = 0;          // ? ќЅя«ј“≈Ћ№Ќќ, иначе будет всплеск
+	OCR1A = 0;          // ?
 	enablePWM();
 	pwmLastTick = rail_switch_step_counter;
 	pwmIncreasing = 1;	
 }
-
-
 
 void processPWMUp() {
 	

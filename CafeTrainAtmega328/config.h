@@ -6,13 +6,13 @@
 #define F_CPU 16000000UL
 
 // Определение линий управления стрелками
-#define REVERS_PIN PB5  // connected to D8 
+#define REVERS_PIN PB5  // 
 
 //PWM settings
 #define PWM_INITIAL_DUTY 100
 #define PWM_PIN PB1			// ШИМ на выводе OC1A (D8) 
 #define PWM_SWITCH_PIN PB4	// Switch into PWM mode pin (D9)
-#define REGISTER_SWITCH PB0// Power supply PIN (D12)
+#define RAIL_POWER_ENABLE PB0// Power supply PIN (D12)
 #define PWM_MAX 255			// Максимальный уровень ШИМ (10 бит)
 #define PWM_STEP 1			// Шаг увеличения ШИМ
 #define PWM_DELAY 50		// Задержка между шагами (мягкость разгона)
