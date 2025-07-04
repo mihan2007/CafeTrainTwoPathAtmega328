@@ -627,7 +627,7 @@ END GROUP
  *(.fini0)
                 0x0000129e                _etext = .
 
-.data           0x00800100       0x46 load address 0x0000129e
+.data           0x00800100       0x40 load address 0x0000129e
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -640,65 +640,67 @@ END GROUP
  *(.rodata)
  *(.rodata*)
  .rodata.str1.1
-                0x00800103       0x17 InitFile.o
+                0x00800103       0x10 InitFile.o
+                                 0x11 (size before relaxing)
  .rodata.str1.1
-                0x0080011a       0x12 lcd.o
+                0x00800113       0x12 lcd.o
  .rodata.powerRoutesSuplly
-                0x0080012c        0x8 loco_control.o
-                0x0080012c                powerRoutesSuplly
+                0x00800125        0x8 loco_control.o
+                0x00800125                powerRoutesSuplly
  .rodata.routeSwitches
-                0x00800134       0x12 railroad_control.o
-                0x00800134                routeSwitches
+                0x0080012d       0x12 railroad_control.o
+                0x0080012d                routeSwitches
  *(.gnu.linkonce.r*)
-                0x00800146                . = ALIGN (0x2)
-                0x00800146                _edata = .
-                0x00800146                PROVIDE (__data_end, .)
+                0x00800140                . = ALIGN (0x2)
+ *fill*         0x0080013f        0x1 
+                0x00800140                _edata = .
+                0x00800140                PROVIDE (__data_end, .)
 
-.bss            0x00800146       0x14
-                0x00800146                PROVIDE (__bss_start, .)
+.bss            0x00800140       0x14
+                0x00800140                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
  .bss.routeSetupInProgress
-                0x00800146        0x1 InitFile.o
-                0x00800146                routeSetupInProgress
+                0x00800140        0x1 InitFile.o
+                0x00800140                routeSetupInProgress
  .bss.toggle.1825
-                0x00800147        0x1 lcd.o
+                0x00800141        0x1 lcd.o
  .bss.counter.1826
-                0x00800148        0x1 lcd.o
+                0x00800142        0x1 lcd.o
  .bss.SelectedTable
-                0x00800149        0x1 main.o
-                0x00800149                SelectedTable
+                0x00800143        0x1 main.o
+                0x00800143                SelectedTable
  .bss.triggeredBitsHistory
-                0x0080014a        0x1 main.o
-                0x0080014a                triggeredBitsHistory
+                0x00800144        0x1 main.o
+                0x00800144                triggeredBitsHistory
  .bss.triggeredBitMask
-                0x0080014b        0x1 main.o
-                0x0080014b                triggeredBitMask
+                0x00800145        0x1 main.o
+                0x00800145                triggeredBitMask
  .bss._ZL12sensorStates
-                0x0080014c        0x1 main.o
+                0x00800146        0x1 main.o
  .bss.pwmLastTick
-                0x0080014d        0x4 PWM.o
+                0x00800147        0x4 PWM.o
  .bss.pwmIncreasing
-                0x00800151        0x1 PWM.o
+                0x0080014b        0x1 PWM.o
  .bss.lastTick.1795
-                0x00800152        0x4 railroad_control.o
+                0x0080014c        0x4 railroad_control.o
  .bss.currentBit.1796
-                0x00800156        0x1 railroad_control.o
+                0x00800150        0x1 railroad_control.o
  .bss.initialized
-                0x00800157        0x1 railroad_control.o
+                0x00800151        0x1 railroad_control.o
  .bss.rail_switch_step_counter
-                0x00800158        0x2 timer0.o
-                0x00800158                rail_switch_step_counter
+                0x00800152        0x2 timer0.o
+                0x00800152                rail_switch_step_counter
  *(COMMON)
-                0x0080015a                PROVIDE (__bss_end, .)
+                0x00800154                PROVIDE (__bss_end, .)
                 0x0000129e                __data_load_start = LOADADDR (.data)
-                0x000012e4                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x000012de                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x0080015a        0x0
+.noinit         0x00800154        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
  *(.noinit*)
                 [!provide]                PROVIDE (__noinit_end, .)
-                0x0080015a                _end = .
+                0x00800154                _end = .
                 [!provide]                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0

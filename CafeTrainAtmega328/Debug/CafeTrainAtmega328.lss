@@ -3,31 +3,31 @@ CafeTrainAtmega328.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000046  00800100  0000129e  00001332  2**0
+  0 .data         00000040  00800100  0000129e  00001332  2**0
                   CONTENTS, ALLOC, LOAD, DATA
   1 .text         0000129e  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000014  00800146  00800146  00001378  2**0
+  2 .bss          00000014  00800140  00800140  00001372  2**0
                   ALLOC
-  3 .comment      0000005c  00000000  00000000  00001378  2**0
+  3 .comment      0000005c  00000000  00000000  00001372  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000013d4  2**2
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000013d0  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000290  00000000  00000000  00001414  2**0
+  5 .debug_aranges 00000290  00000000  00000000  00001410  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   000023f0  00000000  00000000  000016a4  2**0
+  6 .debug_info   000023f0  00000000  00000000  000016a0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 0000116a  00000000  00000000  00003a94  2**0
+  7 .debug_abbrev 0000116a  00000000  00000000  00003a90  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   000014d3  00000000  00000000  00004bfe  2**0
+  8 .debug_line   000014d3  00000000  00000000  00004bfa  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000005cc  00000000  00000000  000060d4  2**2
+  9 .debug_frame  000005cc  00000000  00000000  000060d0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000a89  00000000  00000000  000066a0  2**0
+ 10 .debug_str    00000a89  00000000  00000000  0000669c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00001185  00000000  00000000  00007129  2**0
+ 11 .debug_loc    00001185  00000000  00000000  00007125  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000230  00000000  00000000  000082ae  2**0
+ 12 .debug_ranges 00000230  00000000  00000000  000082aa  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -77,13 +77,13 @@ Disassembly of section .text:
       7e:	02 c0       	rjmp	.+4      	; 0x84 <__do_copy_data+0x10>
       80:	05 90       	lpm	r0, Z+
       82:	0d 92       	st	X+, r0
-      84:	a6 34       	cpi	r26, 0x46	; 70
+      84:	a0 34       	cpi	r26, 0x40	; 64
       86:	b1 07       	cpc	r27, r17
       88:	d9 f7       	brne	.-10     	; 0x80 <__do_copy_data+0xc>
 
 0000008a <__do_clear_bss>:
       8a:	21 e0       	ldi	r18, 0x01	; 1
-      8c:	a6 e4       	ldi	r26, 0x46	; 70
+      8c:	a0 e4       	ldi	r26, 0x40	; 64
       8e:	b1 e0       	ldi	r27, 0x01	; 1
       90:	01 c0       	rjmp	.+2      	; 0x94 <.do_clear_bss_start>
 
@@ -91,7 +91,7 @@ Disassembly of section .text:
       92:	1d 92       	st	X+, r1
 
 00000094 <.do_clear_bss_start>:
-      94:	aa 35       	cpi	r26, 0x5A	; 90
+      94:	a4 35       	cpi	r26, 0x54	; 84
       96:	b2 07       	cpc	r27, r18
       98:	e1 f7       	brne	.-8      	; 0x92 <.do_clear_bss_loop>
       9a:	0e 94 83 03 	call	0x706	; 0x706 <main>
@@ -165,12 +165,12 @@ void system_init(void) {
 	sei(); // Включаем глобальные прерывания
       fc:	78 94       	sei
 
-	LCD_PrintTwoLines("Waiting for Cmd", "Cmd: ?", 0);
+	LCD_PrintTwoLines("Waiting for Cmd", "", 0);
       fe:	40 e0       	ldi	r20, 0x00	; 0
      100:	50 e0       	ldi	r21, 0x00	; 0
-     102:	63 e0       	ldi	r22, 0x03	; 3
+     102:	64 e2       	ldi	r22, 0x24	; 36
      104:	71 e0       	ldi	r23, 0x01	; 1
-     106:	8a e0       	ldi	r24, 0x0A	; 10
+     106:	83 e0       	ldi	r24, 0x03	; 3
      108:	91 e0       	ldi	r25, 0x01	; 1
      10a:	0e 94 d4 01 	call	0x3a8	; 0x3a8 <LCD_PrintTwoLines>
 }
@@ -446,13 +446,13 @@ void LCD_Blink(char* buffer) {
      2f0:	39 0b       	sbc	r19, r25
 	
 	counter = (counter + 1) % 255; // Предотвращение переполнения
-     2f2:	80 91 48 01 	lds	r24, 0x0148	; 0x800148 <counter.1826>
+     2f2:	80 91 42 01 	lds	r24, 0x0142	; 0x800142 <counter.1826>
      2f6:	90 e0       	ldi	r25, 0x00	; 0
      2f8:	01 96       	adiw	r24, 0x01	; 1
      2fa:	6f ef       	ldi	r22, 0xFF	; 255
      2fc:	70 e0       	ldi	r23, 0x00	; 0
      2fe:	0e 94 26 06 	call	0xc4c	; 0xc4c <__divmodhi4>
-     302:	80 93 48 01 	sts	0x0148, r24	; 0x800148 <counter.1826>
+     302:	80 93 42 01 	sts	0x0142, r24	; 0x800142 <counter.1826>
 
 	if (counter % blinkCyclesNumber == 0) {
      306:	9d ec       	ldi	r25, 0xCD	; 205
@@ -471,14 +471,14 @@ void LCD_Blink(char* buffer) {
      320:	07 c0       	rjmp	.+14     	; 0x330 <LCD_Blink+0x6c>
 		toggle = !toggle; // Меняем состояние
      322:	81 e0       	ldi	r24, 0x01	; 1
-     324:	90 91 47 01 	lds	r25, 0x0147	; 0x800147 <toggle.1825>
+     324:	90 91 41 01 	lds	r25, 0x0141	; 0x800141 <toggle.1825>
      328:	91 11       	cpse	r25, r1
      32a:	80 e0       	ldi	r24, 0x00	; 0
-     32c:	80 93 47 01 	sts	0x0147, r24	; 0x800147 <toggle.1825>
+     32c:	80 93 41 01 	sts	0x0141, r24	; 0x800141 <toggle.1825>
 	}
 
 	if (toggle) {
-     330:	80 91 47 01 	lds	r24, 0x0147	; 0x800147 <toggle.1825>
+     330:	80 91 41 01 	lds	r24, 0x0141	; 0x800141 <toggle.1825>
      334:	88 23       	and	r24, r24
      336:	29 f1       	breq	.+74     	; 0x382 <LCD_Blink+0xbe>
      338:	cd b6       	in	r12, 0x3d	; 61
@@ -613,7 +613,7 @@ void update_lcd(uint8_t cmd, uint8_t table_id) {
      40a:	6f 93       	push	r22
      40c:	1f 92       	push	r1
      40e:	8f 93       	push	r24
-     410:	8a e1       	ldi	r24, 0x1A	; 26
+     410:	83 e1       	ldi	r24, 0x13	; 19
      412:	91 e0       	ldi	r25, 0x01	; 1
      414:	9f 93       	push	r25
      416:	8f 93       	push	r24
@@ -822,7 +822,7 @@ void MoveLocoForward(uint8_t tableIndex) {
 	shiftData[2] = powerRoutesSuplly[tableIndex];
      530:	e1 2f       	mov	r30, r17
      532:	f0 e0       	ldi	r31, 0x00	; 0
-     534:	e4 5d       	subi	r30, 0xD4	; 212
+     534:	eb 5d       	subi	r30, 0xDB	; 219
      536:	fe 4f       	sbci	r31, 0xFE	; 254
      538:	80 81       	ld	r24, Z
      53a:	8b 83       	std	Y+3, r24	; 0x03
@@ -897,7 +897,7 @@ void LocoStop(void) {
      58c:	0e 94 2e 04 	call	0x85c	; 0x85c <reset_route_state>
 	
 	routeSetupInProgress = 0;
-     590:	10 92 46 01 	sts	0x0146, r1	; 0x800146 <__data_end>
+     590:	10 92 40 01 	sts	0x0140, r1	; 0x800140 <__data_end>
 	
 	PowerSupplyOff();
      594:	0e 94 ac 02 	call	0x558	; 0x558 <PowerSupplyOff>
@@ -960,7 +960,7 @@ void MoveLocoBackward(uint8_t tableIndex) {
 	shiftData[2] = powerRoutesSuplly[shiftRegisterMask];
      5d4:	e1 2f       	mov	r30, r17
      5d6:	f0 e0       	ldi	r31, 0x00	; 0
-     5d8:	e4 5d       	subi	r30, 0xD4	; 212
+     5d8:	eb 5d       	subi	r30, 0xDB	; 219
      5da:	fe 4f       	sbci	r31, 0xFE	; 254
      5dc:	80 81       	ld	r24, Z
      5de:	8b 83       	std	Y+3, r24	; 0x03
@@ -972,7 +972,7 @@ void MoveLocoBackward(uint8_t tableIndex) {
      5e6:	0e 94 18 05 	call	0xa30	; 0xa30 <shiftOutMultiple>
 	
 	routeSetupInProgress = 0;
-     5ea:	10 92 46 01 	sts	0x0146, r1	; 0x800146 <__data_end>
+     5ea:	10 92 40 01 	sts	0x0140, r1	; 0x800140 <__data_end>
 	
 }
      5ee:	0f 90       	pop	r0
@@ -1007,7 +1007,7 @@ void handleForwardSensors(uint8_t mask) {
      60c:	88 23       	and	r24, r24
      60e:	2c f4       	brge	.+10     	; 0x61a <_Z20handleForwardSensorsh+0xe>
 			triggeredBitsHistory = 0;
-     610:	10 92 4a 01 	sts	0x014A, r1	; 0x80014a <triggeredBitsHistory>
+     610:	10 92 44 01 	sts	0x0144, r1	; 0x800144 <triggeredBitsHistory>
 			LocoStop();
      614:	0e 94 b0 02 	call	0x560	; 0x560 <LocoStop>
      618:	0a c0       	rjmp	.+20     	; 0x62e <_Z20handleForwardSensorsh+0x22>
@@ -1019,12 +1019,12 @@ void handleForwardSensors(uint8_t mask) {
      622:	05 c0       	rjmp	.+10     	; 0x62e <_Z20handleForwardSensorsh+0x22>
 		} else {
 		triggeredBitsHistory |= mask;
-     624:	90 91 4a 01 	lds	r25, 0x014A	; 0x80014a <triggeredBitsHistory>
+     624:	90 91 44 01 	lds	r25, 0x0144	; 0x800144 <triggeredBitsHistory>
      628:	89 2b       	or	r24, r25
-     62a:	80 93 4a 01 	sts	0x014A, r24	; 0x80014a <triggeredBitsHistory>
+     62a:	80 93 44 01 	sts	0x0144, r24	; 0x800144 <triggeredBitsHistory>
 	}
 	print_triggered_sensor(triggeredBitsHistory);
-     62e:	80 91 4a 01 	lds	r24, 0x014A	; 0x80014a <triggeredBitsHistory>
+     62e:	80 91 44 01 	lds	r24, 0x0144	; 0x800144 <triggeredBitsHistory>
      632:	0e 94 41 02 	call	0x482	; 0x482 <print_triggered_sensor>
      636:	08 95       	ret
 
@@ -1036,7 +1036,7 @@ void handleReverseSensors(uint8_t mask) {
      638:	84 ff       	sbrs	r24, 4
      63a:	05 c0       	rjmp	.+10     	; 0x646 <_Z20handleReverseSensorsh+0xe>
 			triggeredBitsHistory = 0;
-     63c:	10 92 4a 01 	sts	0x014A, r1	; 0x80014a <triggeredBitsHistory>
+     63c:	10 92 44 01 	sts	0x0144, r1	; 0x800144 <triggeredBitsHistory>
 			LocoStop(); // остановка у кухни
      640:	0e 94 b0 02 	call	0x560	; 0x560 <LocoStop>
      644:	0a c0       	rjmp	.+20     	; 0x65a <_Z20handleReverseSensorsh+0x22>
@@ -1048,12 +1048,12 @@ void handleReverseSensors(uint8_t mask) {
      64e:	05 c0       	rjmp	.+10     	; 0x65a <_Z20handleReverseSensorsh+0x22>
 		} else {
 		triggeredBitsHistory |= mask;
-     650:	90 91 4a 01 	lds	r25, 0x014A	; 0x80014a <triggeredBitsHistory>
+     650:	90 91 44 01 	lds	r25, 0x0144	; 0x800144 <triggeredBitsHistory>
      654:	89 2b       	or	r24, r25
-     656:	80 93 4a 01 	sts	0x014A, r24	; 0x80014a <triggeredBitsHistory>
+     656:	80 93 44 01 	sts	0x0144, r24	; 0x800144 <triggeredBitsHistory>
 	}
 	print_triggered_sensor(triggeredBitsHistory);
-     65a:	80 91 4a 01 	lds	r24, 0x014A	; 0x80014a <triggeredBitsHistory>
+     65a:	80 91 44 01 	lds	r24, 0x0144	; 0x800144 <triggeredBitsHistory>
      65e:	0e 94 41 02 	call	0x482	; 0x482 <print_triggered_sensor>
      662:	08 95       	ret
 
@@ -1066,7 +1066,7 @@ void checkSensorsState() {
 	sensorStates = ~read_74HC165(); // если активный высокий уровень с регистра
      664:	0e 94 c9 04 	call	0x992	; 0x992 <read_74HC165>
      668:	80 95       	com	r24
-     66a:	80 93 4c 01 	sts	0x014C, r24	; 0x80014c <_ZL12sensorStates>
+     66a:	80 93 46 01 	sts	0x0146, r24	; 0x800146 <_ZL12sensorStates>
 
 	if (sensorStates == previousSensorStates)
      66e:	90 91 00 01 	lds	r25, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
@@ -1078,7 +1078,7 @@ void checkSensorsState() {
      676:	98 27       	eor	r25, r24
 	triggeredBitMask = sensorStates & changedBits;
      678:	98 23       	and	r25, r24
-     67a:	90 93 4b 01 	sts	0x014B, r25	; 0x80014b <triggeredBitMask>
+     67a:	90 93 45 01 	sts	0x0145, r25	; 0x800145 <triggeredBitMask>
 	previousSensorStates = sensorStates;
      67e:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
 
@@ -1090,12 +1090,12 @@ void checkSensorsState() {
      68a:	88 23       	and	r24, r24
      68c:	29 f0       	breq	.+10     	; 0x698 <_Z17checkSensorsStatev+0x34>
 			handleForwardSensors(triggeredBitMask);
-     68e:	80 91 4b 01 	lds	r24, 0x014B	; 0x80014b <triggeredBitMask>
+     68e:	80 91 45 01 	lds	r24, 0x0145	; 0x800145 <triggeredBitMask>
      692:	0e 94 06 03 	call	0x60c	; 0x60c <_Z20handleForwardSensorsh>
      696:	08 95       	ret
 			} else {
 			handleReverseSensors(triggeredBitMask);
-     698:	80 91 4b 01 	lds	r24, 0x014B	; 0x80014b <triggeredBitMask>
+     698:	80 91 45 01 	lds	r24, 0x0145	; 0x800145 <triggeredBitMask>
      69c:	0e 94 1c 03 	call	0x638	; 0x638 <_Z20handleReverseSensorsh>
      6a0:	08 95       	ret
 
@@ -1145,16 +1145,16 @@ void process_packet(UART_Packet packet) {
      6ce:	0e 94 20 06 	call	0xc40	; 0xc40 <send_ack>
 		
 		if (!routeSetupInProgress) {
-     6d2:	80 91 46 01 	lds	r24, 0x0146	; 0x800146 <__data_end>
+     6d2:	80 91 40 01 	lds	r24, 0x0140	; 0x800140 <__data_end>
      6d6:	81 11       	cpse	r24, r1
      6d8:	0e c0       	rjmp	.+28     	; 0x6f6 <_Z14process_packet11UART_Packet+0x54>
 			
 			SelectedTable = packet.table_id;
-     6da:	d0 93 49 01 	sts	0x0149, r29	; 0x800149 <SelectedTable>
+     6da:	d0 93 43 01 	sts	0x0143, r29	; 0x800143 <SelectedTable>
 			
 			routeSetupInProgress = 1;
      6de:	81 e0       	ldi	r24, 0x01	; 1
-     6e0:	80 93 46 01 	sts	0x0146, r24	; 0x800146 <__data_end>
+     6e0:	80 93 40 01 	sts	0x0140, r24	; 0x800140 <__data_end>
      6e4:	08 c0       	rjmp	.+16     	; 0x6f6 <_Z14process_packet11UART_Packet+0x54>
 		}
 		break;
@@ -1162,7 +1162,7 @@ void process_packet(UART_Packet packet) {
 		case CMD_BACKWARD: // MOVE_BACKWARD
 		{
 			SelectedTable = packet.table_id;
-     6e6:	70 93 49 01 	sts	0x0149, r23	; 0x800149 <SelectedTable>
+     6e6:	70 93 43 01 	sts	0x0143, r23	; 0x800143 <SelectedTable>
 			MoveLocoBackward(SelectedTable);
      6ea:	87 2f       	mov	r24, r23
      6ec:	0e 94 d6 02 	call	0x5ac	; 0x5ac <MoveLocoBackward>
@@ -1176,7 +1176,7 @@ void process_packet(UART_Packet packet) {
 	}
 	
 	update_lcd(packet.cmd, SelectedTable);
-     6f6:	60 91 49 01 	lds	r22, 0x0149	; 0x800149 <SelectedTable>
+     6f6:	60 91 43 01 	lds	r22, 0x0143	; 0x800143 <SelectedTable>
      6fa:	8c 2f       	mov	r24, r28
      6fc:	0e 94 f8 01 	call	0x3f0	; 0x3f0 <update_lcd>
 }
@@ -1198,7 +1198,7 @@ int main(void) {
      70a:	0e 94 32 03 	call	0x664	; 0x664 <_Z17checkSensorsStatev>
 	
 	if (sensorStates != previousSensorStates) {
-     70e:	80 91 4c 01 	lds	r24, 0x014C	; 0x80014c <_ZL12sensorStates>
+     70e:	80 91 46 01 	lds	r24, 0x0146	; 0x800146 <_ZL12sensorStates>
      712:	90 91 00 01 	lds	r25, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
      716:	89 17       	cp	r24, r25
      718:	21 f0       	breq	.+8      	; 0x722 <main+0x1c>
@@ -1217,12 +1217,12 @@ int main(void) {
      72a:	0e 94 e9 03 	call	0x7d2	; 0x7d2 <processPWMUp>
 			
 		if (routeSetupInProgress) {
-     72e:	80 91 46 01 	lds	r24, 0x0146	; 0x800146 <__data_end>
+     72e:	80 91 40 01 	lds	r24, 0x0140	; 0x800140 <__data_end>
      732:	88 23       	and	r24, r24
      734:	51 f3       	breq	.-44     	; 0x70a <main+0x4>
 			
 			activate_route_non_blocking(SelectedTable);
-     736:	80 91 49 01 	lds	r24, 0x0149	; 0x800149 <SelectedTable>
+     736:	80 91 43 01 	lds	r24, 0x0143	; 0x800143 <SelectedTable>
      73a:	0e 94 31 04 	call	0x862	; 0x862 <activate_route_non_blocking>
 
 int main(void) {
@@ -1284,7 +1284,7 @@ void enablePWM() {
 
 void disablePWM() {
 	pwmIncreasing = 0;
-     77c:	10 92 51 01 	sts	0x0151, r1	; 0x800151 <pwmIncreasing>
+     77c:	10 92 4b 01 	sts	0x014B, r1	; 0x80014b <pwmIncreasing>
 	OCR1A = 0;
      780:	10 92 89 00 	sts	0x0089, r1	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
      784:	10 92 88 00 	sts	0x0088, r1	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
@@ -1313,17 +1313,17 @@ void startPWMUp() {
 	enablePWM();
      7aa:	0e 94 ae 03 	call	0x75c	; 0x75c <enablePWM>
 	pwmLastTick = rail_switch_step_counter;
-     7ae:	80 91 58 01 	lds	r24, 0x0158	; 0x800158 <rail_switch_step_counter>
-     7b2:	90 91 59 01 	lds	r25, 0x0159	; 0x800159 <rail_switch_step_counter+0x1>
+     7ae:	80 91 52 01 	lds	r24, 0x0152	; 0x800152 <rail_switch_step_counter>
+     7b2:	90 91 53 01 	lds	r25, 0x0153	; 0x800153 <rail_switch_step_counter+0x1>
      7b6:	a0 e0       	ldi	r26, 0x00	; 0
      7b8:	b0 e0       	ldi	r27, 0x00	; 0
-     7ba:	80 93 4d 01 	sts	0x014D, r24	; 0x80014d <pwmLastTick>
-     7be:	90 93 4e 01 	sts	0x014E, r25	; 0x80014e <pwmLastTick+0x1>
-     7c2:	a0 93 4f 01 	sts	0x014F, r26	; 0x80014f <pwmLastTick+0x2>
-     7c6:	b0 93 50 01 	sts	0x0150, r27	; 0x800150 <pwmLastTick+0x3>
+     7ba:	80 93 47 01 	sts	0x0147, r24	; 0x800147 <pwmLastTick>
+     7be:	90 93 48 01 	sts	0x0148, r25	; 0x800148 <pwmLastTick+0x1>
+     7c2:	a0 93 49 01 	sts	0x0149, r26	; 0x800149 <pwmLastTick+0x2>
+     7c6:	b0 93 4a 01 	sts	0x014A, r27	; 0x80014a <pwmLastTick+0x3>
 	pwmIncreasing = 1;	
      7ca:	81 e0       	ldi	r24, 0x01	; 1
-     7cc:	80 93 51 01 	sts	0x0151, r24	; 0x800151 <pwmIncreasing>
+     7cc:	80 93 4b 01 	sts	0x014B, r24	; 0x80014b <pwmIncreasing>
      7d0:	08 95       	ret
 
 000007d2 <processPWMUp>:
@@ -1332,20 +1332,20 @@ void startPWMUp() {
 void processPWMUp() {
 	
 	if (!pwmIncreasing) return;
-     7d2:	80 91 51 01 	lds	r24, 0x0151	; 0x800151 <pwmIncreasing>
+     7d2:	80 91 4b 01 	lds	r24, 0x014B	; 0x80014b <pwmIncreasing>
      7d6:	88 23       	and	r24, r24
      7d8:	09 f4       	brne	.+2      	; 0x7dc <processPWMUp+0xa>
      7da:	3f c0       	rjmp	.+126    	; 0x85a <__DATA_REGION_LENGTH__+0x5a>
 	
 	if ((rail_switch_step_counter - pwmLastTick) >= PWM_DELAY) {
-     7dc:	80 91 58 01 	lds	r24, 0x0158	; 0x800158 <rail_switch_step_counter>
-     7e0:	90 91 59 01 	lds	r25, 0x0159	; 0x800159 <rail_switch_step_counter+0x1>
+     7dc:	80 91 52 01 	lds	r24, 0x0152	; 0x800152 <rail_switch_step_counter>
+     7e0:	90 91 53 01 	lds	r25, 0x0153	; 0x800153 <rail_switch_step_counter+0x1>
      7e4:	a0 e0       	ldi	r26, 0x00	; 0
      7e6:	b0 e0       	ldi	r27, 0x00	; 0
-     7e8:	40 91 4d 01 	lds	r20, 0x014D	; 0x80014d <pwmLastTick>
-     7ec:	50 91 4e 01 	lds	r21, 0x014E	; 0x80014e <pwmLastTick+0x1>
-     7f0:	60 91 4f 01 	lds	r22, 0x014F	; 0x80014f <pwmLastTick+0x2>
-     7f4:	70 91 50 01 	lds	r23, 0x0150	; 0x800150 <pwmLastTick+0x3>
+     7e8:	40 91 47 01 	lds	r20, 0x0147	; 0x800147 <pwmLastTick>
+     7ec:	50 91 48 01 	lds	r21, 0x0148	; 0x800148 <pwmLastTick+0x1>
+     7f0:	60 91 49 01 	lds	r22, 0x0149	; 0x800149 <pwmLastTick+0x2>
+     7f4:	70 91 4a 01 	lds	r23, 0x014A	; 0x80014a <pwmLastTick+0x3>
      7f8:	84 1b       	sub	r24, r20
      7fa:	95 0b       	sbc	r25, r21
      7fc:	a6 0b       	sbc	r26, r22
@@ -1356,14 +1356,14 @@ void processPWMUp() {
      806:	48 f1       	brcs	.+82     	; 0x85a <__DATA_REGION_LENGTH__+0x5a>
 		
 		pwmLastTick = rail_switch_step_counter;
-     808:	80 91 58 01 	lds	r24, 0x0158	; 0x800158 <rail_switch_step_counter>
-     80c:	90 91 59 01 	lds	r25, 0x0159	; 0x800159 <rail_switch_step_counter+0x1>
+     808:	80 91 52 01 	lds	r24, 0x0152	; 0x800152 <rail_switch_step_counter>
+     80c:	90 91 53 01 	lds	r25, 0x0153	; 0x800153 <rail_switch_step_counter+0x1>
      810:	a0 e0       	ldi	r26, 0x00	; 0
      812:	b0 e0       	ldi	r27, 0x00	; 0
-     814:	80 93 4d 01 	sts	0x014D, r24	; 0x80014d <pwmLastTick>
-     818:	90 93 4e 01 	sts	0x014E, r25	; 0x80014e <pwmLastTick+0x1>
-     81c:	a0 93 4f 01 	sts	0x014F, r26	; 0x80014f <pwmLastTick+0x2>
-     820:	b0 93 50 01 	sts	0x0150, r27	; 0x800150 <pwmLastTick+0x3>
+     814:	80 93 47 01 	sts	0x0147, r24	; 0x800147 <pwmLastTick>
+     818:	90 93 48 01 	sts	0x0148, r25	; 0x800148 <pwmLastTick+0x1>
+     81c:	a0 93 49 01 	sts	0x0149, r26	; 0x800149 <pwmLastTick+0x2>
+     820:	b0 93 4a 01 	sts	0x014A, r27	; 0x80014a <pwmLastTick+0x3>
 
 		if (currentDuty <= PWM_MAX) {
      824:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <currentDuty>
@@ -1394,7 +1394,7 @@ void processPWMUp() {
      852:	0e 94 be 03 	call	0x77c	; 0x77c <disablePWM>
 			
 			pwmIncreasing = 0;
-     856:	10 92 51 01 	sts	0x0151, r1	; 0x800151 <pwmIncreasing>
+     856:	10 92 4b 01 	sts	0x014B, r1	; 0x80014b <pwmIncreasing>
      85a:	08 95       	ret
 
 0000085c <reset_route_state>:
@@ -1404,7 +1404,7 @@ void processPWMUp() {
 
 void reset_route_state(void) {
 	initialized = 0;
-     85c:	10 92 57 01 	sts	0x0157, r1	; 0x800157 <initialized>
+     85c:	10 92 51 01 	sts	0x0151, r1	; 0x800151 <initialized>
      860:	08 95       	ret
 
 00000862 <activate_route_non_blocking>:
@@ -1436,34 +1436,34 @@ void activate_route_non_blocking(uint8_t tableIndex) {
      880:	1b 82       	std	Y+3, r1	; 0x03
 		
 		if (!initialized) {
-     882:	80 91 57 01 	lds	r24, 0x0157	; 0x800157 <initialized>
+     882:	80 91 51 01 	lds	r24, 0x0151	; 0x800151 <initialized>
      886:	81 11       	cpse	r24, r1
      888:	13 c0       	rjmp	.+38     	; 0x8b0 <activate_route_non_blocking+0x4e>
 			currentBit = 0;                  // Начинаем с первого бита
-     88a:	10 92 56 01 	sts	0x0156, r1	; 0x800156 <currentBit.1796>
+     88a:	10 92 50 01 	sts	0x0150, r1	; 0x800150 <currentBit.1796>
 			lastTick = rail_switch_step_counter;
-     88e:	80 91 58 01 	lds	r24, 0x0158	; 0x800158 <rail_switch_step_counter>
-     892:	90 91 59 01 	lds	r25, 0x0159	; 0x800159 <rail_switch_step_counter+0x1>
+     88e:	80 91 52 01 	lds	r24, 0x0152	; 0x800152 <rail_switch_step_counter>
+     892:	90 91 53 01 	lds	r25, 0x0153	; 0x800153 <rail_switch_step_counter+0x1>
      896:	a0 e0       	ldi	r26, 0x00	; 0
      898:	b0 e0       	ldi	r27, 0x00	; 0
-     89a:	80 93 52 01 	sts	0x0152, r24	; 0x800152 <lastTick.1795>
-     89e:	90 93 53 01 	sts	0x0153, r25	; 0x800153 <lastTick.1795+0x1>
-     8a2:	a0 93 54 01 	sts	0x0154, r26	; 0x800154 <lastTick.1795+0x2>
-     8a6:	b0 93 55 01 	sts	0x0155, r27	; 0x800155 <lastTick.1795+0x3>
+     89a:	80 93 4c 01 	sts	0x014C, r24	; 0x80014c <lastTick.1795>
+     89e:	90 93 4d 01 	sts	0x014D, r25	; 0x80014d <lastTick.1795+0x1>
+     8a2:	a0 93 4e 01 	sts	0x014E, r26	; 0x80014e <lastTick.1795+0x2>
+     8a6:	b0 93 4f 01 	sts	0x014F, r27	; 0x80014f <lastTick.1795+0x3>
 			initialized = 1;
      8aa:	81 e0       	ldi	r24, 0x01	; 1
-     8ac:	80 93 57 01 	sts	0x0157, r24	; 0x800157 <initialized>
+     8ac:	80 93 51 01 	sts	0x0151, r24	; 0x800151 <initialized>
 		}
 
 	if ((rail_switch_step_counter - lastTick) >= SWITCH_PAUSE_TIME) {
-     8b0:	80 91 58 01 	lds	r24, 0x0158	; 0x800158 <rail_switch_step_counter>
-     8b4:	90 91 59 01 	lds	r25, 0x0159	; 0x800159 <rail_switch_step_counter+0x1>
+     8b0:	80 91 52 01 	lds	r24, 0x0152	; 0x800152 <rail_switch_step_counter>
+     8b4:	90 91 53 01 	lds	r25, 0x0153	; 0x800153 <rail_switch_step_counter+0x1>
      8b8:	a0 e0       	ldi	r26, 0x00	; 0
      8ba:	b0 e0       	ldi	r27, 0x00	; 0
-     8bc:	00 91 52 01 	lds	r16, 0x0152	; 0x800152 <lastTick.1795>
-     8c0:	10 91 53 01 	lds	r17, 0x0153	; 0x800153 <lastTick.1795+0x1>
-     8c4:	20 91 54 01 	lds	r18, 0x0154	; 0x800154 <lastTick.1795+0x2>
-     8c8:	30 91 55 01 	lds	r19, 0x0155	; 0x800155 <lastTick.1795+0x3>
+     8bc:	00 91 4c 01 	lds	r16, 0x014C	; 0x80014c <lastTick.1795>
+     8c0:	10 91 4d 01 	lds	r17, 0x014D	; 0x80014d <lastTick.1795+0x1>
+     8c4:	20 91 4e 01 	lds	r18, 0x014E	; 0x80014e <lastTick.1795+0x2>
+     8c8:	30 91 4f 01 	lds	r19, 0x014F	; 0x80014f <lastTick.1795+0x3>
      8cc:	80 1b       	sub	r24, r16
      8ce:	91 0b       	sbc	r25, r17
      8d0:	a2 0b       	sbc	r26, r18
@@ -1475,14 +1475,14 @@ void activate_route_non_blocking(uint8_t tableIndex) {
      8dc:	08 f4       	brcc	.+2      	; 0x8e0 <activate_route_non_blocking+0x7e>
      8de:	51 c0       	rjmp	.+162    	; 0x982 <__stack+0x83>
 		lastTick = rail_switch_step_counter;
-     8e0:	80 91 58 01 	lds	r24, 0x0158	; 0x800158 <rail_switch_step_counter>
-     8e4:	90 91 59 01 	lds	r25, 0x0159	; 0x800159 <rail_switch_step_counter+0x1>
+     8e0:	80 91 52 01 	lds	r24, 0x0152	; 0x800152 <rail_switch_step_counter>
+     8e4:	90 91 53 01 	lds	r25, 0x0153	; 0x800153 <rail_switch_step_counter+0x1>
      8e8:	a0 e0       	ldi	r26, 0x00	; 0
      8ea:	b0 e0       	ldi	r27, 0x00	; 0
-     8ec:	80 93 52 01 	sts	0x0152, r24	; 0x800152 <lastTick.1795>
-     8f0:	90 93 53 01 	sts	0x0153, r25	; 0x800153 <lastTick.1795+0x1>
-     8f4:	a0 93 54 01 	sts	0x0154, r26	; 0x800154 <lastTick.1795+0x2>
-     8f8:	b0 93 55 01 	sts	0x0155, r27	; 0x800155 <lastTick.1795+0x3>
+     8ec:	80 93 4c 01 	sts	0x014C, r24	; 0x80014c <lastTick.1795>
+     8f0:	90 93 4d 01 	sts	0x014D, r25	; 0x80014d <lastTick.1795+0x1>
+     8f4:	a0 93 4e 01 	sts	0x014E, r26	; 0x80014e <lastTick.1795+0x2>
+     8f8:	b0 93 4f 01 	sts	0x014F, r27	; 0x80014f <lastTick.1795+0x3>
 
 		// Пропускаем нули
 		while (currentBit < (NUM_BITS_74HC595*2) && !(routeSwitches[tableIndex] & (1 << currentBit))) {
@@ -1490,21 +1490,21 @@ void activate_route_non_blocking(uint8_t tableIndex) {
 			currentBit++;
      8fe:	81 e0       	ldi	r24, 0x01	; 1
      900:	89 0f       	add	r24, r25
-     902:	80 93 56 01 	sts	0x0156, r24	; 0x800156 <currentBit.1796>
+     902:	80 93 50 01 	sts	0x0150, r24	; 0x800150 <currentBit.1796>
 
 	if ((rail_switch_step_counter - lastTick) >= SWITCH_PAUSE_TIME) {
 		lastTick = rail_switch_step_counter;
 
 		// Пропускаем нули
 		while (currentBit < (NUM_BITS_74HC595*2) && !(routeSwitches[tableIndex] & (1 << currentBit))) {
-     906:	90 91 56 01 	lds	r25, 0x0156	; 0x800156 <currentBit.1796>
+     906:	90 91 50 01 	lds	r25, 0x0150	; 0x800150 <currentBit.1796>
      90a:	90 31       	cpi	r25, 0x10	; 16
      90c:	a0 f4       	brcc	.+40     	; 0x936 <__stack+0x37>
      90e:	e6 2f       	mov	r30, r22
      910:	f0 e0       	ldi	r31, 0x00	; 0
      912:	ee 0f       	add	r30, r30
      914:	ff 1f       	adc	r31, r31
-     916:	ec 5c       	subi	r30, 0xCC	; 204
+     916:	e3 5d       	subi	r30, 0xD3	; 211
      918:	fe 4f       	sbci	r31, 0xFE	; 254
      91a:	40 81       	ld	r20, Z
      91c:	51 81       	ldd	r21, Z+1	; 0x01
@@ -1555,9 +1555,9 @@ void activate_route_non_blocking(uint8_t tableIndex) {
      962:	01 96       	adiw	r24, 0x01	; 1
      964:	0e 94 18 05 	call	0xa30	; 0xa30 <shiftOutMultiple>
 			currentBit++;
-     968:	80 91 56 01 	lds	r24, 0x0156	; 0x800156 <currentBit.1796>
+     968:	80 91 50 01 	lds	r24, 0x0150	; 0x800150 <currentBit.1796>
      96c:	8f 5f       	subi	r24, 0xFF	; 255
-     96e:	80 93 56 01 	sts	0x0156, r24	; 0x800156 <currentBit.1796>
+     96e:	80 93 50 01 	sts	0x0150, r24	; 0x800150 <currentBit.1796>
      972:	07 c0       	rjmp	.+14     	; 0x982 <__stack+0x83>
 			} 
 			else {
@@ -1565,9 +1565,9 @@ void activate_route_non_blocking(uint8_t tableIndex) {
      974:	86 2f       	mov	r24, r22
      976:	0e 94 88 02 	call	0x510	; 0x510 <MoveLocoForward>
 			routeSetupInProgress = 0;
-     97a:	10 92 46 01 	sts	0x0146, r1	; 0x800146 <__data_end>
+     97a:	10 92 40 01 	sts	0x0140, r1	; 0x800140 <__data_end>
 			initialized = 0;
-     97e:	10 92 57 01 	sts	0x0157, r1	; 0x800157 <initialized>
+     97e:	10 92 51 01 	sts	0x0151, r1	; 0x800151 <initialized>
 		}
 	}
 }
@@ -1874,11 +1874,11 @@ ISR(TIMER0_COMPA_vect) {
      ac6:	8f 93       	push	r24
      ac8:	9f 93       	push	r25
 	rail_switch_step_counter++;    // Увеличиваем счётчик каждые ~5 мс
-     aca:	80 91 58 01 	lds	r24, 0x0158	; 0x800158 <rail_switch_step_counter>
-     ace:	90 91 59 01 	lds	r25, 0x0159	; 0x800159 <rail_switch_step_counter+0x1>
+     aca:	80 91 52 01 	lds	r24, 0x0152	; 0x800152 <rail_switch_step_counter>
+     ace:	90 91 53 01 	lds	r25, 0x0153	; 0x800153 <rail_switch_step_counter+0x1>
      ad2:	01 96       	adiw	r24, 0x01	; 1
-     ad4:	90 93 59 01 	sts	0x0159, r25	; 0x800159 <rail_switch_step_counter+0x1>
-     ad8:	80 93 58 01 	sts	0x0158, r24	; 0x800158 <rail_switch_step_counter>
+     ad4:	90 93 53 01 	sts	0x0153, r25	; 0x800153 <rail_switch_step_counter+0x1>
+     ad8:	80 93 52 01 	sts	0x0152, r24	; 0x800152 <rail_switch_step_counter>
 }
      adc:	9f 91       	pop	r25
      ade:	8f 91       	pop	r24
