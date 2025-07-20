@@ -5,6 +5,10 @@
 
 #define F_CPU 16000000UL
 
+// «ащита по времени от работы на холостом ходу 
+#define TICKS_PER_UNIT 10000
+#define MAX_TIME_UNITS 30
+
 // ќпределение линий управлени€ стрелками
 #define REVERS_PIN PB5  // 
 

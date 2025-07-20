@@ -77,7 +77,8 @@ void SlowMode(void){
 
 void PowerSupplyOn() {
 
-	PORTB |= (1 << RAIL_POWER_ENABLE);	
+	PORTB |= (1 << RAIL_POWER_ENABLE);
+	PORTB |= (1 << PWM_SWITCH_PIN);	
 }
 
 void PowerSupplyOff() {

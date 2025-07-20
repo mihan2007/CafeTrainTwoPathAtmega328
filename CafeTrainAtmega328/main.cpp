@@ -11,6 +11,12 @@
 #include "uart.h"
 #include "shift_registers.h"
 
+uint8_t lastCmd = 0xFF;  //  оманда, выполненна€ последней
+
+uint8_t isLocoMoving = 0;
+uint16_t tickCounter = 0;
+uint8_t timeCounter = 0;
+
 static uint8_t sensorStates = 0;
 
 uint8_t triggeredBitMask = 0;
@@ -49,8 +55,6 @@ void handleReverseSensors(uint8_t mask) {
 	print_triggered_sensor(triggeredBitsHistory);
 }
 
-
-
 void checkSensorsState() {
 	sensorStates = ~read_74HC165(); // если активный высокий уровень с регистра
 
@@ -70,50 +74,75 @@ void checkSensorsState() {
 	}
 }
 
+void resetLocoTimer() {
+	tickCounter = 0;
+	timeCounter = 0;
+}
 
+void stopLocoDueToTimeout() {
+	LocoStop();
+	isLocoMoving = 0;
+	resetLocoTimer();
+	routeSetupInProgress = 0;
+}
+
+void checkLocoMovementTimeout() {
+	if (!isLocoMoving)
+	return;
+
+	tickCounter++;
+
+	if (tickCounter >= TICKS_PER_UNIT) {
+		tickCounter = 0;
+		timeCounter++;
+
+		if (timeCounter >= MAX_TIME_UNITS) {
+			stopLocoDueToTimeout();
+		}
+	}
+}
 
 void process_packet(UART_Packet packet) {
-	if (!packet.valid) {
-		return;
-	}
-	
-	switch (packet.cmd) {
-		case CMD_STOP: // STOP
-		{
-			LocoStop();
-		}
-		send_ack(packet.cmd);
-		break;
-		
-		case CMD_FORWARD: // MOVE_FORWARD
-			
-			LocoStop();
+	if (!packet.valid)
+	return;
 
-			send_ack(packet.cmd);
+	if (packet.cmd == lastCmd && packet.cmd != CMD_STOP && routeSetupInProgress)
+	return;  // »гнорируем повтор той же команды, кроме STOP
+
+	lastCmd = packet.cmd;
+
+	switch (packet.cmd) {
+		case CMD_STOP:
+		LocoStop();
+		send_ack(packet.cmd);
+		resetLocoTimer();
+		break;
+
+		case CMD_FORWARD:
+		LocoStop();  // сбрасываем на вс€кий случай
 		
+		send_ack(packet.cmd);
+	
 		if (!routeSetupInProgress) {
-			
 			SelectedTable = packet.table_id;
-			
 			routeSetupInProgress = 1;
 		}
+		isLocoMoving = 1;
 		break;
-		
-		case CMD_BACKWARD: // MOVE_BACKWARD
-		{
-			SelectedTable = packet.table_id;
-			MoveLocoBackward(SelectedTable);
-		}
+
+		case CMD_BACKWARD:
+		SelectedTable = packet.table_id;
+		MoveLocoBackward(SelectedTable);
 		send_ack(packet.cmd);
+		isLocoMoving = 1;
 		break;
-		
+
 		default:
 		break;
 	}
-	
+
 	update_lcd(packet.cmd, SelectedTable);
 }
-
 
 int main(void) {
 	
@@ -122,6 +151,7 @@ int main(void) {
 	while (1) {
 		
 	checkSensorsState();
+	checkLocoMovementTimeout();
 	
 	if (sensorStates != previousSensorStates) {
 		previousSensorStates = sensorStates;
