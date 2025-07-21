@@ -9,7 +9,7 @@
 #define BAUD 9600
 #define UBRR_VALUE ((unsigned long)(F_CPU / 16 / BAUD) - 1)
 
-#define RAIL_POWER_ENABLE PB0// Power supply PIN (D8)
+#define LIGHT_INDICATION_ENABLE PB0// Power supply PIN (D8)
 
 #define NUM_BITS_74HC595 8  // Количество бит в байте
 #define NUM_OF_74HC595 1    // Количество включенных в каскад 74HC595
@@ -38,6 +38,6 @@
 #define TABLE_5 (1 << 4)
 #define TABLE_6 (1 << 5)
 #define TABLE_7 (1 << 6)
-#define TABLE_7 (1 << 7)
+#define TABLE_8 (1 << 7)
 
 #endif /* CONFIG_H_ */

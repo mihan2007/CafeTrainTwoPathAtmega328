@@ -59,8 +59,8 @@ void latchData(void) {
 }
 
 void shiftOutMultiple(uint8_t *data, uint8_t count) {
-	// Активируем питание рельс
-	PORTB |= (1 << RAIL_POWER_ENABLE);
+
+	PORTB |= (1 << LIGHT_INDICATION_ENABLE);
 
 	for (uint8_t i = 0; i < count; i++) {
 		shiftOut(data[i]);

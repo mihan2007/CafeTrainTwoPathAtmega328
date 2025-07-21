@@ -20,8 +20,8 @@ void system_init(void) {
 	init_74HC165_ports();
 	init_74HC595_ports();
 	
-	DDRB |= (1 << RAIL_POWER_ENABLE);
-	
+	DDRB |= (1 << LIGHT_INDICATION_ENABLE);
+
 	// Очистка регистров при старте
 	uint8_t initData[NUM_OF_74HC595] = {0};
 	shiftOutMultiple(initData, NUM_OF_74HC595);
