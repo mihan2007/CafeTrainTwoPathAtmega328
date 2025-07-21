@@ -1,0 +1,43 @@
+#ifndef CONFIG_H_
+#define CONFIG_H_
+
+#include <avr/io.h>
+
+#define F_CPU 16000000UL
+
+//  UART
+#define BAUD 9600
+#define UBRR_VALUE ((unsigned long)(F_CPU / 16 / BAUD) - 1)
+
+#define RAIL_POWER_ENABLE PB0// Power supply PIN (D8)
+
+#define NUM_BITS_74HC595 8  // Количество бит в байте
+#define NUM_OF_74HC595 1    // Количество включенных в каскад 74HC595
+
+
+// Shift register PINs 74HC165
+#define LATCH_74HC165 PD6   // LATCH для 74HC165
+#define CLOCK_74HC165 PD5   // CLOCK для 74HC165
+#define DATA_74HC165  PD7   // DATA для 74HC165
+
+// Shift register PINs 74HC595
+#define DATA_74HC595    PD2
+#define CLOCK_74HC595   PD3
+#define LATCH_74HC595   PD4
+
+// Uart Comands 
+#define CMD_FORWARD		0x20
+#define CMD_STOP		0x30
+#define CMD_BACKWARD	0x21
+
+// Sensors bytes
+#define TABLE_1 (1 << 0)
+#define TABLE_2 (1 << 1)
+#define TABLE_3 (1 << 2)
+#define TABLE_4 (1 << 3)
+#define TABLE_5 (1 << 4)
+#define TABLE_6 (1 << 5)
+#define TABLE_7 (1 << 6)
+#define TABLE_7 (1 << 7)
+
+#endif /* CONFIG_H_ */

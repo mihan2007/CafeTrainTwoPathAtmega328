@@ -1,0 +1,511 @@
+
+Transmitter.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         00000002  00800100  000002e4  00000378  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         000002e4  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .bss          00000002  00800102  00800102  0000037a  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  0000037a  2**0
+                  CONTENTS, READONLY
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000003ac  2**2
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000178  00000000  00000000  000003ec  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   00001a45  00000000  00000000  00000564  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 00000c68  00000000  00000000  00001fa9  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   00000d3a  00000000  00000000  00002c11  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  000003c8  00000000  00000000  0000394c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    000008a4  00000000  00000000  00003d14  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    00001015  00000000  00000000  000045b8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000168  00000000  00000000  000055cd  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 34 00 	jmp	0x68	; 0x68 <__ctors_end>
+   4:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+   8:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+   c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  10:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  14:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  18:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  1c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  20:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  24:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  28:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  2c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  30:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  34:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  38:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  3c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  40:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  44:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  48:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  4c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  50:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  54:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  58:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  5c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  60:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  64:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+
+00000068 <__ctors_end>:
+  68:	11 24       	eor	r1, r1
+  6a:	1f be       	out	0x3f, r1	; 63
+  6c:	cf ef       	ldi	r28, 0xFF	; 255
+  6e:	d8 e0       	ldi	r29, 0x08	; 8
+  70:	de bf       	out	0x3e, r29	; 62
+  72:	cd bf       	out	0x3d, r28	; 61
+
+00000074 <__do_copy_data>:
+  74:	11 e0       	ldi	r17, 0x01	; 1
+  76:	a0 e0       	ldi	r26, 0x00	; 0
+  78:	b1 e0       	ldi	r27, 0x01	; 1
+  7a:	e4 ee       	ldi	r30, 0xE4	; 228
+  7c:	f2 e0       	ldi	r31, 0x02	; 2
+  7e:	02 c0       	rjmp	.+4      	; 0x84 <__do_copy_data+0x10>
+  80:	05 90       	lpm	r0, Z+
+  82:	0d 92       	st	X+, r0
+  84:	a2 30       	cpi	r26, 0x02	; 2
+  86:	b1 07       	cpc	r27, r17
+  88:	d9 f7       	brne	.-10     	; 0x80 <__do_copy_data+0xc>
+
+0000008a <__do_clear_bss>:
+  8a:	21 e0       	ldi	r18, 0x01	; 1
+  8c:	a2 e0       	ldi	r26, 0x02	; 2
+  8e:	b1 e0       	ldi	r27, 0x01	; 1
+  90:	01 c0       	rjmp	.+2      	; 0x94 <.do_clear_bss_start>
+
+00000092 <.do_clear_bss_loop>:
+  92:	1d 92       	st	X+, r1
+
+00000094 <.do_clear_bss_start>:
+  94:	a4 30       	cpi	r26, 0x04	; 4
+  96:	b2 07       	cpc	r27, r18
+  98:	e1 f7       	brne	.-8      	; 0x92 <.do_clear_bss_loop>
+  9a:	0e 94 40 01 	call	0x280	; 0x280 <main>
+  9e:	0c 94 70 01 	jmp	0x2e0	; 0x2e0 <_exit>
+
+000000a2 <__bad_interrupt>:
+  a2:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+000000a6 <I2C_Start>:
+	}
+	line1[16] = '\0';
+
+	LCD_SetCursor(0, 0);
+	LCD_Print(line1);
+}
+  a6:	84 ea       	ldi	r24, 0xA4	; 164
+  a8:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+  ac:	80 91 bc 00 	lds	r24, 0x00BC	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+  b0:	88 23       	and	r24, r24
+  b2:	e4 f7       	brge	.-8      	; 0xac <I2C_Start+0x6>
+  b4:	08 95       	ret
+
+000000b6 <I2C_Stop>:
+  b6:	84 e9       	ldi	r24, 0x94	; 148
+  b8:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+  bc:	80 91 bc 00 	lds	r24, 0x00BC	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+  c0:	84 fd       	sbrc	r24, 4
+  c2:	fc cf       	rjmp	.-8      	; 0xbc <I2C_Stop+0x6>
+  c4:	08 95       	ret
+
+000000c6 <I2C_Write>:
+  c6:	80 93 bb 00 	sts	0x00BB, r24	; 0x8000bb <__TEXT_REGION_LENGTH__+0x7f80bb>
+  ca:	84 e8       	ldi	r24, 0x84	; 132
+  cc:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+  d0:	80 91 bc 00 	lds	r24, 0x00BC	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+  d4:	88 23       	and	r24, r24
+  d6:	e4 f7       	brge	.-8      	; 0xd0 <I2C_Write+0xa>
+  d8:	08 95       	ret
+
+000000da <LCD_Send>:
+  da:	0f 93       	push	r16
+  dc:	1f 93       	push	r17
+  de:	cf 93       	push	r28
+  e0:	df 93       	push	r29
+  e2:	d8 2f       	mov	r29, r24
+  e4:	d0 7f       	andi	r29, 0xF0	; 240
+  e6:	d6 2b       	or	r29, r22
+  e8:	0d 2f       	mov	r16, r29
+  ea:	08 60       	ori	r16, 0x08	; 8
+  ec:	20 e1       	ldi	r18, 0x10	; 16
+  ee:	82 9f       	mul	r24, r18
+  f0:	c0 01       	movw	r24, r0
+  f2:	11 24       	eor	r1, r1
+  f4:	c6 2f       	mov	r28, r22
+  f6:	c8 2b       	or	r28, r24
+  f8:	1c 2f       	mov	r17, r28
+  fa:	18 60       	ori	r17, 0x08	; 8
+  fc:	0e 94 53 00 	call	0xa6	; 0xa6 <I2C_Start>
+ 100:	8e e4       	ldi	r24, 0x4E	; 78
+ 102:	0e 94 63 00 	call	0xc6	; 0xc6 <I2C_Write>
+ 106:	80 2f       	mov	r24, r16
+ 108:	0e 94 63 00 	call	0xc6	; 0xc6 <I2C_Write>
+ 10c:	8d 2f       	mov	r24, r29
+ 10e:	8c 60       	ori	r24, 0x0C	; 12
+ 110:	0e 94 63 00 	call	0xc6	; 0xc6 <I2C_Write>
+ 114:	80 2f       	mov	r24, r16
+ 116:	0e 94 63 00 	call	0xc6	; 0xc6 <I2C_Write>
+ 11a:	81 2f       	mov	r24, r17
+ 11c:	0e 94 63 00 	call	0xc6	; 0xc6 <I2C_Write>
+ 120:	8c 2f       	mov	r24, r28
+ 122:	8c 60       	ori	r24, 0x0C	; 12
+ 124:	0e 94 63 00 	call	0xc6	; 0xc6 <I2C_Write>
+ 128:	81 2f       	mov	r24, r17
+ 12a:	0e 94 63 00 	call	0xc6	; 0xc6 <I2C_Write>
+ 12e:	0e 94 5b 00 	call	0xb6	; 0xb6 <I2C_Stop>
+ 132:	df 91       	pop	r29
+ 134:	cf 91       	pop	r28
+ 136:	1f 91       	pop	r17
+ 138:	0f 91       	pop	r16
+ 13a:	08 95       	ret
+
+0000013c <LCD_Command>:
+ 13c:	60 e0       	ldi	r22, 0x00	; 0
+ 13e:	0e 94 6d 00 	call	0xda	; 0xda <LCD_Send>
+ 142:	8f e3       	ldi	r24, 0x3F	; 63
+ 144:	9f e1       	ldi	r25, 0x1F	; 31
+ 146:	01 97       	sbiw	r24, 0x01	; 1
+ 148:	f1 f7       	brne	.-4      	; 0x146 <LCD_Command+0xa>
+ 14a:	00 c0       	rjmp	.+0      	; 0x14c <LCD_Command+0x10>
+ 14c:	00 00       	nop
+ 14e:	08 95       	ret
+
+00000150 <LCD_Data>:
+ 150:	61 e0       	ldi	r22, 0x01	; 1
+ 152:	0e 94 6d 00 	call	0xda	; 0xda <LCD_Send>
+ 156:	8f e3       	ldi	r24, 0x3F	; 63
+ 158:	9f e1       	ldi	r25, 0x1F	; 31
+ 15a:	01 97       	sbiw	r24, 0x01	; 1
+ 15c:	f1 f7       	brne	.-4      	; 0x15a <LCD_Data+0xa>
+ 15e:	00 c0       	rjmp	.+0      	; 0x160 <LCD_Data+0x10>
+ 160:	00 00       	nop
+ 162:	08 95       	ret
+
+00000164 <LCD_SetCursor>:
+ 164:	cf 93       	push	r28
+ 166:	df 93       	push	r29
+ 168:	00 d0       	rcall	.+0      	; 0x16a <LCD_SetCursor+0x6>
+ 16a:	00 d0       	rcall	.+0      	; 0x16c <LCD_SetCursor+0x8>
+ 16c:	cd b7       	in	r28, 0x3d	; 61
+ 16e:	de b7       	in	r29, 0x3e	; 62
+ 170:	19 82       	std	Y+1, r1	; 0x01
+ 172:	90 e4       	ldi	r25, 0x40	; 64
+ 174:	9a 83       	std	Y+2, r25	; 0x02
+ 176:	94 e1       	ldi	r25, 0x14	; 20
+ 178:	9b 83       	std	Y+3, r25	; 0x03
+ 17a:	94 e5       	ldi	r25, 0x54	; 84
+ 17c:	9c 83       	std	Y+4, r25	; 0x04
+ 17e:	e1 e0       	ldi	r30, 0x01	; 1
+ 180:	f0 e0       	ldi	r31, 0x00	; 0
+ 182:	ec 0f       	add	r30, r28
+ 184:	fd 1f       	adc	r31, r29
+ 186:	e6 0f       	add	r30, r22
+ 188:	f1 1d       	adc	r31, r1
+ 18a:	90 81       	ld	r25, Z
+ 18c:	89 0f       	add	r24, r25
+ 18e:	80 68       	ori	r24, 0x80	; 128
+ 190:	0e 94 9e 00 	call	0x13c	; 0x13c <LCD_Command>
+ 194:	0f 90       	pop	r0
+ 196:	0f 90       	pop	r0
+ 198:	0f 90       	pop	r0
+ 19a:	0f 90       	pop	r0
+ 19c:	df 91       	pop	r29
+ 19e:	cf 91       	pop	r28
+ 1a0:	08 95       	ret
+
+000001a2 <LCD_Print>:
+ 1a2:	cf 93       	push	r28
+ 1a4:	df 93       	push	r29
+ 1a6:	ec 01       	movw	r28, r24
+ 1a8:	03 c0       	rjmp	.+6      	; 0x1b0 <LCD_Print+0xe>
+ 1aa:	21 96       	adiw	r28, 0x01	; 1
+ 1ac:	0e 94 a8 00 	call	0x150	; 0x150 <LCD_Data>
+ 1b0:	88 81       	ld	r24, Y
+ 1b2:	81 11       	cpse	r24, r1
+ 1b4:	fa cf       	rjmp	.-12     	; 0x1aa <LCD_Print+0x8>
+ 1b6:	df 91       	pop	r29
+ 1b8:	cf 91       	pop	r28
+ 1ba:	08 95       	ret
+
+000001bc <print_triggered_sensor>:
+
+
+void print_triggered_sensor(uint8_t states) {
+ 1bc:	cf 93       	push	r28
+ 1be:	df 93       	push	r29
+ 1c0:	cd b7       	in	r28, 0x3d	; 61
+ 1c2:	de b7       	in	r29, 0x3e	; 62
+ 1c4:	61 97       	sbiw	r28, 0x11	; 17
+ 1c6:	0f b6       	in	r0, 0x3f	; 63
+ 1c8:	f8 94       	cli
+ 1ca:	de bf       	out	0x3e, r29	; 62
+ 1cc:	0f be       	out	0x3f, r0	; 63
+ 1ce:	cd bf       	out	0x3d, r28	; 61
+	char line2[17];
+
+	for (uint8_t i = 0; i < 8; i++) {
+ 1d0:	90 e0       	ldi	r25, 0x00	; 0
+ 1d2:	1a c0       	rjmp	.+52     	; 0x208 <print_triggered_sensor+0x4c>
+		line2[i] = (states & (1 << (7 - i))) ? '1' : '0';
+ 1d4:	29 2f       	mov	r18, r25
+ 1d6:	30 e0       	ldi	r19, 0x00	; 0
+ 1d8:	67 e0       	ldi	r22, 0x07	; 7
+ 1da:	70 e0       	ldi	r23, 0x00	; 0
+ 1dc:	62 1b       	sub	r22, r18
+ 1de:	73 0b       	sbc	r23, r19
+ 1e0:	48 2f       	mov	r20, r24
+ 1e2:	50 e0       	ldi	r21, 0x00	; 0
+ 1e4:	02 c0       	rjmp	.+4      	; 0x1ea <print_triggered_sensor+0x2e>
+ 1e6:	55 95       	asr	r21
+ 1e8:	47 95       	ror	r20
+ 1ea:	6a 95       	dec	r22
+ 1ec:	e2 f7       	brpl	.-8      	; 0x1e6 <print_triggered_sensor+0x2a>
+ 1ee:	40 ff       	sbrs	r20, 0
+ 1f0:	02 c0       	rjmp	.+4      	; 0x1f6 <print_triggered_sensor+0x3a>
+ 1f2:	41 e3       	ldi	r20, 0x31	; 49
+ 1f4:	01 c0       	rjmp	.+2      	; 0x1f8 <print_triggered_sensor+0x3c>
+ 1f6:	40 e3       	ldi	r20, 0x30	; 48
+ 1f8:	e1 e0       	ldi	r30, 0x01	; 1
+ 1fa:	f0 e0       	ldi	r31, 0x00	; 0
+ 1fc:	ec 0f       	add	r30, r28
+ 1fe:	fd 1f       	adc	r31, r29
+ 200:	e2 0f       	add	r30, r18
+ 202:	f3 1f       	adc	r31, r19
+ 204:	40 83       	st	Z, r20
+
+
+void print_triggered_sensor(uint8_t states) {
+	char line2[17];
+
+	for (uint8_t i = 0; i < 8; i++) {
+ 206:	9f 5f       	subi	r25, 0xFF	; 255
+ 208:	98 30       	cpi	r25, 0x08	; 8
+ 20a:	20 f3       	brcs	.-56     	; 0x1d4 <print_triggered_sensor+0x18>
+		line2[i] = (states & (1 << (7 - i))) ? '1' : '0';
+	}
+	line2[8] = '\0';
+ 20c:	19 86       	std	Y+9, r1	; 0x09
+
+	LCD_SetCursor(0, 1);  // только нижняя строка
+ 20e:	61 e0       	ldi	r22, 0x01	; 1
+ 210:	80 e0       	ldi	r24, 0x00	; 0
+ 212:	0e 94 b2 00 	call	0x164	; 0x164 <LCD_SetCursor>
+	LCD_Print(line2);
+ 216:	ce 01       	movw	r24, r28
+ 218:	01 96       	adiw	r24, 0x01	; 1
+ 21a:	0e 94 d1 00 	call	0x1a2	; 0x1a2 <LCD_Print>
+}
+ 21e:	61 96       	adiw	r28, 0x11	; 17
+ 220:	0f b6       	in	r0, 0x3f	; 63
+ 222:	f8 94       	cli
+ 224:	de bf       	out	0x3e, r29	; 62
+ 226:	0f be       	out	0x3f, r0	; 63
+ 228:	cd bf       	out	0x3d, r28	; 61
+ 22a:	df 91       	pop	r29
+ 22c:	cf 91       	pop	r28
+ 22e:	08 95       	ret
+
+00000230 <_Z18isForwardDirectionv>:
+uint8_t triggeredBitsHistory = 0;
+uint8_t previousSensorStates = 0xFF;
+
+bool isForwardDirection() {
+
+}
+ 230:	08 95       	ret
+
+00000232 <_Z20handleForwardSensorsh>:
+void handleForwardSensors(uint8_t mask) {
+
+	print_triggered_sensor(triggeredBitsHistory);
+ 232:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <__data_end>
+ 236:	0e 94 de 00 	call	0x1bc	; 0x1bc <print_triggered_sensor>
+ 23a:	08 95       	ret
+
+0000023c <_Z20handleReverseSensorsh>:
+}
+
+void handleReverseSensors(uint8_t mask) {
+
+	print_triggered_sensor(triggeredBitsHistory);
+ 23c:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <__data_end>
+ 240:	0e 94 de 00 	call	0x1bc	; 0x1bc <print_triggered_sensor>
+ 244:	08 95       	ret
+
+00000246 <_Z17checkSensorsStatev>:
+}
+void checkSensorsState() {
+ 246:	cf 93       	push	r28
+	sensorStates = ~read_74HC165(); // если активный высокий уровень с регистра
+ 248:	0e 94 45 01 	call	0x28a	; 0x28a <read_74HC165>
+ 24c:	80 95       	com	r24
+
+	if (sensorStates == previousSensorStates)
+ 24e:	c0 91 00 01 	lds	r28, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 252:	8c 17       	cp	r24, r28
+ 254:	99 f0       	breq	.+38     	; 0x27c <_Z17checkSensorsStatev+0x36>
+	return;
+
+	uint8_t changedBits = sensorStates ^ previousSensorStates;
+ 256:	c8 27       	eor	r28, r24
+	triggeredBitMask = sensorStates & changedBits;
+ 258:	c8 23       	and	r28, r24
+ 25a:	c0 93 03 01 	sts	0x0103, r28	; 0x800103 <triggeredBitMask>
+	previousSensorStates = sensorStates;
+ 25e:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+
+	if (triggeredBitMask) {
+ 262:	cc 23       	and	r28, r28
+ 264:	59 f0       	breq	.+22     	; 0x27c <_Z17checkSensorsStatev+0x36>
+		if (isForwardDirection()) {
+ 266:	0e 94 18 01 	call	0x230	; 0x230 <_Z18isForwardDirectionv>
+ 26a:	88 23       	and	r24, r24
+ 26c:	21 f0       	breq	.+8      	; 0x276 <_Z17checkSensorsStatev+0x30>
+			handleForwardSensors(triggeredBitMask);
+ 26e:	8c 2f       	mov	r24, r28
+ 270:	0e 94 19 01 	call	0x232	; 0x232 <_Z20handleForwardSensorsh>
+ 274:	03 c0       	rjmp	.+6      	; 0x27c <_Z17checkSensorsStatev+0x36>
+			} else {
+			handleReverseSensors(triggeredBitMask);
+ 276:	8c 2f       	mov	r24, r28
+ 278:	0e 94 1e 01 	call	0x23c	; 0x23c <_Z20handleReverseSensorsh>
+		}
+	}
+}
+ 27c:	cf 91       	pop	r28
+ 27e:	08 95       	ret
+
+00000280 <main>:
+
+int main(void) {
+	UART_init();
+ 280:	0e 94 64 01 	call	0x2c8	; 0x2c8 <UART_init>
+
+
+	static uint8_t selected_table = 0; // Хранит номер выбранного стола
+
+	while (1) {
+	checkSensorsState();
+ 284:	0e 94 23 01 	call	0x246	; 0x246 <_Z17checkSensorsStatev>
+ 288:	fd cf       	rjmp	.-6      	; 0x284 <main+0x4>
+
+0000028a <read_74HC165>:
+}
+
+uint8_t read_74HC165(void) {
+	uint8_t data = 0;
+
+	PORTD &= ~(1 << LATCH_74HC165);
+ 28a:	8b b1       	in	r24, 0x0b	; 11
+ 28c:	8f 7b       	andi	r24, 0xBF	; 191
+ 28e:	8b b9       	out	0x0b, r24	; 11
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 290:	00 c0       	rjmp	.+0      	; 0x292 <read_74HC165+0x8>
+ 292:	00 c0       	rjmp	.+0      	; 0x294 <read_74HC165+0xa>
+ 294:	00 00       	nop
+	_delay_us(5);
+	PORTD |= (1 << LATCH_74HC165);
+ 296:	8b b1       	in	r24, 0x0b	; 11
+ 298:	80 64       	ori	r24, 0x40	; 64
+ 29a:	8b b9       	out	0x0b, r24	; 11
+
+	for (uint8_t i = 0; i < NUM_BITS_74HC595; i++) {
+ 29c:	20 e0       	ldi	r18, 0x00	; 0
+	uint8_t initialData[NUM_OF_74HC595] = {0};
+	shiftOutMultiple(initialData, NUM_OF_74HC595);
+}
+
+uint8_t read_74HC165(void) {
+	uint8_t data = 0;
+ 29e:	80 e0       	ldi	r24, 0x00	; 0
+
+	PORTD &= ~(1 << LATCH_74HC165);
+	_delay_us(5);
+	PORTD |= (1 << LATCH_74HC165);
+
+	for (uint8_t i = 0; i < NUM_BITS_74HC595; i++) {
+ 2a0:	10 c0       	rjmp	.+32     	; 0x2c2 <read_74HC165+0x38>
+		data <<= 1;
+ 2a2:	88 0f       	add	r24, r24
+		PORTD &= ~(1 << CLOCK_74HC165);
+ 2a4:	9b b1       	in	r25, 0x0b	; 11
+ 2a6:	9f 7d       	andi	r25, 0xDF	; 223
+ 2a8:	9b b9       	out	0x0b, r25	; 11
+ 2aa:	00 c0       	rjmp	.+0      	; 0x2ac <read_74HC165+0x22>
+ 2ac:	00 c0       	rjmp	.+0      	; 0x2ae <read_74HC165+0x24>
+ 2ae:	00 00       	nop
+		_delay_us(5);
+
+		if (PIND & (1 << DATA_74HC165)) {
+ 2b0:	4f 99       	sbic	0x09, 7	; 9
+			data |= 1;
+ 2b2:	81 60       	ori	r24, 0x01	; 1
+		}
+
+		PORTD |= (1 << CLOCK_74HC165);
+ 2b4:	9b b1       	in	r25, 0x0b	; 11
+ 2b6:	90 62       	ori	r25, 0x20	; 32
+ 2b8:	9b b9       	out	0x0b, r25	; 11
+ 2ba:	00 c0       	rjmp	.+0      	; 0x2bc <read_74HC165+0x32>
+ 2bc:	00 c0       	rjmp	.+0      	; 0x2be <read_74HC165+0x34>
+ 2be:	00 00       	nop
+
+	PORTD &= ~(1 << LATCH_74HC165);
+	_delay_us(5);
+	PORTD |= (1 << LATCH_74HC165);
+
+	for (uint8_t i = 0; i < NUM_BITS_74HC595; i++) {
+ 2c0:	2f 5f       	subi	r18, 0xFF	; 255
+ 2c2:	28 30       	cpi	r18, 0x08	; 8
+ 2c4:	70 f3       	brcs	.-36     	; 0x2a2 <read_74HC165+0x18>
+		PORTD |= (1 << CLOCK_74HC165);
+		_delay_us(5);
+	}
+
+	return data;
+}
+ 2c6:	08 95       	ret
+
+000002c8 <UART_init>:
+#include <stddef.h>
+
+#define TIMEOUT_COUNT (TIMEOUT_MS * (F_CPU / 1000 / 64))
+
+void UART_init(void) {
+    UBRR0H = (UBRR_VALUE >> 8);
+ 2c8:	10 92 c5 00 	sts	0x00C5, r1	; 0x8000c5 <__TEXT_REGION_LENGTH__+0x7f80c5>
+    UBRR0L = UBRR_VALUE;
+ 2cc:	87 e6       	ldi	r24, 0x67	; 103
+ 2ce:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__TEXT_REGION_LENGTH__+0x7f80c4>
+    UCSR0B = (1 << TXEN0) | (1 << RXEN0);
+ 2d2:	88 e1       	ldi	r24, 0x18	; 24
+ 2d4:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7f80c1>
+    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+ 2d8:	86 e0       	ldi	r24, 0x06	; 6
+ 2da:	80 93 c2 00 	sts	0x00C2, r24	; 0x8000c2 <__TEXT_REGION_LENGTH__+0x7f80c2>
+ 2de:	08 95       	ret
+
+000002e0 <_exit>:
+ 2e0:	f8 94       	cli
+
+000002e2 <__stop_program>:
+ 2e2:	ff cf       	rjmp	.-2      	; 0x2e2 <__stop_program>
