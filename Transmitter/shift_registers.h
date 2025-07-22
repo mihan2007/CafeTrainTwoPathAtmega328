@@ -18,6 +18,8 @@ extern "C" {
 	void shiftOutMultiple(uint8_t *data, uint8_t count);
 	
 	void shiftOutMultiple(uint8_t *shiftData, uint8_t count);
+	
+	int8_t get_last_active_table(void);
 
 	#ifdef __cplusplus
 }

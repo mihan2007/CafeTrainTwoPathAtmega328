@@ -3,12 +3,13 @@
 #define F_CPU 16000000UL
 #include <avr/io.h>
 #include <util/delay.h>
+#include "config.h"
 
 // --- ќпределени€ ---
 #define LCD_ADDRESS 0x27  // јдрес I2C LCD-диспле€
 #define LCD_BACKLIGHT 0x08 // ¬ключение подсветки
-
-
+#define SENSOR_INDEX_OFFSET 1
+static int8_t lastActiveTable = -1;  // table номер от 1 до 8 (или -1 если нет)
 
 // --- ‘ункции дл€ работы с I2C ---
 void I2C_Init(void) {
@@ -157,12 +158,26 @@ void update_lcd(uint8_t cmd, uint8_t table_id) {
 
 void print_triggered_sensor(uint8_t states) {
 	char line2[17];
+	int8_t activeBit = -1;
 
 	for (uint8_t i = 0; i < 8; i++) {
-		line2[i] = (states & (1 << (7 - i))) ? '1' : '0';
+		if (states & (1 << i)) {
+			activeBit = i;
+			break;
+		}
 	}
-	line2[8] = '\0';
 
-	LCD_SetCursor(0, 1);  // только нижн€€ строка
+	// если активна€ кнопка найдена Ч сохранить еЄ
+	if (activeBit >= 0) {
+		lastActiveTable = activeBit + SENSOR_INDEX_OFFSET;
+	}
+
+	if (lastActiveTable >= 0) {
+		snprintf(line2, sizeof(line2), "TABLE: %d         ", lastActiveTable);
+		} else {
+		snprintf(line2, sizeof(line2), "TABLE: -          ");
+	}
+
+	LCD_SetCursor(0, 1);
 	LCD_Print(line2);
 }
