@@ -167,3 +167,9 @@ void print_table_on_lcd(int8_t tableIndex) {
 	LCD_SetCursor(0, 1);
 	LCD_Print(line2);
 }
+
+void LCD_UpdateLine1(char* str) {
+	LCD_SetCursor(0, 0);
+	LCD_ClearLine(0);
+	LCD_Print(str);
+}

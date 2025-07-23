@@ -5,11 +5,19 @@
 
 #define F_CPU 16000000UL
 
+//  Control Buttons
+#define BUTTON_FORWARD_PIN   PC3  // A3
+#define BUTTON_STOP_PIN      PC2  // A2
+#define BUTTON_BACKWARD_PIN  PC1  // A1
+
+//	Indication
+#define INDICATOR_FORWARD_PIN PB2   // D0 — выход, индикатор "Вперёд"
+#define INDICATOR_BACKWARD_PIN PB3 // D11 — выход, индикатор "Назад"
+#define POWER_INDICATION_ENABLE PB0// Power supply PIN (D8)
+
 //  UART
 #define BAUD 9600
 #define UBRR_VALUE ((unsigned long)(F_CPU / 16 / BAUD) - 1)
-
-#define LIGHT_INDICATION_ENABLE PB0// Power supply PIN (D8)
 
 #define NUM_BITS_74HC595 8  // Количество бит в байте
 #define NUM_OF_74HC595 1    // Количество включенных в каскад 74HC595

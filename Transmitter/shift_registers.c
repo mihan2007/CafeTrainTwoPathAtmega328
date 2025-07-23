@@ -60,7 +60,7 @@ void latchData(void) {
 
 void shiftOutMultiple(uint8_t *data, uint8_t count) {
 
-	PORTB |= (1 << LIGHT_INDICATION_ENABLE);
+	PORTB |= (1 << POWER_INDICATION_ENABLE);
 
 	for (uint8_t i = 0; i < count; i++) {
 		shiftOut(data[i]);
