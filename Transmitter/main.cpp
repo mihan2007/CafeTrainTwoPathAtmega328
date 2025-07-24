@@ -5,13 +5,14 @@
 #include "lcd.h"
 #include "shift_registers.h"
 #include "config.h"
+#include "uart.h"
 
 #define SENSOR_INDEX_OFFSET 1
 
 uint8_t outputByte = 0x00;
 int8_t currentTable = -1;
 uint8_t currentCommand = CMD_STOP;
-	
+
 int8_t get_triggered_sensor(uint8_t states) {
 	for (uint8_t i = 0; i < 8; i++) {
 		if (states & (1 << i)) {
@@ -21,8 +22,8 @@ int8_t get_triggered_sensor(uint8_t states) {
 	return -1;
 }
 
-void activate_ext_logic(void){
-	PORTB |= (1 << POWER_INDICATION_ENABLE);  // Светодиод
+void activate_ext_logic(void) {
+	PORTB |= (1 << POWER_INDICATION_ENABLE);
 }
 
 void update_lcd_for_table(int8_t tableIndex) {
@@ -47,63 +48,63 @@ void update_shift_register_for_table(int8_t tableIndex) {
 
 void handle_table_change(int8_t newTable) {
 	currentTable = newTable;
-	
 	update_lcd_for_table(currentTable);
 	update_shift_register_for_table(currentTable);
 }
 
 void handle_control_buttons(void) {
+	if (currentTable <= 0) return;
+
 	uint8_t pinState = PINC;
 
 	if (!(pinState & (1 << BUTTON_FORWARD_PIN)) && currentCommand != CMD_FORWARD) {
 		currentCommand = CMD_FORWARD;
-
 		PORTB |= (1 << INDICATOR_FORWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
-
 		LCD_UpdateLine1("FORWARD");
+		send_command_with_ack(CMD_FORWARD, currentTable, 0x00);
 
 		} else if (!(pinState & (1 << BUTTON_BACKWARD_PIN)) && currentCommand != CMD_BACKWARD) {
 		currentCommand = CMD_BACKWARD;
-
 		PORTB |= (1 << INDICATOR_BACKWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
-
 		LCD_UpdateLine1("BACKWARD");
+		send_command_with_ack(CMD_BACKWARD, currentTable, 0x00);
 
 		} else if (!(pinState & (1 << BUTTON_STOP_PIN)) && currentCommand != CMD_STOP) {
 		currentCommand = CMD_STOP;
-
 		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
-
-		LCD_UpdateLine1("Direction: STOP");
+		LCD_UpdateLine1("STOP");
+		send_command_with_ack(CMD_STOP, 0x00, 0x00);
 	}
 }
 
-
 int main(void) {
-	system_init();
-	
+	system_init();       // Инициализация портов, UART и 74HC165
+	I2C_Init();          // До LCD_Init()
+	LCD_Init();
 	LCD_Clear();
 	LCD_PrintTwoLines("Welcome", "Select table", 0);
 	activate_ext_logic();
 
-
-while (1) {
-
-		
-		uint8_t rawBits = read_74HC165();
-		uint8_t invertedBits = ~rawBits;
-
-		int8_t detectedTable = get_triggered_sensor(~read_74HC165());
+	while (1) {
+		uint8_t rawBits = read_74HC165();       // читаем
+		uint8_t invertedBits = ~rawBits;        // инвертируем
+		int8_t detectedTable = get_triggered_sensor(invertedBits);
 
 		if (detectedTable >= 0 && detectedTable != currentTable) {
+			LCD_Clear();
 			handle_table_change(detectedTable);
-		}
-		
-		handle_control_buttons();
 
+			uint8_t ack = send_command_with_ack(CMD_STOP, detectedTable, 0x00);
+
+			char line1[17], line2[17];
+			snprintf(line1, sizeof(line1), "Table: %d", detectedTable);
+			snprintf(line2, sizeof(line2), "ACK: %s", ack ? "OK" : "FAIL");
+			LCD_PrintTwoLines(line1, line2, 0);
+		}
+
+		handle_control_buttons();
 	}
 }
-
