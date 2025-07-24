@@ -56,29 +56,44 @@ void handle_control_buttons(void) {
 	if (currentTable <= 0) return;
 
 	uint8_t pinState = PINC;
+	uint8_t ack = 0;
+	char cmdLine[17];
+	char tableLine[17];
+
+	snprintf(tableLine, sizeof(tableLine), "TABLE: %-2d        ", currentTable);
 
 	if (!(pinState & (1 << BUTTON_FORWARD_PIN)) && currentCommand != CMD_FORWARD) {
 		currentCommand = CMD_FORWARD;
 		PORTB |= (1 << INDICATOR_FORWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
-		LCD_UpdateLine1("FORWARD");
-		send_command_with_ack(CMD_FORWARD, currentTable, 0x00);
+		ack = send_command_with_ack(CMD_FORWARD, currentTable, 0x00);
+		snprintf(cmdLine, sizeof(cmdLine), "FORWARD: %s", ack ? "OK" : "FAIL");
 
 		} else if (!(pinState & (1 << BUTTON_BACKWARD_PIN)) && currentCommand != CMD_BACKWARD) {
 		currentCommand = CMD_BACKWARD;
 		PORTB |= (1 << INDICATOR_BACKWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
-		LCD_UpdateLine1("BACKWARD");
-		send_command_with_ack(CMD_BACKWARD, currentTable, 0x00);
+		ack = send_command_with_ack(CMD_BACKWARD, currentTable, 0x00);
+		snprintf(cmdLine, sizeof(cmdLine), "BACK: %s", ack ? "OK" : "FAIL");
 
 		} else if (!(pinState & (1 << BUTTON_STOP_PIN)) && currentCommand != CMD_STOP) {
 		currentCommand = CMD_STOP;
 		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
-		LCD_UpdateLine1("STOP");
-		send_command_with_ack(CMD_STOP, 0x00, 0x00);
+		ack = send_command_with_ack(CMD_STOP, 0x00, 0x00);
+		snprintf(cmdLine, sizeof(cmdLine), "STOP: %s", ack ? "OK" : "FAIL");
+
+		} else {
+		return;
 	}
+
+	// только строка 1 мен€етс€ Ч ACK, команда
+	LCD_SetCursor(0, 0);
+	LCD_Print("                ");  // 16 пробелов Ч очистка первой строки
+	LCD_SetCursor(0, 0);
+	LCD_Print(cmdLine);
 }
+
 
 int main(void) {
 	system_init();       // »нициализаци€ портов, UART и 74HC165
@@ -94,15 +109,15 @@ int main(void) {
 		int8_t detectedTable = get_triggered_sensor(invertedBits);
 
 		if (detectedTable >= 0 && detectedTable != currentTable) {
+			currentTable = detectedTable;
+			update_shift_register_for_table(currentTable);
+
+			// строка 1 Ч очистить / пригласить
+			// строка 2 Ч выбранный стол
+			char tableLine[17];
+			snprintf(tableLine, sizeof(tableLine), "TABLE: %-2d        ", currentTable);
 			LCD_Clear();
-			handle_table_change(detectedTable);
-
-			uint8_t ack = send_command_with_ack(CMD_STOP, detectedTable, 0x00);
-
-			char line1[17], line2[17];
-			snprintf(line1, sizeof(line1), "Table: %d", detectedTable);
-			snprintf(line2, sizeof(line2), "ACK: %s", ack ? "OK" : "FAIL");
-			LCD_PrintTwoLines(line1, line2, 0);
+			LCD_PrintTwoLines("Select command", tableLine, 0);
 		}
 
 		handle_control_buttons();
