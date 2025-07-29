@@ -12,6 +12,7 @@
 uint8_t outputByte = 0x00;
 int8_t currentTable = -1;
 uint8_t currentCommand = CMD_STOP;
+uint8_t is_moving = 0;  // ?? ‘лаг, отслеживающий движение
 
 int8_t get_triggered_sensor(uint8_t states) {
 	for (uint8_t i = 0; i < 8; i++) {
@@ -64,6 +65,7 @@ void handle_control_buttons(void) {
 
 	if (!(pinState & (1 << BUTTON_FORWARD_PIN)) && currentCommand != CMD_FORWARD) {
 		currentCommand = CMD_FORWARD;
+		is_moving = 1;  // ?? ƒвижение началось
 		PORTB |= (1 << INDICATOR_FORWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
 		ack = send_command_with_ack(CMD_FORWARD, currentTable, 0x00);
@@ -71,6 +73,7 @@ void handle_control_buttons(void) {
 
 		} else if (!(pinState & (1 << BUTTON_BACKWARD_PIN)) && currentCommand != CMD_BACKWARD) {
 		currentCommand = CMD_BACKWARD;
+		is_moving = 1;  // ?? ƒвижение началось
 		PORTB |= (1 << INDICATOR_BACKWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
 		ack = send_command_with_ack(CMD_BACKWARD, currentTable, 0x00);
@@ -78,6 +81,7 @@ void handle_control_buttons(void) {
 
 		} else if (!(pinState & (1 << BUTTON_STOP_PIN)) && currentCommand != CMD_STOP) {
 		currentCommand = CMD_STOP;
+		is_moving = 0;  // ? ќстановка
 		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
 		ack = send_command_with_ack(CMD_STOP, 0x00, 0x00);
@@ -87,33 +91,27 @@ void handle_control_buttons(void) {
 		return;
 	}
 
-	// только строка 1 мен€етс€ Ч ACK, команда
 	LCD_SetCursor(0, 0);
-	LCD_Print("                ");  // 16 пробелов Ч очистка первой строки
+	LCD_Print("                ");  // очистка строки
 	LCD_SetCursor(0, 0);
 	LCD_Print(cmdLine);
 }
 
-
 int main(void) {
 	system_init();       // »нициализаци€ портов, UART и 74HC165
-	I2C_Init();          // ƒо LCD_Init()
+	I2C_Init();          // ƒл€ LCD
 	LCD_Init();
 	LCD_Clear();
 	LCD_PrintTwoLines("Welcome", "Select table", 0);
 	activate_ext_logic();
 
 	while (1) {
-		uint8_t rawBits = read_74HC165();       // читаем
-		uint8_t invertedBits = ~rawBits;        // инвертируем
+		uint8_t rawBits = read_74HC165();
+		uint8_t invertedBits = ~rawBits;
 		int8_t detectedTable = get_triggered_sensor(invertedBits);
 
-		if (detectedTable >= 0 && detectedTable != currentTable) {
-			currentTable = detectedTable;
-			update_shift_register_for_table(currentTable);
-
-			// строка 1 Ч очистить / пригласить
-			// строка 2 Ч выбранный стол
+		if (!is_moving && detectedTable >= 0 && detectedTable != currentTable) {
+			handle_table_change(detectedTable);
 			char tableLine[17];
 			snprintf(tableLine, sizeof(tableLine), "TABLE: %-2d        ", currentTable);
 			LCD_Clear();
