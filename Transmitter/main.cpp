@@ -12,7 +12,11 @@
 uint8_t outputByte = 0x00;
 int8_t currentTable = -1;
 uint8_t currentCommand = CMD_STOP;
-uint8_t is_moving = 0;  // ?? Флаг, отслеживающий движение
+uint8_t is_moving = 0;
+
+static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
+	return !(pinState & (1 << buttonPin));
+}
 
 int8_t get_triggered_sensor(uint8_t states) {
 	for (uint8_t i = 0; i < 8; i++) {
@@ -53,35 +57,53 @@ void handle_table_change(int8_t newTable) {
 	update_shift_register_for_table(currentTable);
 }
 
+void handle_detected_table(int8_t detectedTable) {
+	if (is_moving) return;
+	if (detectedTable <= 0) return;
+	if (detectedTable == currentTable) return;
+
+	handle_table_change(detectedTable);
+
+	char line2[17];
+	snprintf(line2, sizeof(line2), "TABLE: %-2d        ", currentTable);
+	LCD_Clear();
+	LCD_PrintTwoLines("Select command", line2, 0);
+}
+
 void handle_control_buttons(void) {
 	if (currentTable <= 0) return;
 
 	uint8_t pinState = PINC;
 	uint8_t ack = 0;
 	char cmdLine[17];
-	char tableLine[17];
 
-	snprintf(tableLine, sizeof(tableLine), "TABLE: %-2d        ", currentTable);
+	bool forwardPressed  = is_button_pressed(pinState, BUTTON_FORWARD_PIN);
+	bool backwardPressed = is_button_pressed(pinState, BUTTON_BACKWARD_PIN);
+	bool stopPressed     = is_button_pressed(pinState, BUTTON_STOP_PIN);
 
-	if (!(pinState & (1 << BUTTON_FORWARD_PIN)) && currentCommand != CMD_FORWARD) {
+	bool isForward = (currentCommand == CMD_FORWARD);
+	bool isBackward = (currentCommand == CMD_BACKWARD);
+	bool isStop = (currentCommand == CMD_STOP);
+
+	if (forwardPressed && !isForward) {
 		currentCommand = CMD_FORWARD;
-		is_moving = 1;  // ?? Движение началось
+		is_moving = 1;
 		PORTB |= (1 << INDICATOR_FORWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
 		ack = send_command_with_ack(CMD_FORWARD, currentTable, 0x00);
 		snprintf(cmdLine, sizeof(cmdLine), "FORWARD: %s", ack ? "OK" : "FAIL");
 
-		} else if (!(pinState & (1 << BUTTON_BACKWARD_PIN)) && currentCommand != CMD_BACKWARD) {
+		} else if (backwardPressed && !isBackward) {
 		currentCommand = CMD_BACKWARD;
-		is_moving = 1;  // ?? Движение началось
+		is_moving = 1;
 		PORTB |= (1 << INDICATOR_BACKWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
 		ack = send_command_with_ack(CMD_BACKWARD, currentTable, 0x00);
 		snprintf(cmdLine, sizeof(cmdLine), "BACK: %s", ack ? "OK" : "FAIL");
 
-		} else if (!(pinState & (1 << BUTTON_STOP_PIN)) && currentCommand != CMD_STOP) {
+		} else if (stopPressed && !isStop) {
 		currentCommand = CMD_STOP;
-		is_moving = 0;  // ? Остановка
+		is_moving = 0;
 		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
 		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
 		ack = send_command_with_ack(CMD_STOP, 0x00, 0x00);
@@ -91,11 +113,9 @@ void handle_control_buttons(void) {
 		return;
 	}
 
-	LCD_SetCursor(0, 0);
-	LCD_Print("                ");  // очистка строки
-	LCD_SetCursor(0, 0);
-	LCD_Print(cmdLine);
+	LCD_UpdateLine1(cmdLine);
 }
+
 
 int main(void) {
 	system_init();       // Инициализация портов, UART и 74HC165
@@ -110,14 +130,9 @@ int main(void) {
 		uint8_t invertedBits = ~rawBits;
 		int8_t detectedTable = get_triggered_sensor(invertedBits);
 
-		if (!is_moving && detectedTable >= 0 && detectedTable != currentTable) {
-			handle_table_change(detectedTable);
-			char tableLine[17];
-			snprintf(tableLine, sizeof(tableLine), "TABLE: %-2d        ", currentTable);
-			LCD_Clear();
-			LCD_PrintTwoLines("Select command", tableLine, 0);
-		}
-
+		handle_detected_table(detectedTable);
 		handle_control_buttons();
 	}
+
+	return 0;
 }

@@ -64,8 +64,10 @@
 
 // Uart Comands 
 #define CMD_FORWARD		0x20
-#define CMD_STOP		0x30
 #define CMD_BACKWARD	0x21
+#define CMD_STOP		0x30
+#define CMD_IDEL_STOP	0x31
+#define OVER_LOAD_STOP	0x32
 
 extern uint8_t routeSetupInProgress;
 
