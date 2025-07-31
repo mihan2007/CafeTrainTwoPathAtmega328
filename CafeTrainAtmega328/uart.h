@@ -6,6 +6,13 @@
 #ifdef __cplusplus
 extern "C" {
 	#endif
+	
+	#define PACKET_SIZE 6
+	#define STX 0x02
+	#define ETX 0x03
+	#define ACK_CMD 0x40   // Код подтверждения
+	#define TIMEOUT_MS 100 // Таймаут ожидания в миллисекундах
+	#define MAX_RETRIES 3  // Максимальное число попыток повторной передачи
 
 	// Структура для представления полученного пакета
 	typedef struct {
@@ -34,6 +41,8 @@ extern "C" {
 	// Функции для отправки ACK/NACK
 	void send_ack(uint8_t cmd);
 	void send_nack(uint8_t cmd);
+	
+	uint8_t send_command_with_ack(uint8_t cmd, uint8_t table_id, uint8_t data);
 
 	#ifdef __cplusplus
 }

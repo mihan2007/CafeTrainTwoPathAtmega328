@@ -51,6 +51,10 @@ Discarded input sections
                 0x00000000       0x12 main.o
  .text._Z24checkLocoMovementTimeoutv
                 0x00000000       0x3c main.o
+ .rodata.str1.1
+                0x00000000       0x24 main.o
+ .text._Z28check_and_send_overload_stopv
+                0x00000000       0x70 main.o
  .text          0x00000000        0x0 PWM.o
  .data          0x00000000        0x0 PWM.o
  .bss           0x00000000        0x0 PWM.o
@@ -72,6 +76,10 @@ Discarded input sections
  .bss           0x00000000        0x0 uart.o
  .text.send_nack
                 0x00000000        0xc uart.o
+ .text.UART_receive_packet
+                0x00000000       0x5a uart.o
+ .text.send_command_with_ack
+                0x00000000       0x68 uart.o
  .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
  .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
  .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
@@ -699,9 +707,9 @@ END GROUP
                 0x0080014b        0x4 PWM.o
  .bss.pwmIncreasing
                 0x0080014f        0x1 PWM.o
- .bss.lastTick.1795
+ .bss.lastTick.1799
                 0x00800150        0x4 railroad_control.o
- .bss.currentBit.1796
+ .bss.currentBit.1800
                 0x00800154        0x1 railroad_control.o
  .bss.initialized
                 0x00800155        0x1 railroad_control.o
@@ -794,7 +802,7 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000      0x2a8
+.debug_aranges  0x00000000      0x2c0
  *(.debug_aranges)
  .debug_aranges
                 0x00000000       0x20 InitFile.o
@@ -803,104 +811,104 @@ END GROUP
  .debug_aranges
                 0x000000b8       0x50 loco_control.o
  .debug_aranges
-                0x00000108       0x60 main.o
+                0x00000108       0x68 main.o
  .debug_aranges
-                0x00000168       0x50 PWM.o
+                0x00000170       0x50 PWM.o
  .debug_aranges
-                0x000001b8       0x28 railroad_control.o
+                0x000001c0       0x28 railroad_control.o
  .debug_aranges
-                0x000001e0       0x48 shift_registers.o
+                0x000001e8       0x48 shift_registers.o
  .debug_aranges
-                0x00000228       0x28 timer0.o
+                0x00000230       0x28 timer0.o
  .debug_aranges
-                0x00000250       0x58 uart.o
+                0x00000258       0x68 uart.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x24bc
+.debug_info     0x00000000     0x26c0
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_info    0x000005f4      0x23c InitFile.o
  .debug_info    0x00000830      0xa0d lcd.o
  .debug_info    0x0000123d      0x32f loco_control.o
- .debug_info    0x0000156c      0x4ad main.o
- .debug_info    0x00001a19      0x17e PWM.o
- .debug_info    0x00001b97      0x1c4 railroad_control.o
- .debug_info    0x00001d5b      0x345 shift_registers.o
- .debug_info    0x000020a0       0xbb timer0.o
- .debug_info    0x0000215b      0x361 uart.o
+ .debug_info    0x0000156c      0x57a main.o
+ .debug_info    0x00001ae6      0x17e PWM.o
+ .debug_info    0x00001c64      0x1c4 railroad_control.o
+ .debug_info    0x00001e28      0x345 shift_registers.o
+ .debug_info    0x0000216d       0xbb timer0.o
+ .debug_info    0x00002228      0x498 uart.o
 
-.debug_abbrev   0x00000000     0x1183
+.debug_abbrev   0x00000000     0x11c2
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_abbrev  0x000005a2       0xde InitFile.o
  .debug_abbrev  0x00000680      0x21c lcd.o
  .debug_abbrev  0x0000089c      0x15c loco_control.o
- .debug_abbrev  0x000009f8      0x189 main.o
- .debug_abbrev  0x00000b81       0xe5 PWM.o
- .debug_abbrev  0x00000c66      0x10c railroad_control.o
- .debug_abbrev  0x00000d72      0x1bb shift_registers.o
- .debug_abbrev  0x00000f2d       0x81 timer0.o
- .debug_abbrev  0x00000fae      0x1d5 uart.o
+ .debug_abbrev  0x000009f8      0x1b9 main.o
+ .debug_abbrev  0x00000bb1       0xe5 PWM.o
+ .debug_abbrev  0x00000c96      0x10c railroad_control.o
+ .debug_abbrev  0x00000da2      0x1bb shift_registers.o
+ .debug_abbrev  0x00000f5d       0x81 timer0.o
+ .debug_abbrev  0x00000fde      0x1e4 uart.o
 
-.debug_line     0x00000000     0x1594
+.debug_line     0x00000000     0x16a5
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x134 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_line    0x00000134      0x13f InitFile.o
  .debug_line    0x00000273      0x4bb lcd.o
  .debug_line    0x0000072e      0x1e8 loco_control.o
- .debug_line    0x00000916      0x352 main.o
- .debug_line    0x00000c68      0x1a4 PWM.o
- .debug_line    0x00000e0c      0x18c railroad_control.o
- .debug_line    0x00000f98      0x2b0 shift_registers.o
- .debug_line    0x00001248       0xd7 timer0.o
- .debug_line    0x0000131f      0x275 uart.o
+ .debug_line    0x00000916      0x38d main.o
+ .debug_line    0x00000ca3      0x1a4 PWM.o
+ .debug_line    0x00000e47      0x18c railroad_control.o
+ .debug_line    0x00000fd3      0x2b0 shift_registers.o
+ .debug_line    0x00001283       0xd7 timer0.o
+ .debug_line    0x0000135a      0x34b uart.o
 
-.debug_frame    0x00000000      0x5fc
+.debug_frame    0x00000000      0x670
  *(.debug_frame)
  .debug_frame   0x00000000       0x34 InitFile.o
  .debug_frame   0x00000034      0x1d4 lcd.o
  .debug_frame   0x00000208       0xc4 loco_control.o
- .debug_frame   0x000002cc       0xb0 main.o
- .debug_frame   0x0000037c       0x84 PWM.o
- .debug_frame   0x00000400       0x50 railroad_control.o
- .debug_frame   0x00000450       0x98 shift_registers.o
- .debug_frame   0x000004e8       0x48 timer0.o
- .debug_frame   0x00000530       0xcc uart.o
+ .debug_frame   0x000002cc       0xd0 main.o
+ .debug_frame   0x0000039c       0x84 PWM.o
+ .debug_frame   0x00000420       0x50 railroad_control.o
+ .debug_frame   0x00000470       0x98 shift_registers.o
+ .debug_frame   0x00000508       0x48 timer0.o
+ .debug_frame   0x00000550      0x120 uart.o
 
-.debug_str      0x00000000      0xb3f
+.debug_str      0x00000000      0xbc9
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_str     0x00000208      0x21b InitFile.o
                                 0x24f (size before relaxing)
- .debug_str     0x00000423      0x1a6 lcd.o
+ .debug_str     0x00000423      0x19f lcd.o
                                 0x361 (size before relaxing)
- .debug_str     0x000005c9       0xc7 loco_control.o
+ .debug_str     0x000005c2       0xc7 loco_control.o
                                 0x27f (size before relaxing)
- .debug_str     0x00000690      0x356 main.o
-                                0x4b8 (size before relaxing)
- .debug_str     0x000009e6       0x6d PWM.o
+ .debug_str     0x00000689      0x3ab main.o
+                                0x532 (size before relaxing)
+ .debug_str     0x00000a34       0x6d PWM.o
                                 0x223 (size before relaxing)
- .debug_str     0x00000a53       0x46 railroad_control.o
+ .debug_str     0x00000aa1       0x46 railroad_control.o
                                 0x270 (size before relaxing)
- .debug_str     0x00000a99       0x3c shift_registers.o
+ .debug_str     0x00000ae7       0x3c shift_registers.o
                                 0x248 (size before relaxing)
- .debug_str     0x00000ad5       0x1a timer0.o
+ .debug_str     0x00000b23       0x1a timer0.o
                                 0x1b7 (size before relaxing)
- .debug_str     0x00000aef       0x50 uart.o
-                                0x22a (size before relaxing)
+ .debug_str     0x00000b3d       0x8c uart.o
+                                0x285 (size before relaxing)
 
-.debug_loc      0x00000000     0x1173
+.debug_loc      0x00000000     0x13db
  *(.debug_loc)
  .debug_loc     0x00000000       0x48 InitFile.o
  .debug_loc     0x00000048      0x872 lcd.o
  .debug_loc     0x000008ba      0x162 loco_control.o
- .debug_loc     0x00000a1c      0x131 main.o
- .debug_loc     0x00000b4d       0xc0 railroad_control.o
- .debug_loc     0x00000c0d      0x281 shift_registers.o
- .debug_loc     0x00000e8e       0x49 timer0.o
- .debug_loc     0x00000ed7      0x29c uart.o
+ .debug_loc     0x00000a1c      0x196 main.o
+ .debug_loc     0x00000bb2       0xc0 railroad_control.o
+ .debug_loc     0x00000c72      0x281 shift_registers.o
+ .debug_loc     0x00000ef3       0x49 timer0.o
+ .debug_loc     0x00000f3c      0x49f uart.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -920,17 +928,17 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000      0x248
+.debug_ranges   0x00000000      0x260
  *(.debug_ranges)
  .debug_ranges  0x00000000       0x10 InitFile.o
  .debug_ranges  0x00000010       0x88 lcd.o
  .debug_ranges  0x00000098       0x40 loco_control.o
- .debug_ranges  0x000000d8       0x50 main.o
- .debug_ranges  0x00000128       0x40 PWM.o
- .debug_ranges  0x00000168       0x18 railroad_control.o
- .debug_ranges  0x00000180       0x50 shift_registers.o
- .debug_ranges  0x000001d0       0x18 timer0.o
- .debug_ranges  0x000001e8       0x60 uart.o
+ .debug_ranges  0x000000d8       0x58 main.o
+ .debug_ranges  0x00000130       0x40 PWM.o
+ .debug_ranges  0x00000170       0x18 railroad_control.o
+ .debug_ranges  0x00000188       0x50 shift_registers.o
+ .debug_ranges  0x000001d8       0x18 timer0.o
+ .debug_ranges  0x000001f0       0x70 uart.o
 
 .debug_macro
  *(.debug_macro)

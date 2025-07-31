@@ -13,21 +13,21 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00001410  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 000002a8  00000000  00000000  00001450  2**0
+  5 .debug_aranges 000002c0  00000000  00000000  00001450  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   000024bc  00000000  00000000  000016f8  2**0
+  6 .debug_info   000026c0  00000000  00000000  00001710  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00001183  00000000  00000000  00003bb4  2**0
+  7 .debug_abbrev 000011c2  00000000  00000000  00003dd0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00001594  00000000  00000000  00004d37  2**0
+  8 .debug_line   000016a5  00000000  00000000  00004f92  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000005fc  00000000  00000000  000062cc  2**2
+  9 .debug_frame  00000670  00000000  00000000  00006638  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000b3f  00000000  00000000  000068c8  2**0
+ 10 .debug_str    00000bc9  00000000  00000000  00006ca8  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00001173  00000000  00000000  00007407  2**0
+ 11 .debug_loc    000013db  00000000  00000000  00007871  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000248  00000000  00000000  0000857a  2**0
+ 12 .debug_ranges 00000260  00000000  00000000  00008c4c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -988,12 +988,12 @@ void MoveLocoBackward(uint8_t tableIndex) {
      600:	08 95       	ret
 
 00000602 <_Z18isForwardDirectionv>:
-	if (tickCounter >= TICKS_PER_UNIT) {
-		tickCounter = 0;
-		timeCounter++;
+	}
 
-		if (timeCounter >= MAX_TIME_UNITS) {
-			stopLocoDueToTimeout();
+	// 3. Очищаем и выводим сообщение на экран
+	LCD_Clear();
+	LCD_PrintTwoLines("ERROR", msg, 0);
+}
      602:	83 b1       	in	r24, 0x03	; 3
      604:	82 95       	swap	r24
      606:	86 95       	lsr	r24
@@ -1067,20 +1067,11 @@ void MoveLocoBackward(uint8_t tableIndex) {
      6b4:	08 95       	ret
 
 000006b6 <_Z14process_packet11UART_Packet>:
-		}
-	}
-}
-
-void process_packet(UART_Packet packet) {
      6b6:	cf 93       	push	r28
      6b8:	df 93       	push	r29
-	if (!packet.valid)
      6ba:	99 23       	and	r25, r25
      6bc:	09 f4       	brne	.+2      	; 0x6c0 <_Z14process_packet11UART_Packet+0xa>
      6be:	40 c0       	rjmp	.+128    	; 0x740 <_Z14process_packet11UART_Packet+0x8a>
-	return;
-
-	if (packet.cmd == lastCmd && packet.cmd != CMD_STOP && routeSetupInProgress)
      6c0:	96 2f       	mov	r25, r22
      6c2:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <lastCmd>
      6c6:	68 13       	cpse	r22, r24
@@ -1092,12 +1083,7 @@ void process_packet(UART_Packet packet) {
      6d4:	35 c0       	rjmp	.+106    	; 0x740 <_Z14process_packet11UART_Packet+0x8a>
      6d6:	d7 2f       	mov	r29, r23
      6d8:	c6 2f       	mov	r28, r22
-	return;  // Игнорируем повтор той же команды, кроме STOP
-
-	lastCmd = packet.cmd;
      6da:	60 93 01 01 	sts	0x0101, r22	; 0x800101 <lastCmd>
-
-	switch (packet.cmd) {
      6de:	91 32       	cpi	r25, 0x21	; 33
      6e0:	f9 f0       	breq	.+62     	; 0x720 <_Z14process_packet11UART_Packet+0x6a>
      6e2:	90 33       	cpi	r25, 0x30	; 48
@@ -1105,63 +1091,33 @@ void process_packet(UART_Packet packet) {
      6e6:	90 32       	cpi	r25, 0x20	; 32
      6e8:	31 f5       	brne	.+76     	; 0x736 <_Z14process_packet11UART_Packet+0x80>
      6ea:	08 c0       	rjmp	.+16     	; 0x6fc <_Z14process_packet11UART_Packet+0x46>
-		case CMD_STOP:
-		LocoStop();
      6ec:	0e 94 b3 02 	call	0x566	; 0x566 <LocoStop>
-		send_ack(packet.cmd);
      6f0:	8c 2f       	mov	r24, r28
      6f2:	0e 94 41 06 	call	0xc82	; 0xc82 <send_ack>
-		resetLocoTimer();
      6f6:	0e 94 54 03 	call	0x6a8	; 0x6a8 <_Z14resetLocoTimerv>
-		break;
      6fa:	1d c0       	rjmp	.+58     	; 0x736 <_Z14process_packet11UART_Packet+0x80>
-
-		case CMD_FORWARD:
-		LocoStop();  // сбрасываем на всякий случай
      6fc:	0e 94 b3 02 	call	0x566	; 0x566 <LocoStop>
-		
-		send_ack(packet.cmd);
      700:	8c 2f       	mov	r24, r28
      702:	0e 94 41 06 	call	0xc82	; 0xc82 <send_ack>
-		
-		if (!routeSetupInProgress) {
      706:	80 91 40 01 	lds	r24, 0x0140	; 0x800140 <__data_end>
      70a:	81 11       	cpse	r24, r1
      70c:	05 c0       	rjmp	.+10     	; 0x718 <_Z14process_packet11UART_Packet+0x62>
-			SelectedTable = packet.table_id;
      70e:	d0 93 43 01 	sts	0x0143, r29	; 0x800143 <SelectedTable>
-			routeSetupInProgress = 1;
      712:	81 e0       	ldi	r24, 0x01	; 1
      714:	80 93 40 01 	sts	0x0140, r24	; 0x800140 <__data_end>
-		}
-		isLocoMoving = 1;
      718:	81 e0       	ldi	r24, 0x01	; 1
      71a:	80 93 4a 01 	sts	0x014A, r24	; 0x80014a <isLocoMoving>
-		break;
      71e:	0b c0       	rjmp	.+22     	; 0x736 <_Z14process_packet11UART_Packet+0x80>
-
-		case CMD_BACKWARD:
-		SelectedTable = packet.table_id;
      720:	70 93 43 01 	sts	0x0143, r23	; 0x800143 <SelectedTable>
-		MoveLocoBackward(SelectedTable);
      724:	87 2f       	mov	r24, r23
      726:	0e 94 d9 02 	call	0x5b2	; 0x5b2 <MoveLocoBackward>
-		send_ack(packet.cmd);
      72a:	8c 2f       	mov	r24, r28
      72c:	0e 94 41 06 	call	0xc82	; 0xc82 <send_ack>
-		isLocoMoving = 1;
      730:	81 e0       	ldi	r24, 0x01	; 1
      732:	80 93 4a 01 	sts	0x014A, r24	; 0x80014a <isLocoMoving>
-
-		default:
-		break;
-	}
-
-	update_lcd(packet.cmd, SelectedTable);
      736:	60 91 43 01 	lds	r22, 0x0143	; 0x800143 <SelectedTable>
      73a:	8c 2f       	mov	r24, r28
      73c:	0e 94 f8 01 	call	0x3f0	; 0x3f0 <update_lcd>
-}
      740:	df 91       	pop	r29
      742:	cf 91       	pop	r28
      744:	08 95       	ret
@@ -1172,7 +1128,7 @@ int main(void) {
 	
 	system_init();
      746:	0e 94 53 00 	call	0xa6	; 0xa6 <system_init>
-
+	//check_and_send_overload_stop();
 
 
 	while (1) {
@@ -1208,9 +1164,9 @@ int main(void) {
 			activate_route_non_blocking(SelectedTable);
      776:	80 91 43 01 	lds	r24, 0x0143	; 0x800143 <SelectedTable>
      77a:	0e 94 51 04 	call	0x8a2	; 0x8a2 <activate_route_non_blocking>
-	
 	system_init();
 
+	//check_and_send_overload_stop();
 
 
 	while (1) {
@@ -1424,16 +1380,16 @@ void activate_route_non_blocking(uint8_t tableIndex) {
      8c6:	81 11       	cpse	r24, r1
      8c8:	13 c0       	rjmp	.+38     	; 0x8f0 <activate_route_non_blocking+0x4e>
 			currentBit = 0;                  // Начинаем с первого бита
-     8ca:	10 92 54 01 	sts	0x0154, r1	; 0x800154 <currentBit.1796>
+     8ca:	10 92 54 01 	sts	0x0154, r1	; 0x800154 <currentBit.1800>
 			lastTick = rail_switch_step_counter;
      8ce:	80 91 56 01 	lds	r24, 0x0156	; 0x800156 <rail_switch_step_counter>
      8d2:	90 91 57 01 	lds	r25, 0x0157	; 0x800157 <rail_switch_step_counter+0x1>
      8d6:	a0 e0       	ldi	r26, 0x00	; 0
      8d8:	b0 e0       	ldi	r27, 0x00	; 0
-     8da:	80 93 50 01 	sts	0x0150, r24	; 0x800150 <lastTick.1795>
-     8de:	90 93 51 01 	sts	0x0151, r25	; 0x800151 <lastTick.1795+0x1>
-     8e2:	a0 93 52 01 	sts	0x0152, r26	; 0x800152 <lastTick.1795+0x2>
-     8e6:	b0 93 53 01 	sts	0x0153, r27	; 0x800153 <lastTick.1795+0x3>
+     8da:	80 93 50 01 	sts	0x0150, r24	; 0x800150 <lastTick.1799>
+     8de:	90 93 51 01 	sts	0x0151, r25	; 0x800151 <lastTick.1799+0x1>
+     8e2:	a0 93 52 01 	sts	0x0152, r26	; 0x800152 <lastTick.1799+0x2>
+     8e6:	b0 93 53 01 	sts	0x0153, r27	; 0x800153 <lastTick.1799+0x3>
 			initialized = 1;
      8ea:	81 e0       	ldi	r24, 0x01	; 1
      8ec:	80 93 55 01 	sts	0x0155, r24	; 0x800155 <initialized>
@@ -1444,10 +1400,10 @@ void activate_route_non_blocking(uint8_t tableIndex) {
      8f4:	90 91 57 01 	lds	r25, 0x0157	; 0x800157 <rail_switch_step_counter+0x1>
      8f8:	a0 e0       	ldi	r26, 0x00	; 0
      8fa:	b0 e0       	ldi	r27, 0x00	; 0
-     8fc:	00 91 50 01 	lds	r16, 0x0150	; 0x800150 <lastTick.1795>
-     900:	10 91 51 01 	lds	r17, 0x0151	; 0x800151 <lastTick.1795+0x1>
-     904:	20 91 52 01 	lds	r18, 0x0152	; 0x800152 <lastTick.1795+0x2>
-     908:	30 91 53 01 	lds	r19, 0x0153	; 0x800153 <lastTick.1795+0x3>
+     8fc:	00 91 50 01 	lds	r16, 0x0150	; 0x800150 <lastTick.1799>
+     900:	10 91 51 01 	lds	r17, 0x0151	; 0x800151 <lastTick.1799+0x1>
+     904:	20 91 52 01 	lds	r18, 0x0152	; 0x800152 <lastTick.1799+0x2>
+     908:	30 91 53 01 	lds	r19, 0x0153	; 0x800153 <lastTick.1799+0x3>
      90c:	80 1b       	sub	r24, r16
      90e:	91 0b       	sbc	r25, r17
      910:	a2 0b       	sbc	r26, r18
@@ -1463,10 +1419,10 @@ void activate_route_non_blocking(uint8_t tableIndex) {
      924:	90 91 57 01 	lds	r25, 0x0157	; 0x800157 <rail_switch_step_counter+0x1>
      928:	a0 e0       	ldi	r26, 0x00	; 0
      92a:	b0 e0       	ldi	r27, 0x00	; 0
-     92c:	80 93 50 01 	sts	0x0150, r24	; 0x800150 <lastTick.1795>
-     930:	90 93 51 01 	sts	0x0151, r25	; 0x800151 <lastTick.1795+0x1>
-     934:	a0 93 52 01 	sts	0x0152, r26	; 0x800152 <lastTick.1795+0x2>
-     938:	b0 93 53 01 	sts	0x0153, r27	; 0x800153 <lastTick.1795+0x3>
+     92c:	80 93 50 01 	sts	0x0150, r24	; 0x800150 <lastTick.1799>
+     930:	90 93 51 01 	sts	0x0151, r25	; 0x800151 <lastTick.1799+0x1>
+     934:	a0 93 52 01 	sts	0x0152, r26	; 0x800152 <lastTick.1799+0x2>
+     938:	b0 93 53 01 	sts	0x0153, r27	; 0x800153 <lastTick.1799+0x3>
 
 		// Пропускаем нули
 		while (currentBit < (NUM_BITS_74HC595*2) && !(routeSwitches[tableIndex] & (1 << currentBit))) {
@@ -1474,14 +1430,14 @@ void activate_route_non_blocking(uint8_t tableIndex) {
 			currentBit++;
      93e:	81 e0       	ldi	r24, 0x01	; 1
      940:	89 0f       	add	r24, r25
-     942:	80 93 54 01 	sts	0x0154, r24	; 0x800154 <currentBit.1796>
+     942:	80 93 54 01 	sts	0x0154, r24	; 0x800154 <currentBit.1800>
 
 	if ((rail_switch_step_counter - lastTick) >= SWITCH_PAUSE_TIME) {
 		lastTick = rail_switch_step_counter;
 
 		// Пропускаем нули
 		while (currentBit < (NUM_BITS_74HC595*2) && !(routeSwitches[tableIndex] & (1 << currentBit))) {
-     946:	90 91 54 01 	lds	r25, 0x0154	; 0x800154 <currentBit.1796>
+     946:	90 91 54 01 	lds	r25, 0x0154	; 0x800154 <currentBit.1800>
      94a:	90 31       	cpi	r25, 0x10	; 16
      94c:	a0 f4       	brcc	.+40     	; 0x976 <__stack+0x77>
      94e:	e6 2f       	mov	r30, r22
@@ -1539,9 +1495,9 @@ void activate_route_non_blocking(uint8_t tableIndex) {
      9a2:	01 96       	adiw	r24, 0x01	; 1
      9a4:	0e 94 38 05 	call	0xa70	; 0xa70 <shiftOutMultiple>
 			currentBit++;
-     9a8:	80 91 54 01 	lds	r24, 0x0154	; 0x800154 <currentBit.1796>
+     9a8:	80 91 54 01 	lds	r24, 0x0154	; 0x800154 <currentBit.1800>
      9ac:	8f 5f       	subi	r24, 0xFF	; 255
-     9ae:	80 93 54 01 	sts	0x0154, r24	; 0x800154 <currentBit.1796>
+     9ae:	80 93 54 01 	sts	0x0154, r24	; 0x800154 <currentBit.1800>
      9b2:	07 c0       	rjmp	.+14     	; 0x9c2 <__stack+0xc3>
 			} 
 			else {

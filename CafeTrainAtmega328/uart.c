@@ -94,3 +94,47 @@ void send_nack(uint8_t cmd) {
 	// Отправляем NACK с указанием команды, для которой отказ
 	send_command(NACK, cmd, 0x00);
 }
+
+uint8_t UART_receive_packet(uint8_t *packet_buffer) {
+	uint8_t byte = UART_receive();
+	if (byte != STX) {
+		return 0; // Не получен STX
+	}
+	packet_buffer[0] = byte;
+	for (uint8_t i = 1; i < PACKET_SIZE; i++) {
+		byte = UART_receive();
+		packet_buffer[i] = byte;
+	}
+	// Проверка ETX
+	if (packet_buffer[5] != ETX) {
+		return 0;
+	}
+	// Проверка CRC
+	if (crc8(&packet_buffer[1], 3) != packet_buffer[4]) {
+		return 0;
+	}
+	return 1;
+}
+
+uint8_t send_command_with_ack(uint8_t cmd, uint8_t table_id, uint8_t data) {
+	uint8_t retries = 0;
+	uint8_t ack_received = 0;
+	uint8_t response[PACKET_SIZE];
+
+	while (retries < MAX_RETRIES && !ack_received) {
+		// Отправляем команду
+		send_command(cmd, table_id, data);
+
+		// Ожидаем ответа: пытаемся получить полный пакет
+		if (UART_receive_packet(response)) {
+			// Если получен пакет с ACK и поле TABLE_ID соответствует отправленной команде
+			if (response[1] == ACK_CMD && response[2] == cmd) {
+				ack_received = 1;
+				break;
+			}
+		}
+		retries++;
+	}
+
+	return ack_received;
+}

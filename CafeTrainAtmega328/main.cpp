@@ -145,10 +145,28 @@ void process_packet(UART_Packet packet) {
 	update_lcd(packet.cmd, SelectedTable);
 }
 
+void check_and_send_overload_stop(void) {
+	// 1. Отправляем команду OVER_LOAD_STOP через UART с ожиданием ACK
+	uint8_t ack = send_command_with_ack(OVER_LOAD_STOP, 0x00, 0x00);
+
+	// 2. Готовим текст для вывода на LCD
+	char msg[17];
+	if (ack) {
+		snprintf(msg, sizeof(msg), "OVERLOAD: SENT");
+		} else {
+		snprintf(msg, sizeof(msg), "OVERLOAD: FAIL");
+	}
+
+	// 3. Очищаем и выводим сообщение на экран
+	LCD_Clear();
+	LCD_PrintTwoLines("ERROR", msg, 0);
+}
+
 int main(void) {
 	
 	system_init();
 
+	//check_and_send_overload_stop();
 
 
 	while (1) {

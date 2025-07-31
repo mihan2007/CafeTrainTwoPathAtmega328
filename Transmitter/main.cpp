@@ -119,6 +119,34 @@ void handle_control_buttons(void) {
 void checkLocoMovementTimeout () {
 	if (!is_moving) return;
 }
+
+
+void display_overload_error(void) {
+	LCD_Clear();
+	LCD_PrintTwoLines("ERROR!", "short circuit", 0);
+}
+
+void handle_incoming_uart_packets(void) {
+	uint8_t packet_buffer[PACKET_SIZE];
+
+	if (UART_receive_packet(packet_buffer)) {
+		uint8_t cmd = packet_buffer[1];
+
+		switch (cmd) {
+			case OVER_LOAD_STOP:
+			// Отображаем ошибку перегрузки на дисплее
+			display_overload_error();
+
+			break;
+
+			default:
+			// Здесь обработка остальных команд, если нужно
+			break;
+		}
+	}
+}
+
+
 int main(void) {
 	system_init();       // Инициализация портов, UART и 74HC165
 	I2C_Init();          // Для LCD
@@ -126,9 +154,13 @@ int main(void) {
 	LCD_Clear();
 	LCD_PrintTwoLines("Welcome", "Select table", 0);
 	activate_ext_logic();
-
-	while (1) {
+	
+	send_command_with_ack(CMD_STOP, 0x00, 0x00);
 		
+	
+	while (1) {
+		uint8_t packet_buffer[PACKET_SIZE];	
+			
 		checkLocoMovementTimeout();
 		
 		uint8_t rawBits = read_74HC165();
@@ -137,6 +169,7 @@ int main(void) {
 
 		handle_detected_table(detectedTable);
 		handle_control_buttons();
+		handle_incoming_uart_packets();
 	}
 
 	return 0;
