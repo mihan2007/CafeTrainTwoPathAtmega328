@@ -13,21 +13,21 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000011d0  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 000001c8  00000000  00000000  00001210  2**0
+  5 .debug_aranges 000001d0  00000000  00000000  00001210  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00002003  00000000  00000000  000013d8  2**0
+  6 .debug_info   0000201c  00000000  00000000  000013e0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000ddf  00000000  00000000  000033db  2**0
+  7 .debug_abbrev 00000ddf  00000000  00000000  000033fc  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00001070  00000000  00000000  000041ba  2**0
+  8 .debug_line   00001081  00000000  00000000  000041db  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  0000049c  00000000  00000000  0000522c  2**2
+  9 .debug_frame  000004ac  00000000  00000000  0000525c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000a12  00000000  00000000  000056c8  2**0
+ 10 .debug_str    00000a49  00000000  00000000  00005708  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    000014b0  00000000  00000000  000060da  2**0
+ 11 .debug_loc    000014b0  00000000  00000000  00006151  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 000001a8  00000000  00000000  0000758a  2**0
+ 12 .debug_ranges 000001b0  00000000  00000000  00007601  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -575,16 +575,15 @@ void LCD_UpdateLine1(char* str) {
      430:	08 95       	ret
 
 00000432 <get_triggered_sensor>:
-static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
-	return !(pinState & (1 << buttonPin));
-}
+		return;
+	}
 
-int8_t get_triggered_sensor(uint8_t states) {
-	for (uint8_t i = 0; i < 8; i++) {
+	LCD_UpdateLine1(cmdLine);
+}
+void checkLocoMovementTimeout () {
      432:	90 e0       	ldi	r25, 0x00	; 0
      434:	98 30       	cpi	r25, 0x08	; 8
      436:	78 f4       	brcc	.+30     	; 0x456 <get_triggered_sensor+0x24>
-		if (states & (1 << i)) {
      438:	28 2f       	mov	r18, r24
      43a:	30 e0       	ldi	r19, 0x00	; 0
      43c:	09 2e       	mov	r0, r25
@@ -595,40 +594,21 @@ int8_t get_triggered_sensor(uint8_t states) {
      446:	e2 f7       	brpl	.-8      	; 0x440 <get_triggered_sensor+0xe>
      448:	20 ff       	sbrs	r18, 0
      44a:	03 c0       	rjmp	.+6      	; 0x452 <get_triggered_sensor+0x20>
-			return i + SENSOR_INDEX_OFFSET;
      44c:	81 e0       	ldi	r24, 0x01	; 1
      44e:	89 0f       	add	r24, r25
      450:	08 95       	ret
-static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
-	return !(pinState & (1 << buttonPin));
-}
-
-int8_t get_triggered_sensor(uint8_t states) {
-	for (uint8_t i = 0; i < 8; i++) {
      452:	9f 5f       	subi	r25, 0xFF	; 255
      454:	ef cf       	rjmp	.-34     	; 0x434 <get_triggered_sensor+0x2>
-		if (states & (1 << i)) {
-			return i + SENSOR_INDEX_OFFSET;
-		}
-	}
-	return -1;
      456:	8f ef       	ldi	r24, 0xFF	; 255
-}
      458:	08 95       	ret
 
 0000045a <_Z18activate_ext_logicv>:
-
-void activate_ext_logic(void) {
-	PORTB |= (1 << POWER_INDICATION_ENABLE);
      45a:	85 b1       	in	r24, 0x05	; 5
      45c:	81 60       	ori	r24, 0x01	; 1
      45e:	85 b9       	out	0x05, r24	; 5
      460:	08 95       	ret
 
 00000462 <_Z20update_lcd_for_tablea>:
-}
-
-void update_lcd_for_table(int8_t tableIndex) {
      462:	cf 93       	push	r28
      464:	df 93       	push	r29
      466:	cd b7       	in	r28, 0x3d	; 61
@@ -639,11 +619,8 @@ void update_lcd_for_table(int8_t tableIndex) {
      470:	de bf       	out	0x3e, r29	; 62
      472:	0f be       	out	0x3f, r0	; 63
      474:	cd bf       	out	0x3d, r28	; 61
-	char line2[17];
-	if (tableIndex > 0) {
      476:	18 16       	cp	r1, r24
      478:	cc f4       	brge	.+50     	; 0x4ac <_Z20update_lcd_for_tablea+0x4a>
-		snprintf(line2, sizeof(line2), "TABLE: %-2d        ", tableIndex);
      47a:	28 2f       	mov	r18, r24
      47c:	08 2e       	mov	r0, r24
      47e:	00 0c       	add	r0, r0
@@ -668,8 +645,6 @@ void update_lcd_for_table(int8_t tableIndex) {
      4a6:	0f be       	out	0x3f, r0	; 63
      4a8:	cd bf       	out	0x3d, r28	; 61
      4aa:	13 c0       	rjmp	.+38     	; 0x4d2 <_Z20update_lcd_for_tablea+0x70>
-		} else {
-		snprintf(line2, sizeof(line2), "TABLE: -           ");
      4ac:	86 e2       	ldi	r24, 0x26	; 38
      4ae:	91 e0       	ldi	r25, 0x01	; 1
      4b0:	9f 93       	push	r25
@@ -688,8 +663,6 @@ void update_lcd_for_table(int8_t tableIndex) {
      4cc:	0f 90       	pop	r0
      4ce:	0f 90       	pop	r0
      4d0:	0f 90       	pop	r0
-	}
-	LCD_PrintTwoLines("Select command", line2, 0);
      4d2:	40 e0       	ldi	r20, 0x00	; 0
      4d4:	50 e0       	ldi	r21, 0x00	; 0
      4d6:	be 01       	movw	r22, r28
@@ -698,7 +671,6 @@ void update_lcd_for_table(int8_t tableIndex) {
      4dc:	8a e3       	ldi	r24, 0x3A	; 58
      4de:	91 e0       	ldi	r25, 0x01	; 1
      4e0:	0e 94 e5 01 	call	0x3ca	; 0x3ca <LCD_PrintTwoLines>
-}
      4e4:	61 96       	adiw	r28, 0x11	; 17
      4e6:	0f b6       	in	r0, 0x3f	; 63
      4e8:	f8 94       	cli
@@ -710,12 +682,8 @@ void update_lcd_for_table(int8_t tableIndex) {
      4f4:	08 95       	ret
 
 000004f6 <_Z31update_shift_register_for_tablea>:
-
-void update_shift_register_for_table(int8_t tableIndex) {
-	if (tableIndex > 0) {
      4f6:	18 16       	cp	r1, r24
      4f8:	64 f4       	brge	.+24     	; 0x512 <_Z31update_shift_register_for_tablea+0x1c>
-		outputByte = (1 << (tableIndex - 1));
      4fa:	08 2e       	mov	r0, r24
      4fc:	00 0c       	add	r0, r0
      4fe:	99 0b       	sbc	r25, r25
@@ -727,34 +695,20 @@ void update_shift_register_for_table(int8_t tableIndex) {
      50a:	ea f7       	brpl	.-6      	; 0x506 <_Z31update_shift_register_for_tablea+0x10>
      50c:	90 93 87 01 	sts	0x0187, r25	; 0x800187 <outputByte>
      510:	02 c0       	rjmp	.+4      	; 0x516 <_Z31update_shift_register_for_tablea+0x20>
-		} else {
-		outputByte = 0x00;
      512:	10 92 87 01 	sts	0x0187, r1	; 0x800187 <outputByte>
-	}
-	shiftOut(outputByte);
      516:	80 91 87 01 	lds	r24, 0x0187	; 0x800187 <outputByte>
      51a:	0e 94 de 03 	call	0x7bc	; 0x7bc <shiftOut>
-	latchData();
      51e:	0e 94 ff 03 	call	0x7fe	; 0x7fe <latchData>
      522:	08 95       	ret
 
 00000524 <_Z19handle_table_changea>:
-}
-
-void handle_table_change(int8_t newTable) {
-	currentTable = newTable;
      524:	80 93 01 01 	sts	0x0101, r24	; 0x800101 <currentTable>
-	update_lcd_for_table(currentTable);
      528:	0e 94 31 02 	call	0x462	; 0x462 <_Z20update_lcd_for_tablea>
-	update_shift_register_for_table(currentTable);
      52c:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <currentTable>
      530:	0e 94 7b 02 	call	0x4f6	; 0x4f6 <_Z31update_shift_register_for_tablea>
      534:	08 95       	ret
 
 00000536 <_Z21handle_detected_tablea>:
-}
-
-void handle_detected_table(int8_t detectedTable) {
      536:	0f 93       	push	r16
      538:	1f 93       	push	r17
      53a:	cf 93       	push	r28
@@ -767,23 +721,15 @@ void handle_detected_table(int8_t detectedTable) {
      548:	de bf       	out	0x3e, r29	; 62
      54a:	0f be       	out	0x3f, r0	; 63
      54c:	cd bf       	out	0x3d, r28	; 61
-	if (is_moving) return;
      54e:	90 91 86 01 	lds	r25, 0x0186	; 0x800186 <is_moving>
      552:	91 11       	cpse	r25, r1
      554:	2c c0       	rjmp	.+88     	; 0x5ae <_Z21handle_detected_tablea+0x78>
-	if (detectedTable <= 0) return;
      556:	18 16       	cp	r1, r24
      558:	54 f5       	brge	.+84     	; 0x5ae <_Z21handle_detected_tablea+0x78>
-	if (detectedTable == currentTable) return;
      55a:	90 91 01 01 	lds	r25, 0x0101	; 0x800101 <currentTable>
      55e:	89 17       	cp	r24, r25
      560:	31 f1       	breq	.+76     	; 0x5ae <_Z21handle_detected_tablea+0x78>
-
-	handle_table_change(detectedTable);
      562:	0e 94 92 02 	call	0x524	; 0x524 <_Z19handle_table_changea>
-
-	char line2[17];
-	snprintf(line2, sizeof(line2), "TABLE: %-2d        ", currentTable);
      566:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <currentTable>
      56a:	28 2f       	mov	r18, r24
      56c:	08 2e       	mov	r0, r24
@@ -804,9 +750,7 @@ void handle_detected_table(int8_t detectedTable) {
      58a:	1f 93       	push	r17
      58c:	0f 93       	push	r16
      58e:	0e 94 33 05 	call	0xa66	; 0xa66 <snprintf>
-	LCD_Clear();
      592:	0e 94 27 01 	call	0x24e	; 0x24e <LCD_Clear>
-	LCD_PrintTwoLines("Select command", line2, 0);
      596:	40 e0       	ldi	r20, 0x00	; 0
      598:	50 e0       	ldi	r21, 0x00	; 0
      59a:	b8 01       	movw	r22, r16
@@ -818,7 +762,6 @@ void handle_detected_table(int8_t detectedTable) {
      5a8:	de bf       	out	0x3e, r29	; 62
      5aa:	0f be       	out	0x3f, r0	; 63
      5ac:	cd bf       	out	0x3d, r28	; 61
-}
      5ae:	61 96       	adiw	r28, 0x11	; 17
      5b0:	0f b6       	in	r0, 0x3f	; 63
      5b2:	f8 94       	cli
@@ -832,8 +775,6 @@ void handle_detected_table(int8_t detectedTable) {
      5c2:	08 95       	ret
 
 000005c4 <_Z22handle_control_buttonsv>:
-
-void handle_control_buttons(void) {
      5c4:	cf 93       	push	r28
      5c6:	df 93       	push	r29
      5c8:	cd b7       	in	r28, 0x3d	; 61
@@ -844,20 +785,11 @@ void handle_control_buttons(void) {
      5d2:	de bf       	out	0x3e, r29	; 62
      5d4:	0f be       	out	0x3f, r0	; 63
      5d6:	cd bf       	out	0x3d, r28	; 61
-	if (currentTable <= 0) return;
      5d8:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <currentTable>
      5dc:	18 16       	cp	r1, r24
      5de:	0c f0       	brlt	.+2      	; 0x5e2 <_Z22handle_control_buttonsv+0x1e>
      5e0:	a2 c0       	rjmp	.+324    	; 0x726 <_Z22handle_control_buttonsv+0x162>
-
-	uint8_t pinState = PINC;
      5e2:	86 b1       	in	r24, 0x06	; 6
-int8_t currentTable = -1;
-uint8_t currentCommand = CMD_STOP;
-uint8_t is_moving = 0;
-
-static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
-	return !(pinState & (1 << buttonPin));
      5e4:	81 fb       	bst	r24, 1
      5e6:	22 27       	eor	r18, r18
      5e8:	20 f9       	bld	r18, 0
@@ -866,41 +798,25 @@ static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
      5ee:	44 27       	eor	r20, r20
      5f0:	40 f9       	bld	r20, 0
      5f2:	50 e0       	ldi	r21, 0x00	; 0
-
-	bool forwardPressed  = is_button_pressed(pinState, BUTTON_FORWARD_PIN);
-	bool backwardPressed = is_button_pressed(pinState, BUTTON_BACKWARD_PIN);
-	bool stopPressed     = is_button_pressed(pinState, BUTTON_STOP_PIN);
-
-	bool isForward = (currentCommand == CMD_FORWARD);
      5f4:	90 91 00 01 	lds	r25, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
-	bool isBackward = (currentCommand == CMD_BACKWARD);
-	bool isStop = (currentCommand == CMD_STOP);
-
-	if (forwardPressed && !isForward) {
      5f8:	83 fd       	sbrc	r24, 3
      5fa:	30 c0       	rjmp	.+96     	; 0x65c <_Z22handle_control_buttonsv+0x98>
      5fc:	90 32       	cpi	r25, 0x20	; 32
      5fe:	71 f1       	breq	.+92     	; 0x65c <_Z22handle_control_buttonsv+0x98>
-		currentCommand = CMD_FORWARD;
      600:	80 e2       	ldi	r24, 0x20	; 32
      602:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-		is_moving = 1;
      606:	81 e0       	ldi	r24, 0x01	; 1
      608:	80 93 86 01 	sts	0x0186, r24	; 0x800186 <is_moving>
-		PORTB |= (1 << INDICATOR_FORWARD_PIN);
      60c:	85 b1       	in	r24, 0x05	; 5
      60e:	84 60       	ori	r24, 0x04	; 4
      610:	85 b9       	out	0x05, r24	; 5
-		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
      612:	85 b1       	in	r24, 0x05	; 5
      614:	87 7f       	andi	r24, 0xF7	; 247
      616:	85 b9       	out	0x05, r24	; 5
-		ack = send_command_with_ack(CMD_FORWARD, currentTable, 0x00);
      618:	60 91 01 01 	lds	r22, 0x0101	; 0x800101 <currentTable>
      61c:	40 e0       	ldi	r20, 0x00	; 0
      61e:	80 e2       	ldi	r24, 0x20	; 32
      620:	0e 94 d0 04 	call	0x9a0	; 0x9a0 <send_command_with_ack>
-		snprintf(cmdLine, sizeof(cmdLine), "FORWARD: %s", ack ? "OK" : "FAIL");
      624:	88 23       	and	r24, r24
      626:	19 f0       	breq	.+6      	; 0x62e <_Z22handle_control_buttonsv+0x6a>
      628:	89 e4       	ldi	r24, 0x49	; 73
@@ -928,32 +844,24 @@ static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
      656:	0f be       	out	0x3f, r0	; 63
      658:	cd bf       	out	0x3d, r28	; 61
      65a:	61 c0       	rjmp	.+194    	; 0x71e <_Z22handle_control_buttonsv+0x15a>
-
-		} else if (backwardPressed && !isBackward) {
      65c:	23 2b       	or	r18, r19
      65e:	81 f5       	brne	.+96     	; 0x6c0 <_Z22handle_control_buttonsv+0xfc>
      660:	91 32       	cpi	r25, 0x21	; 33
      662:	71 f1       	breq	.+92     	; 0x6c0 <_Z22handle_control_buttonsv+0xfc>
-		currentCommand = CMD_BACKWARD;
      664:	81 e2       	ldi	r24, 0x21	; 33
      666:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-		is_moving = 1;
      66a:	81 e0       	ldi	r24, 0x01	; 1
      66c:	80 93 86 01 	sts	0x0186, r24	; 0x800186 <is_moving>
-		PORTB |= (1 << INDICATOR_BACKWARD_PIN);
      670:	85 b1       	in	r24, 0x05	; 5
      672:	88 60       	ori	r24, 0x08	; 8
      674:	85 b9       	out	0x05, r24	; 5
-		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
      676:	85 b1       	in	r24, 0x05	; 5
      678:	8b 7f       	andi	r24, 0xFB	; 251
      67a:	85 b9       	out	0x05, r24	; 5
-		ack = send_command_with_ack(CMD_BACKWARD, currentTable, 0x00);
      67c:	60 91 01 01 	lds	r22, 0x0101	; 0x800101 <currentTable>
      680:	40 e0       	ldi	r20, 0x00	; 0
      682:	81 e2       	ldi	r24, 0x21	; 33
      684:	0e 94 d0 04 	call	0x9a0	; 0x9a0 <send_command_with_ack>
-		snprintf(cmdLine, sizeof(cmdLine), "BACK: %s", ack ? "OK" : "FAIL");
      688:	88 23       	and	r24, r24
      68a:	19 f0       	breq	.+6      	; 0x692 <_Z22handle_control_buttonsv+0xce>
      68c:	89 e4       	ldi	r24, 0x49	; 73
@@ -981,31 +889,23 @@ static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
      6ba:	0f be       	out	0x3f, r0	; 63
      6bc:	cd bf       	out	0x3d, r28	; 61
      6be:	2f c0       	rjmp	.+94     	; 0x71e <_Z22handle_control_buttonsv+0x15a>
-
-		} else if (stopPressed && !isStop) {
      6c0:	45 2b       	or	r20, r21
      6c2:	89 f5       	brne	.+98     	; 0x726 <_Z22handle_control_buttonsv+0x162>
      6c4:	90 33       	cpi	r25, 0x30	; 48
      6c6:	79 f1       	breq	.+94     	; 0x726 <_Z22handle_control_buttonsv+0x162>
-		currentCommand = CMD_STOP;
      6c8:	80 e3       	ldi	r24, 0x30	; 48
      6ca:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
-		is_moving = 0;
      6ce:	10 92 86 01 	sts	0x0186, r1	; 0x800186 <is_moving>
-		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
      6d2:	85 b1       	in	r24, 0x05	; 5
      6d4:	8b 7f       	andi	r24, 0xFB	; 251
      6d6:	85 b9       	out	0x05, r24	; 5
-		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
      6d8:	85 b1       	in	r24, 0x05	; 5
      6da:	87 7f       	andi	r24, 0xF7	; 247
      6dc:	85 b9       	out	0x05, r24	; 5
-		ack = send_command_with_ack(CMD_STOP, 0x00, 0x00);
      6de:	40 e0       	ldi	r20, 0x00	; 0
      6e0:	60 e0       	ldi	r22, 0x00	; 0
      6e2:	80 e3       	ldi	r24, 0x30	; 48
      6e4:	0e 94 d0 04 	call	0x9a0	; 0x9a0 <send_command_with_ack>
-		snprintf(cmdLine, sizeof(cmdLine), "STOP: %s", ack ? "OK" : "FAIL");
      6e8:	88 23       	and	r24, r24
      6ea:	19 f0       	breq	.+6      	; 0x6f2 <_Z22handle_control_buttonsv+0x12e>
      6ec:	89 e4       	ldi	r24, 0x49	; 73
@@ -1032,16 +932,9 @@ static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
      718:	de bf       	out	0x3e, r29	; 62
      71a:	0f be       	out	0x3f, r0	; 63
      71c:	cd bf       	out	0x3d, r28	; 61
-
-		} else {
-		return;
-	}
-
-	LCD_UpdateLine1(cmdLine);
      71e:	ce 01       	movw	r24, r28
      720:	01 96       	adiw	r24, 0x01	; 1
      722:	0e 94 09 02 	call	0x412	; 0x412 <LCD_UpdateLine1>
-}
      726:	61 96       	adiw	r28, 0x11	; 17
      728:	0f b6       	in	r0, 0x3f	; 63
      72a:	f8 94       	cli
@@ -1053,8 +946,8 @@ static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
      736:	08 95       	ret
 
 00000738 <main>:
-
-
+	
+}
 int main(void) {
 	system_init();       // Инициализация портов, UART и 74HC165
      738:	0e 94 61 00 	call	0xc2	; 0xc2 <system_init>
@@ -1076,6 +969,9 @@ int main(void) {
      758:	0e 94 2d 02 	call	0x45a	; 0x45a <_Z18activate_ext_logicv>
 
 	while (1) {
+		
+		checkLocoMovementTimeout();
+		
 		uint8_t rawBits = read_74HC165();
      75c:	0e 94 b8 03 	call	0x770	; 0x770 <read_74HC165>
 		uint8_t invertedBits = ~rawBits;

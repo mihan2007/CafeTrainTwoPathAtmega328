@@ -5,6 +5,14 @@
 
 #define F_CPU 16000000UL
 
+// «ащита по времени от работы на холостом ходу
+#define TICKS_PER_UNIT 10000
+#define MAX_TIME_UNITS 30
+
+// «ащита по времени от работы на холостом ходу
+#define TICKS_PER_UNIT 10000
+#define MAX_TIME_UNITS 30
+
 //  Control Buttons
 #define BUTTON_FORWARD_PIN   PC3  // A3
 #define BUTTON_STOP_PIN      PC2  // A2
@@ -33,10 +41,12 @@
 #define CLOCK_74HC595   PD3
 #define LATCH_74HC595   PD4
 
-// Uart Comands 
+// Uart Comands
 #define CMD_FORWARD		0x20
-#define CMD_STOP		0x30
 #define CMD_BACKWARD	0x21
+#define CMD_STOP		0x30
+#define CMD_IDEL_STOP	0x31
+#define OVER_LOAD_STOP	0x32
 
 // Sensors bytes
 #define TABLE_1 (1 << 0)

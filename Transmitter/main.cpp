@@ -116,7 +116,9 @@ void handle_control_buttons(void) {
 	LCD_UpdateLine1(cmdLine);
 }
 
-
+void checkLocoMovementTimeout () {
+	if (!is_moving) return;
+}
 int main(void) {
 	system_init();       // Инициализация портов, UART и 74HC165
 	I2C_Init();          // Для LCD
@@ -126,6 +128,9 @@ int main(void) {
 	activate_ext_logic();
 
 	while (1) {
+		
+		checkLocoMovementTimeout();
+		
 		uint8_t rawBits = read_74HC165();
 		uint8_t invertedBits = ~rawBits;
 		int8_t detectedTable = get_triggered_sensor(invertedBits);

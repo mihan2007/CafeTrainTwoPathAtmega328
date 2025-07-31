@@ -59,7 +59,7 @@ void latchData(void) {
 }
 
 void shiftOutMultiple(uint8_t *data, uint8_t count) {
-	for (uint8_t i = 0; i < count; i++) {
+	for (int i = count - 1; i >= 0; i--) {
 		shiftOut(data[i]);
 	}
 	latchData();

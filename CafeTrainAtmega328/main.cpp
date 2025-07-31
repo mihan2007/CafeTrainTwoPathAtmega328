@@ -27,16 +27,17 @@ uint8_t SelectedTable = 0;    // Индекс текущего регистра
 
 uint8_t previousSensorStates = 0xFF;
 
+
 bool isForwardDirection() {
 	return !(PINB & (1 << REVERS_PIN));
 }
 
 void handleForwardSensors(uint8_t mask) {
 	if (mask & TABLE_STOP_SENSOR) {
-			triggeredBitsHistory = 0;
-			LocoStop();
+		triggeredBitsHistory = 0;
+		LocoStop();
 		} else if (mask & TABLE_SLOW_SENSOR) {
-			SlowMode();
+		SlowMode();
 		} else {
 		triggeredBitsHistory |= mask;
 	}
@@ -45,10 +46,10 @@ void handleForwardSensors(uint8_t mask) {
 
 void handleReverseSensors(uint8_t mask) {
 	if (mask & KITCHEN_STOP_SENSOR) {
-			triggeredBitsHistory = 0;
-			LocoStop(); // остановка у кухни
+		triggeredBitsHistory = 0;
+		LocoStop(); // остановка у кухни
 		} else if (mask & KITCHEN_SLOW_SENSOR) {
-			SlowMode(); // замедление при приближении к кухне
+		SlowMode(); // замедление при приближении к кухне
 		} else {
 		triggeredBitsHistory |= mask;
 	}
@@ -122,7 +123,7 @@ void process_packet(UART_Packet packet) {
 		LocoStop();  // сбрасываем на всякий случай
 		
 		send_ack(packet.cmd);
-	
+		
 		if (!routeSetupInProgress) {
 			SelectedTable = packet.table_id;
 			routeSetupInProgress = 1;
@@ -148,21 +149,23 @@ int main(void) {
 	
 	system_init();
 
+
+
 	while (1) {
 		
-	checkSensorsState();
-	checkLocoMovementTimeout();
-	
-	if (sensorStates != previousSensorStates) {
-		previousSensorStates = sensorStates;
-		print_triggered_sensor(sensorStates);
-	}		
-			
+		checkSensorsState();
+		//checkLocoMovementTimeout();
+		
+		if (sensorStates != previousSensorStates) {
+			previousSensorStates = sensorStates;
+			print_triggered_sensor(sensorStates);
+		}
+		
 		UART_Packet packet = UART_receive_full_packet();
 		process_packet(packet);
 
-		processPWMUp();  // обрабатываем плавный разгон	
-			
+		processPWMUp();  // обрабатываем плавный разгон
+		
 		if (routeSetupInProgress) {
 			
 			activate_route_non_blocking(SelectedTable);
