@@ -5,6 +5,7 @@
 #include "timer0.h"
 #include "shift_registers.h"
 #include "config.h"
+#include "adcRead.h"
 
 #include <avr/interrupt.h>
 
@@ -20,6 +21,8 @@ void system_init(void) {
 
 	init_74HC165_ports();
 	init_74HC595_ports();
+	
+	ADC_Init();
 	
 	initPWM();
 	disablePWM(); // избавляемся от паразитного свечения

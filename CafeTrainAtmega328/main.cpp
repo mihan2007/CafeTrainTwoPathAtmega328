@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <stdio.h>
 #include <avr/interrupt.h>
+#include <stdlib.h> 
 #include "system_init.h"
 #include "lcd.h"
 #include "railroad_control.h"
@@ -10,6 +11,10 @@
 #include "PWM.h"
 #include "uart.h"
 #include "shift_registers.h"
+#include "adcRead.h"
+
+extern volatile uint16_t rail_switch_step_counter;
+static uint16_t lastAdcTick = 0;
 
 uint8_t lastCmd = 0xFF;  // Команда, выполненная последней
 
@@ -27,6 +32,38 @@ uint8_t SelectedTable = 0;    // Индекс текущего регистра
 
 uint8_t previousSensorStates = 0xFF;
 
+void show_adc_value_on_lcd(void) {
+	static uint16_t lastAdcValue = 0xFFFF;  // невозможно при 10-битном АЦП
+	static uint8_t counter = 0;
+
+	// обновляем только раз в N циклов
+	counter++;
+	if (counter < 10) return;
+	counter = 0;
+
+	uint16_t adcValue = ADC_Read(0);
+
+	// обновляем экран только если значение изменилось значительно
+	if (abs((int16_t)adcValue - (int16_t)lastAdcValue) >= 10) {
+		lastAdcValue = adcValue;
+
+		char adcBuffer[17];
+		snprintf(adcBuffer, sizeof(adcBuffer), "ADC: %4u     ", adcValue);
+
+		LCD_SetCursor(0, 1);  // Вторая строка дисплея
+		LCD_Print(adcBuffer);
+	}
+}
+
+void update_adc_display_if_due(void) {
+	extern volatile uint16_t rail_switch_step_counter;
+	static uint16_t lastAdcTick = 0;
+
+	if (rail_switch_step_counter - lastAdcTick >= 10) {
+		show_adc_value_on_lcd();
+		lastAdcTick = rail_switch_step_counter;
+	}
+}
 
 bool isForwardDirection() {
 	return !(PINB & (1 << REVERS_PIN));
@@ -183,6 +220,8 @@ int main(void) {
 		process_packet(packet);
 
 		processPWMUp();  // обрабатываем плавный разгон
+		
+		update_adc_display_if_due();
 		
 		if (routeSetupInProgress) {
 			

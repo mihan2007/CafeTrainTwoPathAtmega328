@@ -166,6 +166,12 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="adcRead.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="adcRead.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="InitFile.c">
       <SubType>compile</SubType>
     </Compile>
