@@ -138,21 +138,28 @@ void handle_incoming_uart_packets(void) {
 			display_overload_error();
 			break;
 
-			case CMD_ARRIVED:
-			// ѕоезд прибыл: снимаем "движение", гасим индикаторы
-			is_moving = 0;
-			currentCommand = CMD_STOP;
-			PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
-			PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
+			case CMD_ARRIVED: {
+				uint8_t prevCmd = currentCommand;   // запоминаем направление
 
-			// ќбновл€ем LCD: покажем команду и стол
-			// ѕерва€ строка: "CMD:023 TBL:XX"
-			update_lcd(CMD_ARRIVED, table_id);
-			// ¬тора€ строка: текущий стол (или "-")
-			print_table_on_lcd((int8_t)table_id);
+				is_moving = 0;
+				PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
+				PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
 
-			// теперь выбор стола не блокируетс€ (is_moving==0)
-			break;
+				char line2[17];
+				snprintf(line2, sizeof(line2), "TABLE: %-2d        ", table_id);
+
+				LCD_Clear();
+				if (prevCmd == CMD_BACKWARD) {
+					// ¬ерхн€€ строка с указанием кухни
+					LCD_PrintTwoLines("ARRIVED KITCHEN", line2, 0);
+					} else {
+					LCD_PrintTwoLines("ARRIVED", line2, 0);
+				}
+
+				currentCommand = CMD_STOP;
+				break;
+			}
+
 
 			default:
 			// другие команды по мере необходимости
