@@ -131,20 +131,36 @@ void handle_incoming_uart_packets(void) {
 
 	if (UART_receive_packet(packet_buffer)) {
 		uint8_t cmd = packet_buffer[1];
+		uint8_t table_id = packet_buffer[2];
 
 		switch (cmd) {
 			case OVER_LOAD_STOP:
-			// Отображаем ошибку перегрузки на дисплее
 			display_overload_error();
+			break;
 
+			case CMD_ARRIVED:
+			// Поезд прибыл: снимаем "движение", гасим индикаторы
+			is_moving = 0;
+			currentCommand = CMD_STOP;
+			PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
+			PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
+
+			// Обновляем LCD: покажем команду и стол
+			// Первая строка: "CMD:023 TBL:XX"
+			update_lcd(CMD_ARRIVED, table_id);
+			// Вторая строка: текущий стол (или "-")
+			print_table_on_lcd((int8_t)table_id);
+
+			// теперь выбор стола не блокируется (is_moving==0)
 			break;
 
 			default:
-			// Здесь обработка остальных команд, если нужно
+			// другие команды по мере необходимости
 			break;
 		}
 	}
 }
+
 
 
 int main(void) {

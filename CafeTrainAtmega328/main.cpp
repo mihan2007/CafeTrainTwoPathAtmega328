@@ -60,7 +60,7 @@ void update_adc_display_if_due(void) {
 	static uint16_t lastAdcTick = 0;
 
 	if (rail_switch_step_counter - lastAdcTick >= 10) {
-		show_adc_value_on_lcd();
+		//show_adc_value_on_lcd();
 		lastAdcTick = rail_switch_step_counter;
 	}
 }
@@ -69,46 +69,41 @@ bool isForwardDirection() {
 	return !(PINB & (1 << REVERS_PIN));
 }
 
-void handleForwardSensors(uint8_t mask) {
-	if (mask & TABLE_STOP_SENSOR) {
+void handleSensorEvent(uint8_t mask, uint8_t stopSensor, uint8_t slowSensor) {
+	if (mask & stopSensor) {
+		
+		isLocoMoving = 0;
+		
 		triggeredBitsHistory = 0;
+		
 		LocoStop();
-		} else if (mask & TABLE_SLOW_SENSOR) {
+		
+		send_command(CMD_ARRIVED, SelectedTable, 0x00);
+		
+		} else if ((mask & slowSensor) && isLocoMoving) {
+			
 		SlowMode();
+		
 		} else {
+			
 		triggeredBitsHistory |= mask;
 	}
 	print_triggered_sensor(triggeredBitsHistory);
 }
 
-void handleReverseSensors(uint8_t mask) {
-	if (mask & KITCHEN_STOP_SENSOR) {
-		triggeredBitsHistory = 0;
-		LocoStop(); // остановка у кухни
-		} else if (mask & KITCHEN_SLOW_SENSOR) {
-		SlowMode(); // замедление при приближении к кухне
-		} else {
-		triggeredBitsHistory |= mask;
-	}
-	print_triggered_sensor(triggeredBitsHistory);
-}
 
 void checkSensorsState() {
-	sensorStates = ~read_74HC165(); // если активный высокий уровень с регистра
+	sensorStates = ~read_74HC165();
+	if (sensorStates == previousSensorStates) return;
 
-	if (sensorStates == previousSensorStates)
-	return;
-
-	uint8_t changedBits = sensorStates ^ previousSensorStates;
-	triggeredBitMask = sensorStates & changedBits;
+	uint8_t changed = sensorStates ^ previousSensorStates;
+	uint8_t mask = sensorStates & changed;
 	previousSensorStates = sensorStates;
 
-	if (triggeredBitMask) {
-		if (isForwardDirection()) {
-			handleForwardSensors(triggeredBitMask);
-			} else {
-			handleReverseSensors(triggeredBitMask);
-		}
+	if (mask) {
+		uint8_t stop  = isForwardDirection() ? TABLE_STOP_SENSOR   : KITCHEN_STOP_SENSOR;
+		uint8_t slow  = isForwardDirection() ? TABLE_SLOW_SENSOR   : KITCHEN_SLOW_SENSOR;
+		handleSensorEvent(mask, stop, slow);
 	}
 }
 
