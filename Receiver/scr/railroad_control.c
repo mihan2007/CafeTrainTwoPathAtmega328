@@ -1,8 +1,8 @@
-#include "shift_registers.h"
-#include "railroad_control.h"
-#include "loco_control.h"
-#include "config.h"
-#include "timer0.h"
+#include "../include/shift_registers.h"
+#include "../include/railroad_control.h"
+#include "../include/loco_control.h"
+#include "../include/config.h"
+#include "../include/timer0.h"
 #include <avr/delay.h>
 
 static uint8_t initialized = 0;

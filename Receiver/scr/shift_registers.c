@@ -1,5 +1,5 @@
-#include "shift_registers.h"
-#include "config.h"
+#include "../include/shift_registers.h"
+#include "../include/config.h"
 
 void init_74HC165_ports(void) {
 	DDRD |= (1 << CLOCK_74HC165) | (1 << LATCH_74HC165); // PD5 ? PD6 - ??????

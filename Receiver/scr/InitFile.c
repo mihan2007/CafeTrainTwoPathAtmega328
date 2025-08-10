@@ -1,11 +1,11 @@
-#include "system_init.h"
+#include "../include/system_init.h"
 
-#include "lcd.h"
-#include "uart.h"
-#include "timer0.h"
-#include "shift_registers.h"
-#include "config.h"
-#include "adcRead.h"
+#include "../include/lcd.h"
+#include "../include/uart.h"
+#include "../include/timer0.h"
+#include "../include/shift_registers.h"
+#include "../include/config.h"
+#include "../include/adcRead.h"
 
 #include <avr/interrupt.h>
 

@@ -1,4 +1,4 @@
-#include "adcRead.h"
+#include "../include/adcRead.h"
 #include <avr/io.h>
 
 void ADC_Init(void) {

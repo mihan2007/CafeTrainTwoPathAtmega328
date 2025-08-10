@@ -1,6 +1,6 @@
-#include "PWM.h"
-#include "config.h"
-#include "timer0.h"
+#include "../include/PWM.h"
+#include "../include/config.h"
+#include "../include/timer0.h"
 #include <util/delay.h>
 
 static uint8_t pwmIncreasing = 0;

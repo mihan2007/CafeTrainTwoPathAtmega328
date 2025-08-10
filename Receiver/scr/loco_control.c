@@ -1,7 +1,7 @@
-#include "config.h"
-#include "loco_control.h"
-#include "shift_registers.h"
-#include "railroad_control.h"
+#include "../include/config.h"
+#include "../include/loco_control.h"
+#include "../include/shift_registers.h"
+#include "../include/railroad_control.h"
 
 const uint8_t powerRoutesSuplly[] = {
 	DC_SUPLLY_TABLE_1,

@@ -2,23 +2,23 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
-adcRead.c
-
-InitFile.c
-
-lcd.c
-
-loco_control.c
-
 main.cpp
 
-PWM.c
+scr\adcRead.c
 
-railroad_control.c
+scr\InitFile.c
 
-shift_registers.c
+scr\lcd.c
 
-timer0.c
+scr\loco_control.c
 
-uart.c
+scr\PWM.c
+
+scr\railroad_control.c
+
+scr\shift_registers.c
+
+scr\timer0.c
+
+scr\uart.c
 

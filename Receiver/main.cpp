@@ -2,16 +2,16 @@
 #include <stdio.h>
 #include <avr/interrupt.h>
 #include <stdlib.h> 
-#include "system_init.h"
-#include "lcd.h"
-#include "railroad_control.h"
-#include "loco_control.h"
-#include "timer0.h"
-#include "config.h"
-#include "PWM.h"
-#include "uart.h"
-#include "shift_registers.h"
-#include "adcRead.h"
+#include "include/system_init.h"
+#include "include/lcd.h"
+#include "include/railroad_control.h"
+#include "include/loco_control.h"
+#include "include/timer0.h"
+#include "include/config.h"
+#include "include/PWM.h"
+#include "include/uart.h"
+#include "include/shift_registers.h"
+#include "include/adcRead.h"
 
 extern volatile uint16_t rail_switch_step_counter;
 static uint16_t lastAdcTick = 0;

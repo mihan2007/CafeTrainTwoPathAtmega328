@@ -127,6 +127,7 @@
         <avrgcc.compiler.directories.IncludePaths>
           <ListValues>
             <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.7.374\include\</Value>
+            <Value>%24(MSBuildProjectDirectory)\include\</Value>
           </ListValues>
         </avrgcc.compiler.directories.IncludePaths>
         <avrgcc.compiler.optimization.level>Optimize debugging experience (-Og)</avrgcc.compiler.optimization.level>
@@ -144,6 +145,7 @@
         <avrgcccpp.compiler.directories.IncludePaths>
           <ListValues>
             <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.7.374\include\</Value>
+            <Value>%24(MSBuildProjectDirectory)\include\</Value>
           </ListValues>
         </avrgcccpp.compiler.directories.IncludePaths>
         <avrgcccpp.compiler.optimization.level>Optimize debugging experience (-Og)</avrgcccpp.compiler.optimization.level>
@@ -166,66 +168,70 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="adcRead.c">
+    <Compile Include="include\adcRead.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="adcRead.h">
+    <Compile Include="include\config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="InitFile.c">
+    <Compile Include="include\lcd.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="config.h">
+    <Compile Include="include\loco_control.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="lcd.c">
+    <Compile Include="include\PWM.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="lcd.h">
+    <Compile Include="include\railroad_control.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="loco_control.c">
+    <Compile Include="include\shift_registers.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="loco_control.h">
+    <Compile Include="include\system_init.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="include\timer0.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="include\uart.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="PWM.c">
+    <Compile Include="scr\adcRead.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="PWM.h">
+    <Compile Include="scr\InitFile.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="railroad_control.c">
+    <Compile Include="scr\lcd.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="railroad_control.h">
+    <Compile Include="scr\loco_control.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="shift_registers.c">
+    <Compile Include="scr\PWM.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="shift_registers.h">
+    <Compile Include="scr\railroad_control.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="system_init.h">
+    <Compile Include="scr\shift_registers.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="timer0.c">
+    <Compile Include="scr\timer0.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="timer0.h">
+    <Compile Include="scr\uart.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="uart.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="uart.h">
-      <SubType>compile</SubType>
-    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="include" />
+    <Folder Include="scr" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

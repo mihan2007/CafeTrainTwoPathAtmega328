@@ -1,5 +1,5 @@
-#include "uart.h"
-#include "config.h"
+#include "../include/uart.h"
+#include "../include/config.h"
 #include <avr/io.h>
 #include <stdint.h>
 #include <stddef.h>

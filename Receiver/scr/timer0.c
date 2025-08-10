@@ -1,6 +1,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "timer0.h"
+#include "../include/timer0.h"
 
 // Можно хранить счётчик здесь
 volatile uint16_t rail_switch_step_counter = 0;
