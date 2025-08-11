@@ -5,6 +5,12 @@
 
 #define F_CPU 16000000UL
 
+// ѕодстройте под свой датчик:
+#define OVERLOAD_THRESHOLD      700   // порог "перегруз"
+#define OVERLOAD_HYSTERESIS     30    // гистерезис отпускани€
+#define OVERLOAD_HOLD_TICKS     50    // сколько тиков выше порога до срабатывани€
+#define OVERLOAD_RESEND_TICKS   50     // период повтора команды в перегрузе
+
 // «ащита по времени от работы на холостом ходу 
 #define TICKS_PER_UNIT 10000
 #define MAX_TIME_UNITS 30

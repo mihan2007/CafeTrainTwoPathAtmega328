@@ -16,6 +16,8 @@
 extern volatile uint16_t rail_switch_step_counter;
 static uint16_t lastAdcTick = 0;
 
+volatile uint8_t emergencyStopActive = 0;
+
 uint8_t lastCmd = 0xFF;  // Команда, выполненная последней
 
 uint8_t isLocoMoving = 0;
@@ -180,8 +182,10 @@ void checkLocoMovementTimeout() {
 }
 
 void process_packet(UART_Packet packet) {
-	if (!packet.valid)
-	return;
+	
+	if (emergencyStopActive) return;
+	
+	if (!packet.valid)	return;
 
 	if (packet.cmd == lastCmd && packet.cmd != CMD_STOP && routeSetupInProgress)
 	return;  // Игнорируем повтор той же команды, кроме STOP
@@ -222,19 +226,73 @@ void process_packet(UART_Packet packet) {
 }
 
 void check_and_send_overload_stop(void) {
+	static uint8_t  armed = 1;
+	static uint16_t holdStartTick = 0;
+	static uint16_t filt = 0;
+	static uint8_t  filtInit = 0;
 
-	uint8_t ack = send_command_with_ack(OVER_LOAD_STOP, 0x00, 0x00);
+	// читаем АЦП A0 и сглаживаем (EMA 1/8)
+	uint16_t raw = ADC_Read(0);
+	if (!filtInit) { filt = raw; filtInit = 1; }
+	else           { filt = (uint16_t)((((uint32_t)filt) * 7 + raw) / 8); }
 
-	char msg[17];
-	if (ack) {
-		snprintf(msg, sizeof(msg), "OVERLOAD: SENT");
+	uint16_t thrHigh = OVERLOAD_THRESHOLD;
+	uint16_t thrLow  = (OVERLOAD_THRESHOLD > OVERLOAD_HYSTERESIS)
+	? (OVERLOAD_THRESHOLD - OVERLOAD_HYSTERESIS) : 0;
+
+	if (armed) {
+		if (filt >= thrHigh) {
+			if (holdStartTick == 0) holdStartTick = rail_switch_step_counter;
+
+			if ((uint16_t)(rail_switch_step_counter - holdStartTick) >= OVERLOAD_HOLD_TICKS) {
+				// подтверждённая перегрузка: стоп, защёлка, первый сигнал
+				LocoStop();
+				isLocoMoving = 0;
+				routeSetupInProgress = 0;
+				emergencyStopActive = 1;
+
+				(void)send_command_with_ack(OVER_LOAD_STOP, 0x00, 0x00);
+				LCD_Clear();
+				LCD_PrintTwoLines((char*)"OVERLOAD", (char*)"STOP SENT", 0);
+
+				// --- БЛОКИРУЮЩИЙ ЦИКЛ: пока перегрузка держится, слать периодически ---
+				while (1) {
+					// ждём RESEND_DELAY_TICKS тиков (ISR продолжают работать)
+					uint16_t start = rail_switch_step_counter;
+					while ((uint16_t)(rail_switch_step_counter - start) < OVERLOAD_RESEND_TICKS) {
+						// no-op
+					}
+
+					// перечитываем АЦП и обновляем фильтр
+					raw  = ADC_Read(0);
+					filt = (uint16_t)((((uint32_t)filt) * 7 + raw) / 8);
+
+					if (filt >= thrHigh) {
+						(void)send_command_with_ack(OVER_LOAD_STOP, 0x00, 0x00);
+						// (опционально) можно редко обновлять LCD, чтобы не «мигать»
+						// LCD_PrintTwoLines((char*)"EMERGENCY", (char*)"OVERLOAD", 0);
+						} else {
+						// вышли из перегруза (по верхнему порогу) — прекращаем спам
+						break;
+					}
+				}
+
+				// выходим из события перегруза; повторно «вооружимся» ниже thrLow
+				armed = 0;
+				holdStartTick = 0;
+			}
+			} else {
+			holdStartTick = 0;
+		}
 		} else {
-		snprintf(msg, sizeof(msg), "OVERLOAD: FAIL");
+		// Реарм только после устойчивого опускания ниже нижнего порога
+		if (filt <= thrLow) {
+			armed = 1;
+			LCD_Clear();
+			LCD_PrintTwoLines((char*)"OVERLOAD", (char*)"CLEARED", 0);
+			// ВНИМАНИЕ: emergencyStopActive тут НЕ сбрасываем — снимайте отдельной командой/кнопкой.
+		}
 	}
-
-	// 3. Очищаем и выводим сообщение на экран
-	LCD_Clear();
-	LCD_PrintTwoLines("ERROR", msg, 0);
 }
 
 int main(void) {
@@ -247,6 +305,8 @@ int main(void) {
 	while (1) {
 		
 		checkSensorsState();
+		
+		check_and_send_overload_stop();
 		//checkLocoMovementTimeout();
 		
 		if (sensorStates != previousSensorStates) {
