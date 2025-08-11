@@ -9,7 +9,7 @@
 #define OVERLOAD_THRESHOLD      700   // порог "перегруз"
 #define OVERLOAD_HYSTERESIS     30    // гистерезис отпускания
 #define OVERLOAD_HOLD_TICKS     50    // сколько тиков выше порога до срабатывания
-#define OVERLOAD_RESEND_TICKS   50     // период повтора команды в перегрузе
+#define OVERLOAD_RESEND_TICKS   100     // период повтора команды в перегрузе
 
 // Защита по времени от работы на холостом ходу 
 #define TICKS_PER_UNIT 10000
@@ -79,6 +79,7 @@
 #define CMD_STOP		0x30
 #define CMD_IDEL_STOP	0x31
 #define OVER_LOAD_STOP	0x32
+#define CMD_CLEAR_EMERGENCY 0x33
 
 extern uint8_t routeSetupInProgress;
 

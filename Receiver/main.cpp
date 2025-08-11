@@ -288,9 +288,12 @@ void check_and_send_overload_stop(void) {
 		// Реарм только после устойчивого опускания ниже нижнего порога
 		if (filt <= thrLow) {
 			armed = 1;
+			emergencyStopActive = 0;
 			LCD_Clear();
 			LCD_PrintTwoLines((char*)"OVERLOAD", (char*)"CLEARED", 0);
-			// ВНИМАНИЕ: emergencyStopActive тут НЕ сбрасываем — снимайте отдельной командой/кнопкой.
+			
+			(void)send_command_with_ack(CMD_CLEAR_EMERGENCY, 0x00, 0x00);
+
 		}
 	}
 }
