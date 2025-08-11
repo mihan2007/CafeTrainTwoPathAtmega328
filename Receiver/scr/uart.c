@@ -6,6 +6,9 @@
 
 #define TIMEOUT_MS 100  // Таймаут ожидания в миллисекундах
 
+
+
+
 void UART_init(void) {
 	UBRR0H = (UBRR_VALUE >> 8);
 	UBRR0L = UBRR_VALUE;

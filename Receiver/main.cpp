@@ -55,6 +55,45 @@ void show_adc_value_on_lcd(void) {
 	}
 }
 
+uint8_t updateAdcMode(uint8_t sensorStates, uint16_t tick) {
+	static uint8_t  adcModeActive     = 0;
+	static uint16_t holdStartTick     = 0;
+	static uint8_t  toggledThisPress  = 0;
+
+	uint8_t pressed = (sensorStates & ADC_MODE_BUTTON) != 0;
+
+	if (pressed) {
+		if (holdStartTick == 0) {
+			holdStartTick = tick;
+		}
+		uint16_t held = (uint16_t)(tick - holdStartTick);
+
+		if (!toggledThisPress && held >= HOLD_TICKS_BUTTON) {
+			toggledThisPress = 1;
+
+			if (!adcModeActive) {
+				// Вход в режим
+				adcModeActive = 1;
+				LocoStop();
+				routeSetupInProgress = 0;
+				lastCmd = 0xFF;
+				LCD_Clear();
+				} else {
+				// Выход из режима
+				adcModeActive = 0;
+				LCD_Clear();
+			}
+
+			holdStartTick = tick; // сброс отсчёта для защиты от залипания
+		}
+		} else {
+		holdStartTick = 0;
+		toggledThisPress = 0;
+	}
+
+	return adcModeActive;
+}
+
 void update_adc_display_if_due(void) {
 	extern volatile uint16_t rail_switch_step_counter;
 	static uint16_t lastAdcTick = 0;
@@ -91,18 +130,23 @@ void handleSensorEvent(uint8_t mask, uint8_t stopSensor, uint8_t slowSensor) {
 	print_triggered_sensor(triggeredBitsHistory);
 }
 
-
-void checkSensorsState() {
+void checkSensorsState(void) {
 	sensorStates = ~read_74HC165();
+
+    if (updateAdcMode(sensorStates, rail_switch_step_counter)) {
+	    show_adc_value_on_lcd();
+	    return;
+    }
+
 	if (sensorStates == previousSensorStates) return;
 
 	uint8_t changed = sensorStates ^ previousSensorStates;
-	uint8_t mask = sensorStates & changed;
+	uint8_t mask    = sensorStates & changed;
 	previousSensorStates = sensorStates;
 
 	if (mask) {
-		uint8_t stop  = isForwardDirection() ? TABLE_STOP_SENSOR   : KITCHEN_STOP_SENSOR;
-		uint8_t slow  = isForwardDirection() ? TABLE_SLOW_SENSOR   : KITCHEN_SLOW_SENSOR;
+		uint8_t stop = isForwardDirection() ? TABLE_STOP_SENSOR : KITCHEN_STOP_SENSOR;
+		uint8_t slow = isForwardDirection() ? TABLE_SLOW_SENSOR : KITCHEN_SLOW_SENSOR;
 		handleSensorEvent(mask, stop, slow);
 	}
 }
@@ -178,10 +222,9 @@ void process_packet(UART_Packet packet) {
 }
 
 void check_and_send_overload_stop(void) {
-	// 1. Отправляем команду OVER_LOAD_STOP через UART с ожиданием ACK
+
 	uint8_t ack = send_command_with_ack(OVER_LOAD_STOP, 0x00, 0x00);
 
-	// 2. Готовим текст для вывода на LCD
 	char msg[17];
 	if (ack) {
 		snprintf(msg, sizeof(msg), "OVERLOAD: SENT");

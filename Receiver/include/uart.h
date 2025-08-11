@@ -43,6 +43,7 @@ extern "C" {
 	void send_nack(uint8_t cmd);
 	
 	uint8_t send_command_with_ack(uint8_t cmd, uint8_t table_id, uint8_t data);
+	
 
 	#ifdef __cplusplus
 }

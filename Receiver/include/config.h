@@ -9,6 +9,9 @@
 #define TICKS_PER_UNIT 10000
 #define MAX_TIME_UNITS 30
 
+// Удержание кнопки для перехода в режим отстройки аналогового значения
+#define HOLD_TICKS_BUTTON 1000 // сколько тиков ~1с при 1мс таймере
+
 // Определение линий управления стрелками
 #define REVERS_PIN PB5  // 
 
@@ -74,7 +77,7 @@
 extern uint8_t routeSetupInProgress;
 
 // Sensors bytes
-#define SENSOR_1 (1 << 0)
+#define ADC_MODE_BUTTON (1 << 0)
 #define SENSOR_2 (1 << 1)
 #define SENSOR_3 (1 << 2)
 #define SENSOR_4 (1 << 3)
