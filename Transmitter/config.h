@@ -48,7 +48,8 @@
 #define CMD_ARRIVED		0x23
 #define CMD_STOP		0x30
 #define CMD_IDEL_STOP	0x31
-#define OVER_LOAD_STOP	0x32
+#define CMD_OVER_LOAD_STOP	0x32
+#define CMD_CLEAR_EMERGENCY 0x33
 
 // Sensors bytes
 #define TABLE_1 (1 << 0)

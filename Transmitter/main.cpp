@@ -27,6 +27,21 @@ int8_t get_triggered_sensor(uint8_t states) {
 	return -1;
 }
 
+void turn_off_directions_ligts(void) {
+	PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
+	PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
+}
+
+void forward_light_on(){
+	PORTB |= (1 << INDICATOR_FORWARD_PIN);
+	PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
+}
+
+void bacward_light_on(){
+	PORTB |= (1 << INDICATOR_BACKWARD_PIN);
+	PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
+}
+
 void activate_ext_logic(void) {
 	PORTB |= (1 << POWER_INDICATION_ENABLE);
 }
@@ -88,24 +103,21 @@ void handle_control_buttons(void) {
 	if (forwardPressed && !isForward) {
 		currentCommand = CMD_FORWARD;
 		is_moving = 1;
-		PORTB |= (1 << INDICATOR_FORWARD_PIN);
-		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
+		forward_light_on();
 		ack = send_command_with_ack(CMD_FORWARD, currentTable, 0x00);
 		snprintf(cmdLine, sizeof(cmdLine), "FORWARD: %s", ack ? "OK" : "FAIL");
 
 		} else if (backwardPressed && !isBackward) {
 		currentCommand = CMD_BACKWARD;
 		is_moving = 1;
-		PORTB |= (1 << INDICATOR_BACKWARD_PIN);
-		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
+		bacward_light_on();
 		ack = send_command_with_ack(CMD_BACKWARD, currentTable, 0x00);
 		snprintf(cmdLine, sizeof(cmdLine), "BACK: %s", ack ? "OK" : "FAIL");
 
 		} else if (stopPressed && !isStop) {
 		currentCommand = CMD_STOP;
 		is_moving = 0;
-		PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
-		PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
+		turn_off_directions_ligts();
 		ack = send_command_with_ack(CMD_STOP, 0x00, 0x00);
 		snprintf(cmdLine, sizeof(cmdLine), "STOP: %s", ack ? "OK" : "FAIL");
 
@@ -120,7 +132,6 @@ void checkLocoMovementTimeout () {
 	if (!is_moving) return;
 }
 
-
 void display_overload_error(void) {
 	LCD_Clear();
 	LCD_PrintTwoLines("ERROR!", "short circuit", 0);
@@ -134,16 +145,26 @@ void handle_incoming_uart_packets(void) {
 		uint8_t table_id = packet_buffer[2];
 
 		switch (cmd) {
-			case OVER_LOAD_STOP:
-			display_overload_error();
+			case CMD_OVER_LOAD_STOP:
+				display_overload_error();
+				currentCommand = CMD_STOP;
+				is_moving = 0;
+				turn_off_directions_ligts();
 			break;
-
+			
+			case CMD_CLEAR_EMERGENCY: {
+					char line2[17];
+					snprintf(line2, sizeof(line2), "TABLE: %-2d        ", currentTable);
+					LCD_Clear();
+					LCD_PrintTwoLines("Select command", line2, 0);
+			}
+			break;
+			
 			case CMD_ARRIVED: {
 				uint8_t prevCmd = currentCommand;   // запоминаем направление
 
 				is_moving = 0;
-				PORTB &= ~(1 << INDICATOR_FORWARD_PIN);
-				PORTB &= ~(1 << INDICATOR_BACKWARD_PIN);
+				turn_off_directions_ligts();
 
 				char line2[17];
 				snprintf(line2, sizeof(line2), "TABLE: %-2d        ", table_id);
