@@ -189,8 +189,6 @@ void handle_incoming_uart_packets(void) {
 	}
 }
 
-
-
 int main(void) {
 	system_init();       // Инициализация портов, UART и 74HC165
 	I2C_Init();          // Для LCD

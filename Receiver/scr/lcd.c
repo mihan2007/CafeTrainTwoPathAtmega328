@@ -8,8 +8,6 @@
 #define LCD_ADDRESS 0x27  // Адрес I2C LCD-дисплея
 #define LCD_BACKLIGHT 0x08 // Включение подсветки
 
-
-
 // --- Функции для работы с I2C ---
 void I2C_Init(void) {
 	TWSR = 0x00;             // Предделитель равен 1
@@ -124,7 +122,6 @@ void LCD_Blink(char* buffer) {
 	}
 }
 
-
 void LCD_PrintTwoLines(char* firstLineText, char* secondLineText, int blink) {
 	
 		LCD_SetCursor(0, 0);
@@ -153,7 +150,6 @@ void update_lcd(uint8_t cmd, uint8_t table_id) {
 	LCD_SetCursor(0, 0);
 	LCD_Print(line1);
 }
-
 
 void print_triggered_sensor(uint8_t states) {
 	char line2[17];

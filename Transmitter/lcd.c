@@ -126,7 +126,6 @@ void LCD_Blink(char* buffer) {
 	}
 }
 
-
 void LCD_PrintTwoLines(char* firstLineText, char* secondLineText, int blink) {
 	
 		LCD_SetCursor(0, 0);
@@ -155,7 +154,6 @@ void update_lcd(uint8_t cmd, uint8_t table_id) {
 	LCD_SetCursor(0, 0);
 	LCD_Print(line1);
 }
-
 
 void print_table_on_lcd(int8_t tableIndex) {
 	char line2[17];

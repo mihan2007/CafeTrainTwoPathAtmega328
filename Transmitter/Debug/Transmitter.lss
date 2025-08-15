@@ -1149,8 +1149,6 @@ void handle_incoming_uart_packets(void) {
 
 00000876 <main>:
 
-
-
 int main(void) {
 	system_init();       // Инициализация портов, UART и 74HC165
      876:	0e 94 61 00 	call	0xc2	; 0xc2 <system_init>
