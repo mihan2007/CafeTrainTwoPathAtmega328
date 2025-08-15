@@ -9,7 +9,7 @@
 
 #include <avr/interrupt.h>
 
-uint8_t routeSetupInProgress = 0;
+	uint8_t routeSetupInProgress = 0;
 	volatile uint8_t emergencyStopActive = 0;
 	uint8_t lastCmd = 0xFF;
 	uint8_t isLocoMoving = 0;

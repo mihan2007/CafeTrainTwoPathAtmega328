@@ -14,8 +14,6 @@
 #include "include/adcRead.h"
 #include "include/protection.h"
 
-
-
 void show_adc_value_on_lcd(void) {
 	static uint16_t lastAdcValue = 0xFFFF;  // невозможно при 10-битном АЦП
 	static uint8_t counter = 0;
@@ -135,17 +133,9 @@ void checkSensorsState(void) {
 	}
 }
 
-void resetLocoTimer() {
-	tickCounter = 0;
-	timeCounter = 0;
-}
 
-void stopLocoDueToTimeout() {
-	LocoStop();
-	isLocoMoving = 0;
-	resetLocoTimer();
-	routeSetupInProgress = 0;
-}
+
+
 
 void process_packet(UART_Packet packet) {
 	
@@ -191,21 +181,17 @@ void process_packet(UART_Packet packet) {
 	update_lcd(packet.cmd, SelectedTable);
 }
 
-
-
 int main(void) {
 	
 	system_init();
-
-	//check_and_send_overload_stop();
-
 
 	while (1) {
 		
 		checkSensorsState();
 		
 		check_and_send_overload_stop();
-		//checkLocoMovementTimeout();
+		
+		checkLocoMovementTimeout();
 		
 		if (sensorStates != previousSensorStates) {
 			previousSensorStates = sensorStates;

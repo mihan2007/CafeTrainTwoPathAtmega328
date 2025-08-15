@@ -36,8 +36,6 @@ Discarded input sections
  .text          0x00000000        0x0 main.o
  .data          0x00000000        0x0 main.o
  .bss           0x00000000        0x0 main.o
- .text.stopLocoDueToTimeout
-                0x00000000       0x12 main.o
  .text          0x00000000        0x0 scr/adcRead.o
  .data          0x00000000        0x0 scr/adcRead.o
  .bss           0x00000000        0x0 scr/adcRead.o
@@ -55,8 +53,6 @@ Discarded input sections
  .text          0x00000000        0x0 scr/protection.o
  .data          0x00000000        0x0 scr/protection.o
  .bss           0x00000000        0x0 scr/protection.o
- .text.checkLocoMovementTimeout
-                0x00000000       0x3c scr/protection.o
  .text          0x00000000        0x0 scr/PWM.o
  .data          0x00000000        0x0 scr/PWM.o
  .bss           0x00000000        0x0 scr/PWM.o
@@ -342,7 +338,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x16f6
+.text           0x00000000     0x1748
  *(.vectors)
  .vectors       0x00000000       0x68 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
                 0x00000000                __vector_default
@@ -446,201 +442,207 @@ END GROUP
  .text._Z17checkSensorsStatev
                 0x00000256       0x68 main.o
                 0x00000256                _Z17checkSensorsStatev
- .text._Z14resetLocoTimerv
-                0x000002be        0xe main.o
-                0x000002be                _Z14resetLocoTimerv
  .text._Z14process_packet11UART_Packet
-                0x000002cc       0x98 main.o
-                0x000002cc                _Z14process_packet11UART_Packet
- .text.main     0x00000364       0x42 main.o
-                0x00000364                main
+                0x000002be       0x98 main.o
+                0x000002be                _Z14process_packet11UART_Packet
+ .text.main     0x00000356       0x46 main.o
+                0x00000356                main
  .text.ADC_Init
-                0x000003a6        0xe scr/adcRead.o
-                0x000003a6                ADC_Init
+                0x0000039c        0xe scr/adcRead.o
+                0x0000039c                ADC_Init
  .text.ADC_Read
-                0x000003b4       0x2a scr/adcRead.o
-                0x000003b4                ADC_Read
+                0x000003aa       0x2a scr/adcRead.o
+                0x000003aa                ADC_Read
  .text.system_init
-                0x000003de       0x78 scr/InitFile.o
-                0x000003de                system_init
+                0x000003d4       0x78 scr/InitFile.o
+                0x000003d4                system_init
  .text.I2C_Init
-                0x00000456       0x12 scr/lcd.o
-                0x00000456                I2C_Init
+                0x0000044c       0x12 scr/lcd.o
+                0x0000044c                I2C_Init
  .text.I2C_Start
-                0x00000468       0x10 scr/lcd.o
-                0x00000468                I2C_Start
+                0x0000045e       0x10 scr/lcd.o
+                0x0000045e                I2C_Start
  .text.I2C_Stop
-                0x00000478       0x10 scr/lcd.o
-                0x00000478                I2C_Stop
+                0x0000046e       0x10 scr/lcd.o
+                0x0000046e                I2C_Stop
  .text.I2C_Write
-                0x00000488       0x14 scr/lcd.o
-                0x00000488                I2C_Write
+                0x0000047e       0x14 scr/lcd.o
+                0x0000047e                I2C_Write
  .text.LCD_Send
-                0x0000049c       0x62 scr/lcd.o
-                0x0000049c                LCD_Send
+                0x00000492       0x62 scr/lcd.o
+                0x00000492                LCD_Send
  .text.LCD_Command
-                0x000004fe       0x14 scr/lcd.o
-                0x000004fe                LCD_Command
+                0x000004f4       0x14 scr/lcd.o
+                0x000004f4                LCD_Command
  .text.LCD_Data
-                0x00000512       0x14 scr/lcd.o
-                0x00000512                LCD_Data
+                0x00000508       0x14 scr/lcd.o
+                0x00000508                LCD_Data
  .text.LCD_Init
-                0x00000526       0x6e scr/lcd.o
-                0x00000526                LCD_Init
+                0x0000051c       0x6e scr/lcd.o
+                0x0000051c                LCD_Init
  .text.LCD_Clear
-                0x00000594       0x14 scr/lcd.o
-                0x00000594                LCD_Clear
+                0x0000058a       0x14 scr/lcd.o
+                0x0000058a                LCD_Clear
  .text.LCD_SetCursor
-                0x000005a8       0x3e scr/lcd.o
-                0x000005a8                LCD_SetCursor
+                0x0000059e       0x3e scr/lcd.o
+                0x0000059e                LCD_SetCursor
  .text.LCD_Print
-                0x000005e6       0x1a scr/lcd.o
-                0x000005e6                LCD_Print
+                0x000005dc       0x1a scr/lcd.o
+                0x000005dc                LCD_Print
  .text.LCD_Blink
-                0x00000600       0xe4 scr/lcd.o
-                0x00000600                LCD_Blink
+                0x000005f6       0xe4 scr/lcd.o
+                0x000005f6                LCD_Blink
  .text.LCD_PrintTwoLines
-                0x000006e4       0x48 scr/lcd.o
-                0x000006e4                LCD_PrintTwoLines
+                0x000006da       0x48 scr/lcd.o
+                0x000006da                LCD_PrintTwoLines
  .text.update_lcd
-                0x0000072c       0x92 scr/lcd.o
-                0x0000072c                update_lcd
+                0x00000722       0x92 scr/lcd.o
+                0x00000722                update_lcd
  .text.print_triggered_sensor
-                0x000007be       0x74 scr/lcd.o
-                0x000007be                print_triggered_sensor
+                0x000007b4       0x74 scr/lcd.o
+                0x000007b4                print_triggered_sensor
  .text.SlowMode
-                0x00000832       0x12 scr/loco_control.o
-                0x00000832                SlowMode
+                0x00000828       0x12 scr/loco_control.o
+                0x00000828                SlowMode
  .text.PowerSupplyOn
-                0x00000844        0xe scr/loco_control.o
-                0x00000844                PowerSupplyOn
+                0x0000083a        0xe scr/loco_control.o
+                0x0000083a                PowerSupplyOn
  .text.MoveLocoForward
-                0x00000852       0x48 scr/loco_control.o
-                0x00000852                MoveLocoForward
+                0x00000848       0x48 scr/loco_control.o
+                0x00000848                MoveLocoForward
  .text.PowerSupplyOff
-                0x0000089a        0x8 scr/loco_control.o
-                0x0000089a                PowerSupplyOff
+                0x00000890        0x8 scr/loco_control.o
+                0x00000890                PowerSupplyOff
  .text.LocoStop
-                0x000008a2       0x44 scr/loco_control.o
-                0x000008a2                LocoStop
+                0x00000898       0x44 scr/loco_control.o
+                0x00000898                LocoStop
  .text.ReversOn
-                0x000008e6        0x8 scr/loco_control.o
-                0x000008e6                ReversOn
+                0x000008dc        0x8 scr/loco_control.o
+                0x000008dc                ReversOn
  .text.MoveLocoBackward
-                0x000008ee       0x50 scr/loco_control.o
-                0x000008ee                MoveLocoBackward
+                0x000008e4       0x50 scr/loco_control.o
+                0x000008e4                MoveLocoBackward
  .text.check_and_send_overload_stop
-                0x0000093e      0x196 scr/protection.o
-                0x0000093e                check_and_send_overload_stop
- .text.initPWM  0x00000ad4       0x1c scr/PWM.o
-                0x00000ad4                initPWM
+                0x00000934      0x196 scr/protection.o
+                0x00000934                check_and_send_overload_stop
+ .text.resetLocoTimer
+                0x00000aca        0xe scr/protection.o
+                0x00000aca                resetLocoTimer
+ .text.stopLocoDueToTimeout
+                0x00000ad8       0x12 scr/protection.o
+                0x00000ad8                stopLocoDueToTimeout
+ .text.checkLocoMovementTimeout
+                0x00000aea       0x3c scr/protection.o
+                0x00000aea                checkLocoMovementTimeout
+ .text.initPWM  0x00000b26       0x1c scr/PWM.o
+                0x00000b26                initPWM
  .text.enablePWM
-                0x00000af0       0x20 scr/PWM.o
-                0x00000af0                enablePWM
+                0x00000b42       0x20 scr/PWM.o
+                0x00000b42                enablePWM
  .text.disablePWM
-                0x00000b10       0x1e scr/PWM.o
-                0x00000b10                disablePWM
+                0x00000b62       0x1e scr/PWM.o
+                0x00000b62                disablePWM
  .text.startPWMUp
-                0x00000b2e       0x38 scr/PWM.o
-                0x00000b2e                startPWMUp
+                0x00000b80       0x38 scr/PWM.o
+                0x00000b80                startPWMUp
  .text.processPWMUp
-                0x00000b66       0x8a scr/PWM.o
-                0x00000b66                processPWMUp
+                0x00000bb8       0x8a scr/PWM.o
+                0x00000bb8                processPWMUp
  .text.reset_route_state
-                0x00000bf0        0x6 scr/railroad_control.o
-                0x00000bf0                reset_route_state
+                0x00000c42        0x6 scr/railroad_control.o
+                0x00000c42                reset_route_state
  .text.activate_route_non_blocking
-                0x00000bf6      0x130 scr/railroad_control.o
-                0x00000bf6                activate_route_non_blocking
+                0x00000c48      0x130 scr/railroad_control.o
+                0x00000c48                activate_route_non_blocking
  .text.read_74HC165
-                0x00000d26       0x3e scr/shift_registers.o
-                0x00000d26                read_74HC165
+                0x00000d78       0x3e scr/shift_registers.o
+                0x00000d78                read_74HC165
  .text.init_74HC595_ports
-                0x00000d64        0xe scr/shift_registers.o
-                0x00000d64                init_74HC595_ports
+                0x00000db6        0xe scr/shift_registers.o
+                0x00000db6                init_74HC595_ports
  .text.shiftOut
-                0x00000d72       0x42 scr/shift_registers.o
-                0x00000d72                shiftOut
+                0x00000dc4       0x42 scr/shift_registers.o
+                0x00000dc4                shiftOut
  .text.latchData
-                0x00000db4       0x10 scr/shift_registers.o
-                0x00000db4                latchData
+                0x00000e06       0x10 scr/shift_registers.o
+                0x00000e06                latchData
  .text.shiftOutMultiple
-                0x00000dc4       0x32 scr/shift_registers.o
-                0x00000dc4                shiftOutMultiple
+                0x00000e16       0x32 scr/shift_registers.o
+                0x00000e16                shiftOutMultiple
  .text.init_74HC165_ports
-                0x00000df6       0x3a scr/shift_registers.o
-                0x00000df6                init_74HC165_ports
+                0x00000e48       0x3a scr/shift_registers.o
+                0x00000e48                init_74HC165_ports
  .text.timer0_init
-                0x00000e30       0x22 scr/timer0.o
-                0x00000e30                timer0_init
+                0x00000e82       0x22 scr/timer0.o
+                0x00000e82                timer0_init
  .text.__vector_14
-                0x00000e52       0x2e scr/timer0.o
-                0x00000e52                __vector_14
+                0x00000ea4       0x2e scr/timer0.o
+                0x00000ea4                __vector_14
  .text.UART_init
-                0x00000e80       0x18 scr/uart.o
-                0x00000e80                UART_init
+                0x00000ed2       0x18 scr/uart.o
+                0x00000ed2                UART_init
  .text.UART_send
-                0x00000e98        0xe scr/uart.o
-                0x00000e98                UART_send
+                0x00000eea        0xe scr/uart.o
+                0x00000eea                UART_send
  .text.UART_receive
-                0x00000ea6       0x1c scr/uart.o
-                0x00000ea6                UART_receive
- .text.crc8     0x00000ec2       0x36 scr/uart.o
-                0x00000ec2                crc8
+                0x00000ef8       0x1c scr/uart.o
+                0x00000ef8                UART_receive
+ .text.crc8     0x00000f14       0x36 scr/uart.o
+                0x00000f14                crc8
  .text.send_command
-                0x00000ef8       0x5a scr/uart.o
-                0x00000ef8                send_command
+                0x00000f4a       0x5a scr/uart.o
+                0x00000f4a                send_command
  .text.UART_receive_full_packet
-                0x00000f52       0x84 scr/uart.o
-                0x00000f52                UART_receive_full_packet
+                0x00000fa4       0x84 scr/uart.o
+                0x00000fa4                UART_receive_full_packet
  .text.send_ack
-                0x00000fd6        0xc scr/uart.o
-                0x00000fd6                send_ack
+                0x00001028        0xc scr/uart.o
+                0x00001028                send_ack
  .text.UART_receive_packet
-                0x00000fe2       0x5a scr/uart.o
-                0x00000fe2                UART_receive_packet
+                0x00001034       0x5a scr/uart.o
+                0x00001034                UART_receive_packet
  .text.send_command_with_ack
-                0x0000103c       0x68 scr/uart.o
-                0x0000103c                send_command_with_ack
+                0x0000108e       0x68 scr/uart.o
+                0x0000108e                send_command_with_ack
  .text.libgcc.div
-                0x000010a4       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
-                0x000010a4                _div
-                0x000010a4                __divmodhi4
+                0x000010f6       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
+                0x000010f6                _div
+                0x000010f6                __divmodhi4
  .text.libgcc.div
-                0x000010cc       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_udivmodhi4.o)
-                0x000010cc                __udivmodhi4
+                0x0000111e       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_udivmodhi4.o)
+                0x0000111e                __udivmodhi4
  .text.avr-libc
-                0x000010f4        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(memset.o)
-                0x000010f4                memset
+                0x00001146        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(memset.o)
+                0x00001146                memset
  .text.avr-libc
-                0x00001102       0x60 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(snprintf.o)
-                0x00001102                snprintf
+                0x00001154       0x60 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(snprintf.o)
+                0x00001154                snprintf
  .text.avr-libc
-                0x00001162      0x3c2 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(vfprintf_std.o)
-                0x00001162                vfprintf
+                0x000011b4      0x3c2 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(vfprintf_std.o)
+                0x000011b4                vfprintf
  .text.avr-libc
-                0x00001524       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strnlen_P.o)
-                0x00001524                strnlen_P
+                0x00001576       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strnlen_P.o)
+                0x00001576                strnlen_P
  .text.avr-libc
-                0x0000153a       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strnlen.o)
-                0x0000153a                strnlen
+                0x0000158c       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strnlen.o)
+                0x0000158c                strnlen
  .text.avr-libc
-                0x00001550       0x78 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(fputc.o)
-                0x00001550                fputc
+                0x000015a2       0x78 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(fputc.o)
+                0x000015a2                fputc
  .text.avr-libc
-                0x000015c8       0xbc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(ultoa_invert.o)
-                0x000015c8                __ultoa_invert
+                0x0000161a       0xbc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(ultoa_invert.o)
+                0x0000161a                __ultoa_invert
  .text.libgcc.prologue
-                0x00001684       0x38 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_prologue.o)
-                0x00001684                __prologue_saves__
+                0x000016d6       0x38 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_prologue.o)
+                0x000016d6                __prologue_saves__
  .text.libgcc.prologue
-                0x000016bc       0x36 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_epilogue.o)
-                0x000016bc                __epilogue_restores__
-                0x000016f2                . = ALIGN (0x2)
+                0x0000170e       0x36 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_epilogue.o)
+                0x0000170e                __epilogue_restores__
+                0x00001744                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000016f2        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
-                0x000016f2                _exit
-                0x000016f2                exit
+ .fini9         0x00001744        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+                0x00001744                _exit
+                0x00001744                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -659,11 +661,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000016f2        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+ .fini0         0x00001744        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x000016f6                _etext = .
+                0x00001748                _etext = .
 
-.data           0x00800100       0x64 load address 0x000016f6
+.data           0x00800100       0x64 load address 0x00001748
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -742,15 +744,15 @@ END GROUP
                 0x00800174        0x1 scr/lcd.o
  .bss.counter.1826
                 0x00800175        0x1 scr/lcd.o
- .bss.lastResendTick.1718
+ .bss.lastResendTick.1722
                 0x00800176        0x2 scr/protection.o
- .bss.holdStartTick.1717
+ .bss.holdStartTick.1721
                 0x00800178        0x2 scr/protection.o
- .bss.state.1716
+ .bss.state.1720
                 0x0080017a        0x1 scr/protection.o
- .bss.filt.1709
+ .bss.filt.1713
                 0x0080017b        0x2 scr/protection.o
- .bss.filtInit.1710
+ .bss.filtInit.1714
                 0x0080017d        0x1 scr/protection.o
  .bss.pwmLastTick
                 0x0080017e        0x4 scr/PWM.o
@@ -767,8 +769,8 @@ END GROUP
                 0x00800189                rail_switch_step_counter
  *(COMMON)
                 0x0080018b                PROVIDE (__bss_end, .)
-                0x000016f6                __data_load_start = LOADADDR (.data)
-                0x0000175a                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00001748                __data_load_start = LOADADDR (.data)
+                0x000017ac                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x0080018b        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
@@ -856,17 +858,17 @@ END GROUP
 .debug_aranges  0x00000000      0x310
  *(.debug_aranges)
  .debug_aranges
-                0x00000000       0x68 main.o
+                0x00000000       0x58 main.o
  .debug_aranges
-                0x00000068       0x28 scr/adcRead.o
+                0x00000058       0x28 scr/adcRead.o
  .debug_aranges
-                0x00000090       0x20 scr/InitFile.o
+                0x00000080       0x20 scr/InitFile.o
  .debug_aranges
-                0x000000b0       0x98 scr/lcd.o
+                0x000000a0       0x98 scr/lcd.o
  .debug_aranges
-                0x00000148       0x50 scr/loco_control.o
+                0x00000138       0x50 scr/loco_control.o
  .debug_aranges
-                0x00000198       0x28 scr/protection.o
+                0x00000188       0x38 scr/protection.o
  .debug_aranges
                 0x000001c0       0x50 scr/PWM.o
  .debug_aranges
@@ -881,89 +883,89 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x2cc2
+.debug_info     0x00000000     0x2cbc
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
- .debug_info    0x000005f4      0x6e8 main.o
- .debug_info    0x00000cdc       0xb8 scr/adcRead.o
- .debug_info    0x00000d94      0x304 scr/InitFile.o
- .debug_info    0x00001098      0xa0d scr/lcd.o
- .debug_info    0x00001aa5      0x32f scr/loco_control.o
- .debug_info    0x00001dd4      0x314 scr/protection.o
- .debug_info    0x000020e8      0x17e scr/PWM.o
- .debug_info    0x00002266      0x1c4 scr/railroad_control.o
- .debug_info    0x0000242a      0x345 scr/shift_registers.o
- .debug_info    0x0000276f       0xbb scr/timer0.o
- .debug_info    0x0000282a      0x498 scr/uart.o
+ .debug_info    0x000005f4      0x6ac main.o
+ .debug_info    0x00000ca0       0xb8 scr/adcRead.o
+ .debug_info    0x00000d58      0x304 scr/InitFile.o
+ .debug_info    0x0000105c      0xa0d scr/lcd.o
+ .debug_info    0x00001a69      0x32f scr/loco_control.o
+ .debug_info    0x00001d98      0x34a scr/protection.o
+ .debug_info    0x000020e2      0x17e scr/PWM.o
+ .debug_info    0x00002260      0x1c4 scr/railroad_control.o
+ .debug_info    0x00002424      0x345 scr/shift_registers.o
+ .debug_info    0x00002769       0xbb scr/timer0.o
+ .debug_info    0x00002824      0x498 scr/uart.o
 
-.debug_abbrev   0x00000000     0x1397
+.debug_abbrev   0x00000000     0x137e
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
- .debug_abbrev  0x000005a2      0x1e1 main.o
- .debug_abbrev  0x00000783       0x7a scr/adcRead.o
- .debug_abbrev  0x000007fd       0xe5 scr/InitFile.o
- .debug_abbrev  0x000008e2      0x21c scr/lcd.o
- .debug_abbrev  0x00000afe      0x15c scr/loco_control.o
- .debug_abbrev  0x00000c5a      0x12c scr/protection.o
- .debug_abbrev  0x00000d86       0xe5 scr/PWM.o
- .debug_abbrev  0x00000e6b      0x10c scr/railroad_control.o
- .debug_abbrev  0x00000f77      0x1bb scr/shift_registers.o
- .debug_abbrev  0x00001132       0x81 scr/timer0.o
- .debug_abbrev  0x000011b3      0x1e4 scr/uart.o
+ .debug_abbrev  0x000005a2      0x1b0 main.o
+ .debug_abbrev  0x00000752       0x7a scr/adcRead.o
+ .debug_abbrev  0x000007cc       0xe5 scr/InitFile.o
+ .debug_abbrev  0x000008b1      0x21c scr/lcd.o
+ .debug_abbrev  0x00000acd      0x15c scr/loco_control.o
+ .debug_abbrev  0x00000c29      0x144 scr/protection.o
+ .debug_abbrev  0x00000d6d       0xe5 scr/PWM.o
+ .debug_abbrev  0x00000e52      0x10c scr/railroad_control.o
+ .debug_abbrev  0x00000f5e      0x1bb scr/shift_registers.o
+ .debug_abbrev  0x00001119       0x81 scr/timer0.o
+ .debug_abbrev  0x0000119a      0x1e4 scr/uart.o
 
-.debug_line     0x00000000     0x1b03
+.debug_line     0x00000000     0x1af9
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x134 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
- .debug_line    0x00000134      0x474 main.o
- .debug_line    0x000005a8       0xe2 scr/adcRead.o
- .debug_line    0x0000068a      0x166 scr/InitFile.o
- .debug_line    0x000007f0      0x4bd scr/lcd.o
- .debug_line    0x00000cad      0x1fc scr/loco_control.o
- .debug_line    0x00000ea9      0x216 scr/protection.o
- .debug_line    0x000010bf      0x1b8 scr/PWM.o
- .debug_line    0x00001277      0x1a0 scr/railroad_control.o
- .debug_line    0x00001417      0x2b2 scr/shift_registers.o
- .debug_line    0x000016c9       0xd9 scr/timer0.o
- .debug_line    0x000017a2      0x361 scr/uart.o
+ .debug_line    0x00000134      0x434 main.o
+ .debug_line    0x00000568       0xe2 scr/adcRead.o
+ .debug_line    0x0000064a      0x166 scr/InitFile.o
+ .debug_line    0x000007b0      0x4bd scr/lcd.o
+ .debug_line    0x00000c6d      0x1fc scr/loco_control.o
+ .debug_line    0x00000e69      0x24c scr/protection.o
+ .debug_line    0x000010b5      0x1b8 scr/PWM.o
+ .debug_line    0x0000126d      0x1a0 scr/railroad_control.o
+ .debug_line    0x0000140d      0x2b2 scr/shift_registers.o
+ .debug_line    0x000016bf       0xd9 scr/timer0.o
+ .debug_line    0x00001798      0x361 scr/uart.o
 
 .debug_frame    0x00000000      0x704
  *(.debug_frame)
- .debug_frame   0x00000000       0xf4 main.o
- .debug_frame   0x000000f4       0x34 scr/adcRead.o
- .debug_frame   0x00000128       0x34 scr/InitFile.o
- .debug_frame   0x0000015c      0x1d4 scr/lcd.o
- .debug_frame   0x00000330       0xc4 scr/loco_control.o
- .debug_frame   0x000003f4       0x3c scr/protection.o
+ .debug_frame   0x00000000       0xd4 main.o
+ .debug_frame   0x000000d4       0x34 scr/adcRead.o
+ .debug_frame   0x00000108       0x34 scr/InitFile.o
+ .debug_frame   0x0000013c      0x1d4 scr/lcd.o
+ .debug_frame   0x00000310       0xc4 scr/loco_control.o
+ .debug_frame   0x000003d4       0x5c scr/protection.o
  .debug_frame   0x00000430       0x84 scr/PWM.o
  .debug_frame   0x000004b4       0x50 scr/railroad_control.o
  .debug_frame   0x00000504       0x98 scr/shift_registers.o
  .debug_frame   0x0000059c       0x48 scr/timer0.o
  .debug_frame   0x000005e4      0x120 scr/uart.o
 
-.debug_str      0x00000000      0xcda
+.debug_str      0x00000000      0xcc6
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
- .debug_str     0x00000208      0x561 main.o
-                                0x5d0 (size before relaxing)
- .debug_str     0x00000769       0xcd scr/adcRead.o
+ .debug_str     0x00000208      0x539 main.o
+                                0x5a8 (size before relaxing)
+ .debug_str     0x00000741       0xcd scr/adcRead.o
                                 0x199 (size before relaxing)
- .debug_str     0x00000836       0xae scr/InitFile.o
+ .debug_str     0x0000080e       0xc6 scr/InitFile.o
                                 0x2df (size before relaxing)
- .debug_str     0x000008e4      0x155 scr/lcd.o
+ .debug_str     0x000008d4      0x155 scr/lcd.o
                                 0x359 (size before relaxing)
- .debug_str     0x00000a39       0x9d scr/loco_control.o
+ .debug_str     0x00000a29       0x9d scr/loco_control.o
                                 0x277 (size before relaxing)
- .debug_str     0x00000ad6       0x8b scr/protection.o
-                                0x303 (size before relaxing)
- .debug_str     0x00000b61       0x56 scr/PWM.o
+ .debug_str     0x00000ac6       0x87 scr/protection.o
+                                0x312 (size before relaxing)
+ .debug_str     0x00000b4d       0x56 scr/PWM.o
                                 0x21b (size before relaxing)
- .debug_str     0x00000bb7       0x48 scr/railroad_control.o
+ .debug_str     0x00000ba3       0x48 scr/railroad_control.o
                                 0x268 (size before relaxing)
- .debug_str     0x00000bff       0x3e scr/shift_registers.o
+ .debug_str     0x00000beb       0x3e scr/shift_registers.o
                                 0x240 (size before relaxing)
- .debug_str     0x00000c3d       0x1c scr/timer0.o
+ .debug_str     0x00000c29       0x1c scr/timer0.o
                                 0x1af (size before relaxing)
- .debug_str     0x00000c59       0x81 scr/uart.o
+ .debug_str     0x00000c45       0x81 scr/uart.o
                                 0x27d (size before relaxing)
 
 .debug_loc      0x00000000     0x162b
@@ -999,12 +1001,12 @@ END GROUP
 
 .debug_ranges   0x00000000      0x290
  *(.debug_ranges)
- .debug_ranges  0x00000000       0x58 main.o
- .debug_ranges  0x00000058       0x18 scr/adcRead.o
- .debug_ranges  0x00000070       0x10 scr/InitFile.o
- .debug_ranges  0x00000080       0x88 scr/lcd.o
- .debug_ranges  0x00000108       0x40 scr/loco_control.o
- .debug_ranges  0x00000148       0x18 scr/protection.o
+ .debug_ranges  0x00000000       0x48 main.o
+ .debug_ranges  0x00000048       0x18 scr/adcRead.o
+ .debug_ranges  0x00000060       0x10 scr/InitFile.o
+ .debug_ranges  0x00000070       0x88 scr/lcd.o
+ .debug_ranges  0x000000f8       0x40 scr/loco_control.o
+ .debug_ranges  0x00000138       0x28 scr/protection.o
  .debug_ranges  0x00000160       0x40 scr/PWM.o
  .debug_ranges  0x000001a0       0x18 scr/railroad_control.o
  .debug_ranges  0x000001b8       0x50 scr/shift_registers.o

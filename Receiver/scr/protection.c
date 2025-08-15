@@ -94,3 +94,14 @@ void checkLocoMovementTimeout() {
 		}
 	}
 }
+
+void stopLocoDueToTimeout() {
+	LocoStop();
+	isLocoMoving = 0;
+	resetLocoTimer();
+	routeSetupInProgress = 0;
+}
+void resetLocoTimer() {
+	tickCounter = 0;
+	timeCounter = 0;
+}

@@ -4,7 +4,9 @@ extern "C" {
 	#endif
 	void check_and_send_overload_stop(void);
 	void checkLocoMovementTimeout(void);
-	void stopLocoDueToTimeout(void);   // <Ч добавь прототип
+	void stopLocoDueToTimeout(void);
+	void stopLocoDueToTimeout(void);
+	void resetLocoTimer(void);
 	#ifdef __cplusplus
 }
 #endif
