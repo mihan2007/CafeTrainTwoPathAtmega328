@@ -12,6 +12,8 @@ scr\lcd.c
 
 scr\loco_control.c
 
+scr\protection.c
+
 scr\PWM.c
 
 scr\railroad_control.c

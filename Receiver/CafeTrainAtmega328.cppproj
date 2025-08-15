@@ -180,6 +180,9 @@
     <Compile Include="include\loco_control.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="include\protection.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="include\PWM.h">
       <SubType>compile</SubType>
     </Compile>
@@ -211,6 +214,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="scr\loco_control.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="scr\protection.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="scr\PWM.c">

@@ -10,7 +10,16 @@
 #include <avr/interrupt.h>
 
 uint8_t routeSetupInProgress = 0;
-
+	volatile uint8_t emergencyStopActive = 0;
+	uint8_t lastCmd = 0xFF;
+	uint8_t isLocoMoving = 0;
+	uint16_t tickCounter = 0;
+	uint8_t timeCounter = 0;
+	uint8_t sensorStates = 0;
+	uint8_t triggeredBitsHistory = 0;
+	uint8_t SelectedTable = 0;
+	uint8_t previousSensorStates = 0xFF;
+	
 void system_init(void) {
 	I2C_Init();
 	LCD_Init();
@@ -26,6 +35,8 @@ void system_init(void) {
 	
 	initPWM();
 	disablePWM(); // избавляемся от паразитного свечения
+	
+
 	
 	DDRB |= (1 << REVERS_PIN);
 	DDRB |= (1 << RAIL_POWER_ENABLE);

@@ -44,6 +44,7 @@ C_SRCS +=  \
 ../scr/InitFile.c \
 ../scr/lcd.c \
 ../scr/loco_control.c \
+../scr/protection.c \
 ../scr/PWM.c \
 ../scr/railroad_control.c \
 ../scr/shift_registers.c \
@@ -63,6 +64,7 @@ scr/adcRead.o \
 scr/InitFile.o \
 scr/lcd.o \
 scr/loco_control.o \
+scr/protection.o \
 scr/PWM.o \
 scr/railroad_control.o \
 scr/shift_registers.o \
@@ -75,6 +77,7 @@ scr/adcRead.o \
 scr/InitFile.o \
 scr/lcd.o \
 scr/loco_control.o \
+scr/protection.o \
 scr/PWM.o \
 scr/railroad_control.o \
 scr/shift_registers.o \
@@ -87,6 +90,7 @@ scr/adcRead.d \
 scr/InitFile.d \
 scr/lcd.d \
 scr/loco_control.d \
+scr/protection.d \
 scr/PWM.d \
 scr/railroad_control.d \
 scr/shift_registers.d \
@@ -99,6 +103,7 @@ scr/adcRead.d \
 scr/InitFile.d \
 scr/lcd.d \
 scr/loco_control.d \
+scr/protection.d \
 scr/PWM.d \
 scr/railroad_control.d \
 scr/shift_registers.d \
@@ -148,6 +153,13 @@ scr/lcd.o: ../scr/lcd.c
 	
 
 scr/loco_control.o: ../scr/loco_control.c
+	@echo Building file: $<
+	@echo Invoking: AVR8/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include" -I"C:\Users\user\Documents\Atmel Studio\7.0\CafeTrainAtmega328\Receiver\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+scr/protection.o: ../scr/protection.c
 	@echo Building file: $<
 	@echo Invoking: AVR8/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include" -I"C:\Users\user\Documents\Atmel Studio\7.0\CafeTrainAtmega328\Receiver\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 

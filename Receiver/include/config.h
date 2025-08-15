@@ -93,4 +93,18 @@ extern uint8_t routeSetupInProgress;
 #define TABLE_SLOW_SENSOR (1 << 6)
 #define TABLE_STOP_SENSOR (1 << 7)
 
+// ==== Runtime state (externs) ====
+extern volatile uint8_t emergencyStopActive;
+extern uint8_t lastCmd;
+extern uint8_t isLocoMoving;
+extern uint16_t tickCounter;
+extern uint8_t timeCounter;
+
+extern uint8_t sensorStates;
+extern uint8_t triggeredBitsHistory;
+extern uint8_t SelectedTable;
+extern uint8_t previousSensorStates;
+
 #endif /* CONFIG_H_ */
+
+
