@@ -103,7 +103,14 @@ void check_and_send_overload_stop(void) {
 	}
 }
 
-// ===================== ПРОЧИЕ ЗАЩИТЫ (ИДЛ/ТАЙМАУТ) =====================
+void overload_led_sync(void) {
+	if (emergencyStopActive) {
+		PORTB |= (1 << ALARM_PIN);   // включить LED (D11)
+		} else {
+		PORTB &= ~(1 << ALARM_PIN);  // выключить LED
+	}
+}
+
 void checkLocoMovementTimeout(void) {
 	if (!isLocoMoving) return;
 

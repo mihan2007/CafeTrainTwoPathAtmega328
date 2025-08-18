@@ -7,6 +7,7 @@ extern "C" {
 	void stopLocoDueToTimeout(void);
 	void stopLocoDueToTimeout(void);
 	void resetLocoTimer(void);
+	void overload_led_sync(void);
 	#ifdef __cplusplus
 }
 #endif

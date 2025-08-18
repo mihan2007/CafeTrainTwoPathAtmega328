@@ -51,6 +51,9 @@
 #define CLOCK_74HC595   PD3
 #define LATCH_74HC595   PD4
 
+// Alarm
+#define ALARM_PIN PB3
+
 // Определение маршрутов
 #define ROUTE_TO_TABLE_1 0b0000000000000001
 #define ROUTE_TO_TABLE_2 0b0000000000000110

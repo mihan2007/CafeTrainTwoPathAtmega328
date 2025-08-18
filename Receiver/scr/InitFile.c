@@ -36,11 +36,7 @@ void system_init(void) {
 	initPWM();
 	disablePWM(); // избавляемся от паразитного свечения
 	
-
-	
-	DDRB |= (1 << REVERS_PIN);
-	DDRB |= (1 << RAIL_POWER_ENABLE);
-	DDRB |= (1 << PWM_SWITCH_PIN);
+	init_output_pins();
 	
 	// Очистка регистров при старте
 	uint8_t initData[NUM_OF_74HC595] = {0};
@@ -51,4 +47,12 @@ void system_init(void) {
 	sei(); // Включаем глобальные прерывания
 
 	LCD_PrintTwoLines("Waiting for Cmd", "", 0);
+}
+
+init_output_pins(void) {
+	DDRB |= (1 << REVERS_PIN);
+	DDRB |= (1 << RAIL_POWER_ENABLE);
+	DDRB |= (1 << PWM_SWITCH_PIN);
+	DDRB |= (1 << ALARM_PIN);
+	PORTB &= ~(1 << ALARM_PIN);
 }
