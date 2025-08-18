@@ -91,7 +91,7 @@ Both Transmitter and Receiver use the **same PCB design**:
 # From project root
 make -C Transmitter
 make -C Receiver
-
+```
 ## 🧪 Runtime/UX
 
 - Select a table → train moves, decelerates smoothly, stops at the corresponding sensor  
