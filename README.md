@@ -4,12 +4,19 @@ Control firmware for a café food-delivery train system.
 The project runs on ATmega328P and consists of a **Transmitter** (command device) and a **Receiver** (control device).  
 Communication is performed over **UART**, so the Transmitter can theoretically control **any UART-compatible device**.  
 
+> **Note:** This project is a successor to the [LocomotiveCafe system (ATmega2560)](https://github.com/mihan2007/CafeTrainAtmnega2560/releases/tag/LocomotiveCafe).  
+> Compared to the previous implementation, the new firmware:  
+> - Is designed for **8 tables** but can be easily extended to **any number of tables**  
+> - Can be optimized for **custom delivery logic** (the previous project did not allow this flexibility)  
+> - Retains the **same path logic** as in the original project  
+> - Is simplified and ported to run on **ATmega328P** with modular Transmitter/Receiver roles  
+
 > Latest release: see [Releases](../../releases) (e.g., **v1.1.0** – Safety & UI update).
 
 ---
 
 ## ✨ Features
-- **8 programmable stop points (tables)**  
+- **8 programmable stop points (tables)** (extendable to unlimited tables)  
 - Buttons: table selection, forward / backward, emergency stop  
 - Smooth acceleration & braking via PWM  
 - **Safety**: short-circuit protection, no-load (idle) protection  
@@ -84,5 +91,21 @@ Both Transmitter and Receiver use the **same PCB design**:
 # From project root
 make -C Transmitter
 make -C Receiver
+
+## 🧪 Runtime/UX
+
+- Select a table → train moves, decelerates smoothly, stops at the corresponding sensor  
+- LCD shows state: `IDLE / MOVING / BRAKING / E-STOP` with selected table  
+
+### Protections
+- **Short-circuit**:  
+  Implemented using current sensors (e.g., **CJMCU-758**).  
+  These sensors provide an **analog voltage output** proportional to the current flowing through the sensor.  
+  When the current exceeds a safe threshold, the system triggers motor cut-off and displays an alert.  
+
+- **No-load**:  
+  If a **forward or backward command** is received but **no stop sensor is triggered within 10 minutes**,  
+  the system automatically cuts off motor power to prevent unsafe idle operation.
+
 
 
