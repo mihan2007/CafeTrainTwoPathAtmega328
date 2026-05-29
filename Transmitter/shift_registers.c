@@ -62,7 +62,7 @@ void shiftOutMultiple(uint8_t *data, uint8_t count) {
 
 	PORTB |= (1 << POWER_INDICATION_ENABLE);
 
-	for (uint8_t i = 0; i < count; i++) {
+	for (int8_t i = count - 1; i >= 0; i--) {
 		shiftOut(data[i]);
 	}
 
