@@ -39,6 +39,10 @@ void init_button_inputs(void) {
 	          (1 << BUTTON_STOP_PIN) |
 	          (1 << BUTTON_BACKWARD_PIN) |
 	          (1 << PATH2_BUTTON_FORWARD_PIN));
+	PORTC |= ((1 << BUTTON_FORWARD_PIN) |
+	          (1 << BUTTON_STOP_PIN) |
+	          (1 << BUTTON_BACKWARD_PIN) |
+	          (1 << PATH2_BUTTON_FORWARD_PIN));
 
 	DDRB &= ~(1 << TABLE9_BUTTON_PIN);
 	PORTB |= (1 << TABLE9_BUTTON_PIN);

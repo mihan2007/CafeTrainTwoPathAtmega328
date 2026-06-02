@@ -251,16 +251,14 @@ void handle_control_buttons(void) {
 	bool path2StopPressed = PATH2_CONTROL_BUTTONS_ENABLED && is_adc_button_pressed(PATH2_BUTTON_STOP_ADC);
 
 	if (stopPressed) {
-		ack = send_command_with_ack(CMD_STOP, 0x00, 0x00);
+		ack = send_command_with_ack(CMD_STOP_PATH1, selectedPath1Table > 0 ? selectedPath1Table : 0x00, 0x00);
 		clear_motion_state();
-		clear_path2_motion_state();
 		set_path1_command_status("STOP", ack);
 		return;
 	}
 
 	if (path2StopPressed) {
-		ack = send_command_with_ack(CMD_STOP, 0x00, 0x00);
-		clear_motion_state();
+		ack = send_command_with_ack(CMD_STOP_PATH2, selectedPath2Table > 0 ? selectedPath2Table : 0x00, 0x00);
 		clear_path2_motion_state();
 		set_path2_command_status("STOP", ack);
 		return;

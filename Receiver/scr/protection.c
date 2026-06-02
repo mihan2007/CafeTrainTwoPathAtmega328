@@ -104,11 +104,13 @@ void check_and_send_overload_stop(void) {
 }
 
 void overload_led_sync(void) {
+#if ALARM_ENABLED
 	if (emergencyStopActive) {
-		PORTB |= (1 << ALARM_PIN);   // включить LED (D11)
-		} else {
-		PORTB &= ~(1 << ALARM_PIN);  // выключить LED
+		PORTB |= (1 << ALARM_PIN);
+	} else {
+		PORTB &= ~(1 << ALARM_PIN);
 	}
+#endif
 }
 
 void checkLocoMovementTimeout(void) {

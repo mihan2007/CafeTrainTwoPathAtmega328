@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <avr/interrupt.h>
 #include <stdlib.h> 
+#include <util/delay.h>
 #include "include/system_init.h"
 #include "include/lcd.h"
 #include "include/railroad_control.h"
@@ -14,6 +15,50 @@
 #include "include/adcRead.h"
 #include "include/protection.h"
 
+static uint8_t getTablePath(uint8_t tableId) {
+	return (tableId >= 1 && tableId <= 4) ? 1 : 2;
+}
+
+static uint8_t isSamePath(uint8_t firstTable, uint8_t secondTable) {
+	if (firstTable == 0 || secondTable == 0) return 0;
+	return getTablePath(firstTable) == getTablePath(secondTable);
+}
+
+static uint8_t pendingRouteTable[3] = {0, 0, 0};
+
+static void startRouteSetup(uint8_t tableId) {
+	SelectedTable = tableId;
+	pathSelectedTable[getTablePath(tableId)] = tableId;
+	pathMode[getTablePath(tableId)] = PATH_MODE_ROUTE_SETUP;
+	routeSetupInProgress = 1;
+}
+
+static void queueRouteSetup(uint8_t tableId) {
+	pendingRouteTable[getTablePath(tableId)] = tableId;
+}
+
+static void startPendingRouteSetupIfReady(void) {
+	if (routeSetupInProgress) return;
+
+	for (uint8_t path = 1; path <= 2; path++) {
+		if (pendingRouteTable[path] > 0) {
+			uint8_t tableId = pendingRouteTable[path];
+			pendingRouteTable[path] = 0;
+			LocoStopTable(tableId);
+			startRouteSetup(tableId);
+			return;
+		}
+	}
+}
+
+void updatePathModesAfterPwm(void) {
+	for (uint8_t path = 1; path <= 2; path++) {
+		if (pathMode[path] == PATH_MODE_ACCELERATION && !isPWMUpRunningForPath(path)) {
+			pathMode[path] = PATH_MODE_MOVING;
+		}
+	}
+}
+
 bool isForwardDirection() {
 	return !(PINB & (1 << REVERS_PIN));
 }
@@ -25,7 +70,7 @@ void handleSensorEvent(uint8_t mask, uint8_t stopSensor, uint8_t slowSensor) {
 		
 		triggeredBitsHistory = 0;
 		
-		LocoStop();
+		LocoStopTable(SelectedTable);
 		
 		send_command(CMD_ARRIVED, SelectedTable, 0x00);
 		
@@ -67,7 +112,7 @@ void process_packet(UART_Packet packet) {
 	
 	if (!packet.valid)	return;
 
-	if (packet.cmd == lastCmd && packet.cmd != CMD_STOP && routeSetupInProgress)
+	if (packet.cmd == lastCmd && packet.table_id == SelectedTable && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && routeSetupInProgress)
 	return;  // Игнорируем повтор той же команды, кроме STOP
 
 	lastCmd = packet.cmd;
@@ -79,20 +124,43 @@ void process_packet(UART_Packet packet) {
 			resetLocoTimer();
 			break;
 
-		case CMD_FORWARD:
-			LocoStop();  // сбрасываем на всякий случай
-		
-			send_ack(packet.cmd);
-		
-			if (!routeSetupInProgress) {
-				SelectedTable = packet.table_id;
-				routeSetupInProgress = 1;
+		case CMD_STOP_PATH1:
+			LocoStopPath(1);
+			if (routeSetupInProgress && getTablePath(SelectedTable) == 1) {
+				routeSetupInProgress = 0;
 			}
+			send_ack(packet.cmd);
+			resetLocoTimer();
+			break;
+
+		case CMD_STOP_PATH2:
+			LocoStopPath(2);
+			if (routeSetupInProgress && getTablePath(SelectedTable) == 2) {
+				routeSetupInProgress = 0;
+			}
+			send_ack(packet.cmd);
+			resetLocoTimer();
+			break;
+
+		case CMD_FORWARD: {
+			uint8_t path = getTablePath(packet.table_id);
+
+			send_ack(packet.cmd);
+
+			if (!routeSetupInProgress) {
+				LocoStopTable(packet.table_id);
+				startRouteSetup(packet.table_id);
+			} else if (!isSamePath(packet.table_id, SelectedTable)) {
+				queueRouteSetup(packet.table_id);
+				pathSelectedTable[path] = packet.table_id;
+			}
+
 			isLocoMoving = 1;
 		break;
-
+		}
 		case CMD_BACKWARD:
 			SelectedTable = packet.table_id;
+			pathSelectedTable[getTablePath(packet.table_id)] = packet.table_id;
 			MoveLocoBackward(SelectedTable);
 			send_ack(packet.cmd);
 			isLocoMoving = 1;
@@ -105,9 +173,35 @@ void process_packet(UART_Packet packet) {
 	update_lcd(packet.cmd, SelectedTable);
 }
 
+void run_output_shift_register_test(void) {
+	uint8_t shiftData[NUM_OF_74HC595] = {0};
+
+	LCD_Clear();
+	LCD_PrintTwoLines("OUTPUT TEST", "Running", 0);
+
+	for (uint8_t reg = 0; reg < NUM_OF_74HC595; reg++) {
+		for (uint8_t bit = 0; bit < NUM_BITS_74HC595; bit++) {
+			for (uint8_t i = 0; i < NUM_OF_74HC595; i++) {
+				shiftData[i] = 0x00;
+			}
+
+			shiftData[reg] = (1 << bit);
+			shiftOutMultiple(shiftData, NUM_OF_74HC595);
+			_delay_ms(700);
+		}
+	}
+
+	for (uint8_t i = 0; i < NUM_OF_74HC595; i++) {
+		shiftData[i] = 0x00;
+	}
+	shiftOutMultiple(shiftData, NUM_OF_74HC595);
+	LCD_Clear();
+	LCD_PrintTwoLines("Waiting for Cmd", "", 0);
+}
 int main(void) {
 	
 	system_init();
+	run_output_shift_register_test();
 
 	while (1) {
 		
@@ -125,12 +219,14 @@ int main(void) {
 		process_packet(packet);
 
 		processPWMUp();  
+		updatePathModesAfterPwm();
 		
 		update_adc_display_if_due();
 		
 		if (routeSetupInProgress) {
 			
 			activate_route_non_blocking(SelectedTable);
+			startPendingRouteSetupIfReady();
 			
 		}
 	}

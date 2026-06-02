@@ -19,6 +19,8 @@
 	uint8_t triggeredBitsHistory = 0;
 	uint8_t SelectedTable = 0;
 	uint8_t previousSensorStates = 0xFF;
+	uint8_t pathMode[3] = {PATH_MODE_STOP, PATH_MODE_STOP, PATH_MODE_STOP};
+	uint8_t pathSelectedTable[3] = {0, 0, 0};
 	
 void system_init(void) {
 	I2C_Init();
@@ -52,7 +54,10 @@ void system_init(void) {
 init_output_pins(void) {
 	DDRB |= (1 << REVERS_PIN);
 	DDRB |= (1 << RAIL_POWER_ENABLE);
-	DDRB |= (1 << PWM_SWITCH_PIN);
+	DDRB |= (1 << PWM_PATH1_SWITCH_PIN);
+	DDRB |= (1 << PWM_PATH2_SWITCH_PIN);
+#if ALARM_ENABLED
 	DDRB |= (1 << ALARM_PIN);
 	PORTB &= ~(1 << ALARM_PIN);
+#endif
 }

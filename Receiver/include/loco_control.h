@@ -9,6 +9,8 @@ extern "C" {
 	#endif
 
 	void LocoStop(void);
+	void LocoStopTable(uint8_t tableIndex);
+	void LocoStopPath(uint8_t path);
 	
 	void MoveLocoBackward(uint8_t tableIndex);
 	
@@ -19,6 +21,8 @@ extern "C" {
 	void PowerSupplyOff(void);
 	
 	void PowerSupplyOn(void);
+	void PowerSupplyOnPath(uint8_t path);
+	void copy_power_shift_state(uint8_t *shiftData);
 
 	#ifdef __cplusplus
 }

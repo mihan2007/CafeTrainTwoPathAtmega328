@@ -9,6 +9,9 @@ extern "C" {
 	#endif
 
 	void activate_route_non_blocking(uint8_t tableIndex);
+	void reset_route_state(void);
+	void reset_route_path_state(uint8_t path);
+	void copy_route_shift_state(uint8_t *shiftData);
 	
 	#ifdef __cplusplus
 }
