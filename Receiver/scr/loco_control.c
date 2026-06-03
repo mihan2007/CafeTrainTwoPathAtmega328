@@ -81,6 +81,7 @@ void LocoStop(void) {
 	PORTB &= ~(1 << REVERS_PIN);
 	PORTB &= ~(1 << PWM_PATH1_SWITCH_PIN);
 	PORTB &= ~(1 << PWM_PATH2_SWITCH_PIN);
+	PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
 
 	disablePWM();
 
@@ -101,6 +102,7 @@ void LocoStop(void) {
 void LocoStopPath(uint8_t path) {
 	if (path == 2) {
 		PORTB &= ~(1 << PWM_PATH2_SWITCH_PIN);
+		PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
 	} else {
 		PORTB &= ~(1 << PWM_PATH1_SWITCH_PIN);
 	}

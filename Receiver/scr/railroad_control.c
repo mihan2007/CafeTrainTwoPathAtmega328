@@ -48,6 +48,7 @@ static void apply_path2_route_setup_mode(void) {
 	}
 	PORTB |= (1 << PWM_PATH2_SWITCH_PIN);
 	PORTB |= (1 << RAIL_POWER_ENABLE);
+	PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
 }
 
 void copy_route_shift_state(uint8_t *shiftData) {

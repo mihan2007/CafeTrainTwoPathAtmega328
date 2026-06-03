@@ -54,6 +54,9 @@ static void startPendingRouteSetupIfReady(void) {
 void updatePathModesAfterPwm(void) {
 	for (uint8_t path = 1; path <= 2; path++) {
 		if (pathMode[path] == PATH_MODE_ACCELERATION && !isPWMUpRunningForPath(path)) {
+			if (path == 2) {
+				PORTC |= (1 << PATH2_RAIL_POWER_ENABLE);
+			}
 			pathMode[path] = PATH_MODE_MOVING;
 		}
 	}

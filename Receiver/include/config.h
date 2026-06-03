@@ -30,6 +30,7 @@
 #define PWM_PIN PWM_PATH1_PIN
 #define PWM_SWITCH_PIN PWM_PATH1_SWITCH_PIN
 #define RAIL_POWER_ENABLE PB0// Power supply PIN (D8)
+#define PATH2_RAIL_POWER_ENABLE PC3 // Path 2 rail power enable (A3)
 #define PWM_MAX 255			// Максимальный уровень ШИМ (10 бит)
 #define PWM_STEP 1			// Шаг увеличения ШИМ
 #define PWM_DELAY 50		// Задержка между шагами (мягкость разгона)

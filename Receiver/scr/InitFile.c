@@ -56,6 +56,8 @@ init_output_pins(void) {
 	DDRB |= (1 << RAIL_POWER_ENABLE);
 	DDRB |= (1 << PWM_PATH1_SWITCH_PIN);
 	DDRB |= (1 << PWM_PATH2_SWITCH_PIN);
+	DDRC |= (1 << PATH2_RAIL_POWER_ENABLE);
+	PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
 #if ALARM_ENABLED
 	DDRB |= (1 << ALARM_PIN);
 	PORTB &= ~(1 << ALARM_PIN);
