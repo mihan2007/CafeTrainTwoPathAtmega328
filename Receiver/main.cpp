@@ -30,6 +30,7 @@ static void startRouteSetup(uint8_t tableId) {
 	SelectedTable = tableId;
 	pathSelectedTable[getTablePath(tableId)] = tableId;
 	pathMode[getTablePath(tableId)] = PATH_MODE_ROUTE_SETUP;
+	pathDirection[getTablePath(tableId)] = PATH_DIRECTION_FORWARD;
 	routeSetupInProgress = 1;
 }
 
@@ -85,6 +86,7 @@ void handleSensorEvent(uint8_t mask, uint8_t stopSensor, uint8_t slowSensor) {
 		LocoStopTable(arrivedTable);
 		pathSelectedTable[arrivedPath] = arrivedTable;
 		pathMode[arrivedPath] = PATH_MODE_STOP;
+		pathDirection[arrivedPath] = PATH_DIRECTION_STOP;
 		
 		send_command(CMD_ARRIVED, arrivedTable, 0x00);
 		update_lcd(CMD_ARRIVED, arrivedTable);
@@ -134,12 +136,15 @@ void process_packet(UART_Packet packet) {
 
 	switch (packet.cmd) {
 		case CMD_STOP:
+			pathDirection[1] = PATH_DIRECTION_STOP;
+			pathDirection[2] = PATH_DIRECTION_STOP;
 			LocoStop();
 			send_ack(packet.cmd, packet.param);
 			resetLocoTimer();
 			break;
 
 		case CMD_STOP_PATH1:
+			pathDirection[1] = PATH_DIRECTION_STOP;
 			LocoStopPath(1);
 			if (routeSetupInProgress && getTablePath(SelectedTable) == 1) {
 				routeSetupInProgress = 0;
@@ -149,6 +154,7 @@ void process_packet(UART_Packet packet) {
 			break;
 
 		case CMD_STOP_PATH2:
+			pathDirection[2] = PATH_DIRECTION_STOP;
 			LocoStopPath(2);
 			if (routeSetupInProgress && getTablePath(SelectedTable) == 2) {
 				routeSetupInProgress = 0;
@@ -161,6 +167,7 @@ void process_packet(UART_Packet packet) {
 			uint8_t path = getTablePath(packet.table_id);
 
 			send_ack(packet.cmd, packet.param);
+			pathDirection[path] = PATH_DIRECTION_FORWARD;
 
 			if (!routeSetupInProgress) {
 				LocoStopTable(packet.table_id);
@@ -176,6 +183,7 @@ void process_packet(UART_Packet packet) {
 		case CMD_BACKWARD:
 			SelectedTable = packet.table_id;
 			pathSelectedTable[getTablePath(packet.table_id)] = packet.table_id;
+			pathDirection[getTablePath(packet.table_id)] = PATH_DIRECTION_BACKWARD;
 			MoveLocoBackward(SelectedTable);
 			send_ack(packet.cmd, packet.param);
 			isLocoMoving = 1;

@@ -105,6 +105,8 @@ void LocoStop(void) {
 	pathMode[2] = PATH_MODE_STOP;
 	pathSelectedTable[1] = 0;
 	pathSelectedTable[2] = 0;
+	pathDirection[1] = PATH_DIRECTION_STOP;
+	pathDirection[2] = PATH_DIRECTION_STOP;
 	PowerSupplyOff();
 }
 
@@ -125,6 +127,7 @@ void LocoStopPath(uint8_t path) {
 	writeCombinedShiftState();
 	pathMode[path] = PATH_MODE_STOP;
 	pathSelectedTable[path] = 0;
+	pathDirection[path] = PATH_DIRECTION_STOP;
 
 	if (path == 1 && !hasPath1PowerRoute()) {
 		PORTB &= ~(1 << REVERS_PIN);
@@ -148,6 +151,7 @@ void LocoStopTable(uint8_t tableIndex) {
 
 void MoveLocoForward(uint8_t tableIndex) {
 	uint8_t path = get_table_path(tableIndex);
+	pathDirection[path] = PATH_DIRECTION_FORWARD;
 
 	if (path == 1) {
 		PORTB &= ~(1 << REVERS_PIN);
@@ -167,6 +171,7 @@ void MoveLocoBackward(uint8_t tableIndex) {
 	uint8_t path = get_table_path(shiftRegisterMask);
 
 	LocoStopTable(tableIndex);
+	pathDirection[path] = PATH_DIRECTION_BACKWARD;
 	if (path == 1) {
 		ReversOn();
 	} else {

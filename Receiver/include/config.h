@@ -105,9 +105,14 @@
 #define PATH_MODE_ACCELERATION 2
 #define PATH_MODE_MOVING 3
 
+#define PATH_DIRECTION_STOP 0
+#define PATH_DIRECTION_FORWARD 1
+#define PATH_DIRECTION_BACKWARD 2
+
 extern uint8_t routeSetupInProgress;
 extern uint8_t pathMode[3];
 extern uint8_t pathSelectedTable[3];
+extern uint8_t pathDirection[3];
 
 // Sensors bytes
 #define ADC_MODE_BUTTON (1 << 0)

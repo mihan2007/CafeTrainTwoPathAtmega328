@@ -153,6 +153,17 @@ static const char* get_path_mode_text(uint8_t mode) {
 	}
 }
 
+static const char* get_path_direction_text(uint8_t direction) {
+	switch (direction) {
+		case PATH_DIRECTION_FORWARD:
+			return "F";
+		case PATH_DIRECTION_BACKWARD:
+			return "B";
+		case PATH_DIRECTION_STOP:
+		default:
+			return "";
+	}
+}
 static void pad_lcd_line(char *line) {
 	uint8_t len = strlen(line);
 	for (uint8_t i = len; i < 16; i++) {
@@ -165,7 +176,7 @@ static void format_path_lcd_line(char *line, uint8_t lineSize, uint8_t path) {
 	uint8_t table = pathSelectedTable[path];
 
 	if (table > 0) {
-		snprintf(line, lineSize, "P%d T%02d %s", path, table, get_path_mode_text(pathMode[path]));
+		snprintf(line, lineSize, "P%d T%02d %s %s", path, table, get_path_mode_text(pathMode[path]), get_path_direction_text(pathDirection[path]));
 	} else {
 		snprintf(line, lineSize, "P%d T-- %s", path, get_path_mode_text(pathMode[path]));
 	}
