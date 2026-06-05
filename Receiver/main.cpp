@@ -27,10 +27,13 @@ static uint8_t isSamePath(uint8_t firstTable, uint8_t secondTable) {
 static uint8_t pendingRouteTable[3] = {0, 0, 0};
 
 static void startRouteSetup(uint8_t tableId) {
+	uint8_t path = getTablePath(tableId);
+
 	SelectedTable = tableId;
-	pathSelectedTable[getTablePath(tableId)] = tableId;
-	pathMode[getTablePath(tableId)] = PATH_MODE_ROUTE_SETUP;
-	pathDirection[getTablePath(tableId)] = PATH_DIRECTION_FORWARD;
+	reset_route_path_state(path);
+	pathSelectedTable[path] = tableId;
+	pathMode[path] = PATH_MODE_ROUTE_SETUP;
+	pathDirection[path] = PATH_DIRECTION_FORWARD;
 	routeSetupInProgress = 1;
 }
 
