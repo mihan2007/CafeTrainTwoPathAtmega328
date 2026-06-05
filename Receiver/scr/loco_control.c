@@ -56,6 +56,10 @@ static uint8_t hasPath1PowerRoute(void) {
 	return powerShiftState[POWER_SUPPLY_REGISTER_A] & (DC_SUPLLY_TABLE_1 | DC_SUPLLY_TABLE_2 | DC_SUPLLY_TABLE_3 | DC_SUPLLY_TABLE_4);
 }
 
+static uint8_t isPathActive(uint8_t path) {
+	return pathMode[path] != PATH_MODE_STOP;
+}
+
 static void applyPowerRoute(uint8_t tableIndex) {
 	if (tableIndex >= 9) return;
 
@@ -118,7 +122,9 @@ void LocoStopPath(uint8_t path) {
 
 	if (path == 1 && !hasPath1PowerRoute()) {
 		PORTB &= ~(1 << REVERS_PIN);
-		PowerSupplyOff();
+		if (!isPathActive(2)) {
+			PowerSupplyOff();
+		}
 	}
 }
 
