@@ -171,6 +171,7 @@ void MoveLocoBackward(uint8_t tableIndex) {
 	uint8_t path = get_table_path(shiftRegisterMask);
 
 	LocoStopTable(tableIndex);
+	pathSelectedTable[path] = tableIndex;
 	pathDirection[path] = PATH_DIRECTION_BACKWARD;
 	if (path == 1) {
 		ReversOn();
