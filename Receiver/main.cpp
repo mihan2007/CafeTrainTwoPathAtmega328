@@ -34,6 +34,14 @@ static void startRouteSetup(uint8_t tableId) {
 	pathSelectedTable[path] = tableId;
 	pathMode[path] = PATH_MODE_ROUTE_SETUP;
 	pathDirection[path] = PATH_DIRECTION_FORWARD;
+	if (path == 2) {
+		if (pathMode[1] != PATH_MODE_MOVING) {
+			PORTB |= (1 << PWM_PATH1_SWITCH_PIN);
+		}
+		PORTB |= (1 << PWM_PATH2_SWITCH_PIN);
+		PORTB |= (1 << RAIL_POWER_ENABLE);
+		PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
+	}
 	routeSetupInProgress = 1;
 }
 
