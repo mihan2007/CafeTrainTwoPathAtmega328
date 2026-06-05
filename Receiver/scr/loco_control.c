@@ -131,6 +131,9 @@ void LocoStopPath(uint8_t path) {
 		if (!shouldKeepSharedPathPowerForPath2()) {
 			PowerSupplyOff();
 		}
+	} else if (path == 2 && !isPathActive(1)) {
+		PORTB &= ~(1 << PWM_PATH1_SWITCH_PIN);
+		PowerSupplyOff();
 	}
 }
 
