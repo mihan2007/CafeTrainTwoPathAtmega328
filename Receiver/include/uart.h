@@ -39,8 +39,8 @@ extern "C" {
 	UART_Packet UART_receive_full_packet(void);
 	
 	// Функции для отправки ACK/NACK
-	void send_ack(uint8_t cmd);
-	void send_nack(uint8_t cmd);
+	void send_ack(uint8_t cmd, uint8_t seq);
+	void send_nack(uint8_t cmd, uint8_t seq);
 	
 	uint8_t send_command_with_ack(uint8_t cmd, uint8_t table_id, uint8_t data);
 	

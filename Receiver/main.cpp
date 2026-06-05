@@ -123,7 +123,7 @@ void process_packet(UART_Packet packet) {
 	switch (packet.cmd) {
 		case CMD_STOP:
 			LocoStop();
-			send_ack(packet.cmd);
+			send_ack(packet.cmd, packet.param);
 			resetLocoTimer();
 			break;
 
@@ -132,7 +132,7 @@ void process_packet(UART_Packet packet) {
 			if (routeSetupInProgress && getTablePath(SelectedTable) == 1) {
 				routeSetupInProgress = 0;
 			}
-			send_ack(packet.cmd);
+			send_ack(packet.cmd, packet.param);
 			resetLocoTimer();
 			break;
 
@@ -141,14 +141,14 @@ void process_packet(UART_Packet packet) {
 			if (routeSetupInProgress && getTablePath(SelectedTable) == 2) {
 				routeSetupInProgress = 0;
 			}
-			send_ack(packet.cmd);
+			send_ack(packet.cmd, packet.param);
 			resetLocoTimer();
 			break;
 
 		case CMD_FORWARD: {
 			uint8_t path = getTablePath(packet.table_id);
 
-			send_ack(packet.cmd);
+			send_ack(packet.cmd, packet.param);
 
 			if (!routeSetupInProgress) {
 				LocoStopTable(packet.table_id);
@@ -165,7 +165,7 @@ void process_packet(UART_Packet packet) {
 			SelectedTable = packet.table_id;
 			pathSelectedTable[getTablePath(packet.table_id)] = packet.table_id;
 			MoveLocoBackward(SelectedTable);
-			send_ack(packet.cmd);
+			send_ack(packet.cmd, packet.param);
 			isLocoMoving = 1;
 		break;
 

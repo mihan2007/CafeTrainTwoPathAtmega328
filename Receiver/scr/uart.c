@@ -63,24 +63,29 @@ uint8_t crc8(const uint8_t *data, uint8_t len) {
 UART_Packet UART_receive_full_packet(void) {
 	UART_Packet packet = {0, 0, 0, 0};
 	uint8_t received[6];
+	uint8_t byte;
 
-	// Ожидаем STX (0x02)
-	if (UART_receive() != 0x02) {
-		return packet; // Пакет невалиден
-	}
-	received[0] = 0x02;
+	do {
+		byte = UART_receive();
+		if (byte == 0xFF) {
+			return packet;
+		}
+	} while (byte != STX);
 
-	// Считываем оставшиеся 5 байт
+	received[0] = STX;
+
 	for (uint8_t i = 1; i < 6; i++) {
 		received[i] = UART_receive();
 	}
 
-	// Проверяем контрольную сумму
-	if (crc8(&received[1], 3) != received[4]) {
-		return packet; // Ошибка CRC – пакет невалиден
+	if (received[5] != ETX) {
+		return packet;
 	}
 
-	// Заполняем структуру, если пакет корректен
+	if (crc8(&received[1], 3) != received[4]) {
+		return packet;
+	}
+
 	packet.cmd = received[1];
 	packet.table_id = received[2];
 	packet.param = received[3];
@@ -88,21 +93,24 @@ UART_Packet UART_receive_full_packet(void) {
 
 	return packet;
 }
-void send_ack(uint8_t cmd) {
-	// Отправляем ACK с указанием команды, для которой подтверждение
-	send_command(ACK, cmd, 0x00);
+void send_ack(uint8_t cmd, uint8_t seq) {
+	send_command(ACK, cmd, seq);
 }
 
-void send_nack(uint8_t cmd) {
-	// Отправляем NACK с указанием команды, для которой отказ
-	send_command(NACK, cmd, 0x00);
+void send_nack(uint8_t cmd, uint8_t seq) {
+	send_command(NACK, cmd, seq);
 }
 
 uint8_t UART_receive_packet(uint8_t *packet_buffer) {
-	uint8_t byte = UART_receive();
-	if (byte != STX) {
-		return 0; // Не получен STX
-	}
+	uint8_t byte;
+
+	do {
+		byte = UART_receive();
+		if (byte == 0xFF) {
+			return 0;
+		}
+	} while (byte != STX);
+
 	packet_buffer[0] = byte;
 	for (uint8_t i = 1; i < PACKET_SIZE; i++) {
 		byte = UART_receive();
@@ -120,18 +128,23 @@ uint8_t UART_receive_packet(uint8_t *packet_buffer) {
 }
 
 uint8_t send_command_with_ack(uint8_t cmd, uint8_t table_id, uint8_t data) {
+	static uint8_t next_seq = 1;
 	uint8_t retries = 0;
 	uint8_t ack_received = 0;
 	uint8_t response[PACKET_SIZE];
+	uint8_t seq = next_seq++;
+
+	if (next_seq == 0) {
+		next_seq = 1;
+	}
+
+	(void)data;
 
 	while (retries < MAX_RETRIES && !ack_received) {
-		// Отправляем команду
-		send_command(cmd, table_id, data);
+		send_command(cmd, table_id, seq);
 
-		// Ожидаем ответа: пытаемся получить полный пакет
 		if (UART_receive_packet(response)) {
-			// Если получен пакет с ACK и поле TABLE_ID соответствует отправленной команде
-			if (response[1] == ACK_CMD && response[2] == cmd) {
+			if (response[1] == ACK_CMD && response[2] == cmd && response[3] == seq) {
 				ack_received = 1;
 				break;
 			}

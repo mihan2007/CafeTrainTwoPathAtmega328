@@ -69,10 +69,15 @@ uint8_t crc8(const uint8_t *data, uint8_t len) {
  * Если пакет корректен, функция возвращает 1, иначе – 0.
  */
 uint8_t UART_receive_packet(uint8_t *packet_buffer) {
-    uint8_t byte = UART_receive();
-    if (byte != STX) {
-        return 0; // Не получен STX
-    }
+    uint8_t byte;
+
+    do {
+        byte = UART_receive();
+        if (byte == 0xFF) {
+            return 0;
+        }
+    } while (byte != STX);
+
     packet_buffer[0] = byte;
     for (uint8_t i = 1; i < PACKET_SIZE; i++) {
         byte = UART_receive();
@@ -98,18 +103,23 @@ uint8_t UART_receive_packet(uint8_t *packet_buffer) {
  * иначе – 0.
  */
 uint8_t send_command_with_ack(uint8_t cmd, uint8_t table_id, uint8_t data) {
+    static uint8_t next_seq = 1;
     uint8_t retries = 0;
     uint8_t ack_received = 0;
     uint8_t response[PACKET_SIZE];
+    uint8_t seq = next_seq++;
+
+    if (next_seq == 0) {
+        next_seq = 1;
+    }
+
+    (void)data;
     
     while (retries < MAX_RETRIES && !ack_received) {
-        // Отправляем команду
-        send_command(cmd, table_id, data);
+        send_command(cmd, table_id, seq);
         
-        // Ожидаем ответа: пытаемся получить полный пакет
         if (UART_receive_packet(response)) {
-            // Если получен пакет с ACK и поле TABLE_ID соответствует отправленной команде
-            if (response[1] == ACK_CMD && response[2] == cmd) {
+            if (response[1] == ACK_CMD && response[2] == cmd && response[3] == seq) {
                 ack_received = 1;
                 break;
             }
@@ -140,17 +150,17 @@ void process_command(uint8_t *data) {
             setRouteByIndex(table_id);
             moveLocomotive(1);
             // Отправляем ACK для команды MOVE_FORWARD
-            send_command(ACK_CMD, 0x20, table_id);
+            send_command(ACK_CMD, 0x20, param);
             break;
 
         case 0x21: // MOVE_BACKWARD
             moveLocomotive(0);
-            send_command(ACK_CMD, 0x21, table_id);
+            send_command(ACK_CMD, 0x21, param);
             break;
 
         case 0x30: // EMERGENCY_STOP
             stopLocomotive();
-            send_command(ACK_CMD, 0x30, 0x00);
+            send_command(ACK_CMD, 0x30, param);
             return;
     }
 

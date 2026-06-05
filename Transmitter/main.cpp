@@ -308,15 +308,18 @@ void handle_incoming_uart_packets(void) {
 	if (UART_receive_packet(packet_buffer)) {
 		uint8_t cmd = packet_buffer[1];
 		uint8_t table_id = packet_buffer[2];
+		uint8_t seq = packet_buffer[3];
 
 		switch (cmd) {
 			case CMD_OVER_LOAD_STOP:
+				send_command(ACK_CMD, cmd, seq);
 				display_overload_error();
 				clear_motion_state();
 				clear_path2_motion_state();
 			break;
 			
 			case CMD_CLEAR_EMERGENCY:
+				send_command(ACK_CMD, cmd, seq);
 				update_lcd_for_tables();
 			break;
 			
