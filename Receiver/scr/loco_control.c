@@ -60,6 +60,10 @@ static uint8_t isPathActive(uint8_t path) {
 	return pathMode[path] != PATH_MODE_STOP;
 }
 
+static uint8_t shouldKeepSharedPathPowerForPath2(void) {
+	return isPathActive(2);
+}
+
 static void applyPowerRoute(uint8_t tableIndex) {
 	if (tableIndex >= 9) return;
 
@@ -110,7 +114,9 @@ void LocoStopPath(uint8_t path) {
 		PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
 		PORTC &= ~(1 << PATH2_REVERS_PIN);
 	} else {
-		PORTB &= ~(1 << PWM_PATH1_SWITCH_PIN);
+		if (!shouldKeepSharedPathPowerForPath2()) {
+			PORTB &= ~(1 << PWM_PATH1_SWITCH_PIN);
+		}
 	}
 
 	disablePWMPath(path);
@@ -122,7 +128,7 @@ void LocoStopPath(uint8_t path) {
 
 	if (path == 1 && !hasPath1PowerRoute()) {
 		PORTB &= ~(1 << REVERS_PIN);
-		if (!isPathActive(2)) {
+		if (!shouldKeepSharedPathPowerForPath2()) {
 			PowerSupplyOff();
 		}
 	}
