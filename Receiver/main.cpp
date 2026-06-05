@@ -63,6 +63,12 @@ void updatePathModesAfterPwm(void) {
 }
 
 bool isForwardDirection() {
+	uint8_t path = (SelectedTable >= 1 && SelectedTable <= 4) ? 1 : 2;
+
+	if (path == 2) {
+		return !(PINC & (1 << PATH2_REVERS_PIN));
+	}
+
 	return !(PINB & (1 << REVERS_PIN));
 }
 

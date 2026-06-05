@@ -19,7 +19,8 @@
 #define HOLD_TICKS_BUTTON 1000 // сколько тиков ~1с при 1мс таймере
 
 // Определение линий управления стрелками
-#define REVERS_PIN PB5  // 
+#define REVERS_PIN PB5  // Path 1 reverse
+#define PATH2_REVERS_PIN PC2 // Path 2 reverse (A2)
 
 //PWM settings
 #define PWM_INITIAL_DUTY 100

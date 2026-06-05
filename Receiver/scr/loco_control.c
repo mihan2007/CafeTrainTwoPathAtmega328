@@ -79,6 +79,7 @@ static void writeCombinedShiftState(void) {
 
 void LocoStop(void) {
 	PORTB &= ~(1 << REVERS_PIN);
+	PORTC &= ~(1 << PATH2_REVERS_PIN);
 	PORTB &= ~(1 << PWM_PATH1_SWITCH_PIN);
 	PORTB &= ~(1 << PWM_PATH2_SWITCH_PIN);
 	PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
@@ -103,6 +104,7 @@ void LocoStopPath(uint8_t path) {
 	if (path == 2) {
 		PORTB &= ~(1 << PWM_PATH2_SWITCH_PIN);
 		PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
+		PORTC &= ~(1 << PATH2_REVERS_PIN);
 	} else {
 		PORTB &= ~(1 << PWM_PATH1_SWITCH_PIN);
 	}
@@ -134,6 +136,8 @@ void MoveLocoForward(uint8_t tableIndex) {
 
 	if (path == 1) {
 		PORTB &= ~(1 << REVERS_PIN);
+	} else {
+		PORTC &= ~(1 << PATH2_REVERS_PIN);
 	}
 
 	PowerSupplyOnPath(path);
@@ -150,6 +154,8 @@ void MoveLocoBackward(uint8_t tableIndex) {
 	LocoStopTable(tableIndex);
 	if (path == 1) {
 		ReversOn();
+	} else {
+		PORTC |= (1 << PATH2_REVERS_PIN);
 	}
 	PowerSupplyOnPath(path);
 	startPWMUpForPath(path);
