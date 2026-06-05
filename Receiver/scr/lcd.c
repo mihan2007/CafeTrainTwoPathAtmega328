@@ -1,8 +1,11 @@
 #include "../include/lcd.h"
+#include "../include/config.h"
 
 #define F_CPU 16000000UL
 #include <avr/io.h>
 #include <util/delay.h>
+#include <stdio.h>
+#include <string.h>
 
 // --- Определения ---
 #define LCD_ADDRESS 0x27  // Адрес I2C LCD-дисплея
@@ -136,29 +139,56 @@ void LCD_PrintTwoLines(char* firstLineText, char* secondLineText, int blink) {
 		}
 }
 
+static const char* get_path_mode_text(uint8_t mode) {
+	switch (mode) {
+		case PATH_MODE_ROUTE_SETUP:
+			return "SET";
+		case PATH_MODE_ACCELERATION:
+			return "ACC";
+		case PATH_MODE_MOVING:
+			return "MOV";
+		case PATH_MODE_STOP:
+		default:
+			return "STOP";
+	}
+}
+
+static void pad_lcd_line(char *line) {
+	uint8_t len = strlen(line);
+	for (uint8_t i = len; i < 16; i++) {
+		line[i] = ' ';
+	}
+	line[16] = '\0';
+}
+
+static void format_path_lcd_line(char *line, uint8_t lineSize, uint8_t path) {
+	uint8_t table = pathSelectedTable[path];
+
+	if (table > 0) {
+		snprintf(line, lineSize, "P%d T%02d %s", path, table, get_path_mode_text(pathMode[path]));
+	} else {
+		snprintf(line, lineSize, "P%d T-- %s", path, get_path_mode_text(pathMode[path]));
+	}
+
+	pad_lcd_line(line);
+}
+
 void update_lcd(uint8_t cmd, uint8_t table_id) {
 	char line1[17];
-	snprintf(line1, sizeof(line1), "CMD:%03d TBL:%02d", cmd, table_id);
+	char line2[17];
 
-	// Заполняем оставшиеся символы пробелами
-	uint8_t len = strlen(line1);
-	for (uint8_t i = len; i < 16; i++) {
-		line1[i] = ' ';
-	}
-	line1[16] = '\0';
+	(void)cmd;
+	(void)table_id;
+
+	format_path_lcd_line(line1, sizeof(line1), 1);
+	format_path_lcd_line(line2, sizeof(line2), 2);
 
 	LCD_SetCursor(0, 0);
 	LCD_Print(line1);
+	LCD_SetCursor(0, 1);
+	LCD_Print(line2);
 }
 
 void print_triggered_sensor(uint8_t states) {
-	char line2[17];
-
-	for (uint8_t i = 0; i < 8; i++) {
-		line2[i] = (states & (1 << (7 - i))) ? '1' : '0';
-	}
-	line2[8] = '\0';
-
-	LCD_SetCursor(0, 1);  // только нижняя строка
-	LCD_Print(line2);
+	(void)states;
 }

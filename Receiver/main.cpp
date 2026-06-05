@@ -58,6 +58,7 @@ void updatePathModesAfterPwm(void) {
 				PORTC |= (1 << PATH2_RAIL_POWER_ENABLE);
 			}
 			pathMode[path] = PATH_MODE_MOVING;
+			update_lcd(lastCmd, pathSelectedTable[path]);
 		}
 	}
 }
@@ -74,14 +75,19 @@ bool isForwardDirection() {
 
 void handleSensorEvent(uint8_t mask, uint8_t stopSensor, uint8_t slowSensor) {
 	if (mask & stopSensor) {
+		uint8_t arrivedTable = SelectedTable;
+		uint8_t arrivedPath = getTablePath(arrivedTable);
 		
 		isLocoMoving = 0;
 		
 		triggeredBitsHistory = 0;
 		
-		LocoStopTable(SelectedTable);
+		LocoStopTable(arrivedTable);
+		pathSelectedTable[arrivedPath] = arrivedTable;
+		pathMode[arrivedPath] = PATH_MODE_STOP;
 		
-		send_command(CMD_ARRIVED, SelectedTable, 0x00);
+		send_command(CMD_ARRIVED, arrivedTable, 0x00);
+		update_lcd(CMD_ARRIVED, arrivedTable);
 		
 		} else if ((mask & slowSensor) && isLocoMoving) {
 			
@@ -233,8 +239,12 @@ int main(void) {
 		update_adc_display_if_due();
 		
 		if (routeSetupInProgress) {
+			uint8_t wasRouteSetupInProgress = routeSetupInProgress;
 			
 			activate_route_non_blocking(SelectedTable);
+			if (wasRouteSetupInProgress && !routeSetupInProgress) {
+				update_lcd(lastCmd, SelectedTable);
+			}
 			startPendingRouteSetupIfReady();
 			
 		}

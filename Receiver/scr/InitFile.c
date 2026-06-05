@@ -48,7 +48,7 @@ void system_init(void) {
 
 	sei(); // ¬ключаем глобальные прерывани€
 
-	LCD_PrintTwoLines("Waiting for Cmd", "", 0);
+	update_lcd(0, 0);
 }
 
 init_output_pins(void) {
