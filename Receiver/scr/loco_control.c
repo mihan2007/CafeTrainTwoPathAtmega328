@@ -61,7 +61,10 @@ static uint8_t isPathActive(uint8_t path) {
 }
 
 static uint8_t shouldKeepSharedPathPowerForPath2(void) {
-	return isPathActive(2);
+	return isPathActive(2) ||
+		pathSelectedTable[2] > 0 ||
+		(PORTB & (1 << PWM_PATH2_SWITCH_PIN)) ||
+		(PORTC & (1 << PATH2_RAIL_POWER_ENABLE));
 }
 
 static void applyPowerRoute(uint8_t tableIndex) {
