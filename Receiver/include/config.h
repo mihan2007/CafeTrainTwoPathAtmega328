@@ -32,7 +32,8 @@
 #define PWM_SWITCH_PIN PWM_PATH1_SWITCH_PIN
 #define RAIL_POWER_ENABLE PB0// Power supply PIN (D8)
 #define PATH2_RAIL_POWER_ENABLE PC3 // Path 2 rail power enable (A3)
-#define PWM_MAX 255			// Максимальный уровень ШИМ (10 бит)
+#define PWM_MAX 255			// Максимальный уровень ШИМ
+#define PWM_SLOW_DUTY 120		// Уровень ШИМ при замедлении
 #define PWM_STEP 1			// Шаг увеличения ШИМ
 #define PWM_DELAY 50		// Задержка между шагами (мягкость разгона)
 
@@ -114,16 +115,16 @@ extern uint8_t pathMode[3];
 extern uint8_t pathSelectedTable[3];
 extern uint8_t pathDirection[3];
 
-// Sensors bytes
-#define ADC_MODE_BUTTON (1 << 0)
-#define SENSOR_2 (1 << 1)
-#define SENSOR_3 (1 << 2)
-#define SENSOR_4 (1 << 3)
-#define KITCHEN_STOP_SENSOR (1 << 4)
-#define KITCHEN_SLOW_SENSOR (1 << 5)
-#define TABLE_SLOW_SENSOR (1 << 6)
-#define TABLE_STOP_SENSOR (1 << 7)
-
+// Sensors bytes from 74HC165
+#define PATH1_TABLE_STOP_SENSOR   (1 << 0)
+#define PATH1_KITCHEN_STOP_SENSOR (1 << 1)
+#define PATH1_TABLE_SLOW_SENSOR   (1 << 2)
+#define PATH1_KITCHEN_SLOW_SENSOR (1 << 3)
+#define PATH2_TABLE_STOP_SENSOR   (1 << 4)
+#define PATH2_KITCHEN_STOP_SENSOR (1 << 5)
+#define PATH2_TABLE_SLOW_SENSOR   (1 << 6)
+#define PATH2_KITCHEN_SLOW_SENSOR (1 << 7)
+#define ADC_MODE_BUTTON 0
 // ==== Runtime state (externs) ====
 extern volatile uint8_t emergencyStopActive;
 extern uint8_t lastCmd;

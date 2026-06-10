@@ -25,6 +25,7 @@ static uint8_t isSamePath(uint8_t firstTable, uint8_t secondTable) {
 }
 
 static uint8_t pendingRouteTable[3] = {0, 0, 0};
+static uint8_t arrivedBlockedTable[3] = {0, 0, 0};
 
 static void startRouteSetup(uint8_t tableId) {
 	uint8_t path = getTablePath(tableId);
@@ -32,6 +33,7 @@ static void startRouteSetup(uint8_t tableId) {
 	SelectedTable = tableId;
 	reset_route_path_state(path);
 	pathSelectedTable[path] = tableId;
+	arrivedBlockedTable[path] = 0;
 	pathMode[path] = PATH_MODE_ROUTE_SETUP;
 	pathDirection[path] = PATH_DIRECTION_FORWARD;
 	if (path == 2) {
@@ -75,9 +77,7 @@ void updatePathModesAfterPwm(void) {
 	}
 }
 
-bool isForwardDirection() {
-	uint8_t path = (SelectedTable >= 1 && SelectedTable <= 4) ? 1 : 2;
-
+bool isForwardDirectionPath(uint8_t path) {
 	if (path == 2) {
 		return !(PINC & (1 << PATH2_REVERS_PIN));
 	}
@@ -85,29 +85,49 @@ bool isForwardDirection() {
 	return !(PINB & (1 << REVERS_PIN));
 }
 
-void handleSensorEvent(uint8_t mask, uint8_t stopSensor, uint8_t slowSensor) {
+void SlowModePath(uint8_t path) {
+	PORTB |= (1 << RAIL_POWER_ENABLE);
+
+	if (path == 2) {
+		if (pathMode[1] == PATH_MODE_STOP) {
+			PORTB |= (1 << PWM_PATH1_SWITCH_PIN);
+		}
+		PORTB |= (1 << PWM_PATH2_SWITCH_PIN);
+		PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
+		enablePWMPath(2);
+		OCR1B = PWM_SLOW_DUTY;
+	} else {
+		PORTB |= (1 << PWM_PATH1_SWITCH_PIN);
+		enablePWMPath(1);
+		OCR1A = PWM_SLOW_DUTY;
+	}
+}
+void handleSensorEvent(uint8_t path, uint8_t mask, uint8_t stopSensor, uint8_t slowSensor) {
 	if (mask & stopSensor) {
-		uint8_t arrivedTable = SelectedTable;
-		uint8_t arrivedPath = getTablePath(arrivedTable);
-		
-		isLocoMoving = 0;
+		uint8_t arrivedTable = pathSelectedTable[path];
+		if (arrivedTable == 0 || getTablePath(arrivedTable) != path) return;
 		
 		triggeredBitsHistory = 0;
 		
+		arrivedBlockedTable[path] = arrivedTable;
+		pendingRouteTable[path] = 0;
+		if (routeSetupInProgress && getTablePath(SelectedTable) == path) {
+			routeSetupInProgress = 0;
+		}
+		
 		LocoStopTable(arrivedTable);
-		pathSelectedTable[arrivedPath] = arrivedTable;
-		pathMode[arrivedPath] = PATH_MODE_STOP;
-		pathDirection[arrivedPath] = PATH_DIRECTION_STOP;
+		pathSelectedTable[path] = arrivedTable;
+		pathMode[path] = PATH_MODE_STOP;
+		pathDirection[path] = PATH_DIRECTION_STOP;
+		isLocoMoving = (pathMode[1] != PATH_MODE_STOP || pathMode[2] != PATH_MODE_STOP);
 		
 		send_command(CMD_ARRIVED, arrivedTable, 0x00);
 		update_lcd(CMD_ARRIVED, arrivedTable);
 		
-		} else if ((mask & slowSensor) && isLocoMoving) {
-			
-		SlowMode();
+	} else if ((mask & slowSensor) && pathMode[path] != PATH_MODE_STOP) {
+		SlowModePath(path);
 		
-		} else {
-			
+	} else {
 		triggeredBitsHistory |= mask;
 	}
 	print_triggered_sensor(triggeredBitsHistory);
@@ -116,11 +136,6 @@ void handleSensorEvent(uint8_t mask, uint8_t stopSensor, uint8_t slowSensor) {
 void checkSensorsState(void) {
 	sensorStates = ~read_74HC165();
 
-    if (updateAdcMode(sensorStates, rail_switch_step_counter)) {
-	    show_adc_value_on_lcd();
-	    return;
-    }
-
 	if (sensorStates == previousSensorStates) return;
 
 	uint8_t changed = sensorStates ^ previousSensorStates;
@@ -128,12 +143,15 @@ void checkSensorsState(void) {
 	previousSensorStates = sensorStates;
 
 	if (mask) {
-		uint8_t stop = isForwardDirection() ? TABLE_STOP_SENSOR : KITCHEN_STOP_SENSOR;
-		uint8_t slow = isForwardDirection() ? TABLE_SLOW_SENSOR : KITCHEN_SLOW_SENSOR;
-		handleSensorEvent(mask, stop, slow);
+		uint8_t path1Stop = isForwardDirectionPath(1) ? PATH1_TABLE_STOP_SENSOR : PATH1_KITCHEN_STOP_SENSOR;
+		uint8_t path1Slow = isForwardDirectionPath(1) ? PATH1_TABLE_SLOW_SENSOR : PATH1_KITCHEN_SLOW_SENSOR;
+		uint8_t path2Stop = isForwardDirectionPath(2) ? PATH2_TABLE_STOP_SENSOR : PATH2_KITCHEN_STOP_SENSOR;
+		uint8_t path2Slow = isForwardDirectionPath(2) ? PATH2_TABLE_SLOW_SENSOR : PATH2_KITCHEN_SLOW_SENSOR;
+
+		handleSensorEvent(1, mask, path1Stop, path1Slow);
+		handleSensorEvent(2, mask, path2Stop, path2Slow);
 	}
 }
-
 void process_packet(UART_Packet packet) {
 	
 	if (emergencyStopActive) return;
@@ -147,6 +165,8 @@ void process_packet(UART_Packet packet) {
 
 	switch (packet.cmd) {
 		case CMD_STOP:
+			arrivedBlockedTable[1] = 0;
+			arrivedBlockedTable[2] = 0;
 			pathDirection[1] = PATH_DIRECTION_STOP;
 			pathDirection[2] = PATH_DIRECTION_STOP;
 			LocoStop();
@@ -155,6 +175,7 @@ void process_packet(UART_Packet packet) {
 			break;
 
 		case CMD_STOP_PATH1:
+			arrivedBlockedTable[1] = 0;
 			pathDirection[1] = PATH_DIRECTION_STOP;
 			LocoStopPath(1);
 			if (routeSetupInProgress && getTablePath(SelectedTable) == 1) {
@@ -165,6 +186,7 @@ void process_packet(UART_Packet packet) {
 			break;
 
 		case CMD_STOP_PATH2:
+			arrivedBlockedTable[2] = 0;
 			pathDirection[2] = PATH_DIRECTION_STOP;
 			LocoStopPath(2);
 			if (routeSetupInProgress && getTablePath(SelectedTable) == 2) {
@@ -177,6 +199,12 @@ void process_packet(UART_Packet packet) {
 		case CMD_FORWARD: {
 			uint8_t path = getTablePath(packet.table_id);
 
+			if (arrivedBlockedTable[path] == packet.table_id && pathMode[path] == PATH_MODE_STOP) {
+				send_ack(packet.cmd, packet.param);
+				break;
+			}
+
+			arrivedBlockedTable[path] = 0;
 			send_ack(packet.cmd, packet.param);
 			pathDirection[path] = PATH_DIRECTION_FORWARD;
 
@@ -192,6 +220,7 @@ void process_packet(UART_Packet packet) {
 		break;
 		}
 		case CMD_BACKWARD:
+			arrivedBlockedTable[getTablePath(packet.table_id)] = 0;
 			SelectedTable = packet.table_id;
 			pathSelectedTable[getTablePath(packet.table_id)] = packet.table_id;
 			pathDirection[getTablePath(packet.table_id)] = PATH_DIRECTION_BACKWARD;
@@ -235,7 +264,7 @@ void run_output_shift_register_test(void) {
 int main(void) {
 	
 	system_init();
-	run_output_shift_register_test();
+	//run_output_shift_register_test();
 
 	while (1) {
 		

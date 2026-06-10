@@ -119,7 +119,9 @@ void LocoStopPath(uint8_t path) {
 		PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
 		PORTC &= ~(1 << PATH2_REVERS_PIN);
 	} else {
-		if (!shouldKeepSharedPathPowerForPath2()) {
+		if (shouldKeepSharedPathPowerForPath2()) {
+			PORTB |= (1 << PWM_PATH1_SWITCH_PIN);
+		} else {
 			PORTB &= ~(1 << PWM_PATH1_SWITCH_PIN);
 		}
 	}
@@ -134,7 +136,9 @@ void LocoStopPath(uint8_t path) {
 
 	if (path == 1 && !hasPath1PowerRoute()) {
 		PORTB &= ~(1 << REVERS_PIN);
-		if (!shouldKeepSharedPathPowerForPath2()) {
+		if (shouldKeepSharedPathPowerForPath2()) {
+			PORTB |= (1 << PWM_PATH1_SWITCH_PIN);
+		} else {
 			PowerSupplyOff();
 		}
 	} else if (path == 2 && !isPathActive(1)) {

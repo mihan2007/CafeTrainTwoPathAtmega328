@@ -22,6 +22,7 @@ uint8_t currentCommand = CMD_STOP;
 uint8_t path2Command = CMD_STOP;
 uint8_t is_moving = 0;
 uint8_t path2_moving = 0;
+uint8_t arrivedTableByPath[3] = {0, 0, 0};
 char path1Status[10] = "WAIT";
 char path2Status[10] = "WAIT";
 
@@ -265,12 +266,16 @@ void handle_control_buttons(void) {
 	}
 
 	if (selectedPath1Table > 0 && forwardPressed && currentCommand != CMD_FORWARD) {
+		if (arrivedTableByPath[1] == selectedPath1Table) {
+			return;
+		}
 		currentCommand = CMD_FORWARD;
 		is_moving = 1;
 		set_path1_direction_indicator(CMD_FORWARD);
 		ack = send_command_with_ack(CMD_FORWARD, selectedPath1Table, 0x00);
 		set_path1_command_status("FWD", ack);
 	} else if (selectedPath1Table > 0 && backwardPressed && currentCommand != CMD_BACKWARD) {
+		arrivedTableByPath[1] = 0;
 		currentCommand = CMD_BACKWARD;
 		is_moving = 1;
 		set_path1_direction_indicator(CMD_BACKWARD);
@@ -282,12 +287,16 @@ void handle_control_buttons(void) {
 	if (selectedPath2Table <= 0) return;
 
 	if (path2ForwardPressed && path2Command != CMD_FORWARD) {
+		if (arrivedTableByPath[2] == selectedPath2Table) {
+			return;
+		}
 		path2Command = CMD_FORWARD;
 		path2_moving = 1;
 		set_path2_direction_indicator(CMD_FORWARD);
 		ack = send_command_with_ack(CMD_FORWARD, selectedPath2Table, 0x00);
 		set_path2_command_status("FWD", ack);
 	} else if (path2BackwardPressed && path2Command != CMD_BACKWARD) {
+		arrivedTableByPath[2] = 0;
 		path2Command = CMD_BACKWARD;
 		path2_moving = 1;
 		set_path2_direction_indicator(CMD_BACKWARD);
@@ -329,15 +338,19 @@ void handle_incoming_uart_packets(void) {
 
 				if (table_id == selectedPath1Table) {
 					if (arrivedCommand == CMD_BACKWARD) {
+						arrivedTableByPath[1] = 0;
 						snprintf(path1Status, sizeof(path1Status), "KITCHEN");
 					} else {
+						arrivedTableByPath[1] = table_id;
 						snprintf(path1Status, sizeof(path1Status), "AT TABLE");
 					}
 					clear_motion_state();
 				} else if (table_id == selectedPath2Table) {
 					if (path2ArrivedCommand == CMD_BACKWARD) {
+						arrivedTableByPath[2] = 0;
 						snprintf(path2Status, sizeof(path2Status), "KITCHEN");
 					} else {
+						arrivedTableByPath[2] = table_id;
 						snprintf(path2Status, sizeof(path2Status), "AT TABLE");
 					}
 					clear_path2_motion_state();
@@ -360,7 +373,7 @@ int main(void) {
 	system_init();
 	LCD_Clear();
 	activate_ext_logic();
-	run_output_register_startup_test();
+	//run_output_register_startup_test();
 	update_lcd_for_tables();
 	
 	send_command_with_ack(CMD_STOP, 0x00, 0x00);
