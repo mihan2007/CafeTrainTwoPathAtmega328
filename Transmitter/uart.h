@@ -53,6 +53,7 @@ extern "C" {
 
 		// Функция для приёма полного пакета (6 байт) с проверкой STX, ETX и CRC
 		uint8_t UART_receive_packet(uint8_t *packet_buffer);
+		uint8_t UART_get_packet(uint8_t *packet_buffer);
 	
 	#ifdef __cplusplus
 }

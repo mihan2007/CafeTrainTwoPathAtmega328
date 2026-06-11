@@ -66,6 +66,9 @@
 #define CMD_CLEAR_EMERGENCY 0x33
 #define CMD_STOP_PATH1 0x34
 #define CMD_STOP_PATH2 0x35
+#define CMD_DIAG_RESULT 0x36
+#define DIAG_RESULT_OK 0
+#define DIAG_RESULT_RAIL 10
 
 // Sensors bytes
 #define TABLE_1 (1 << 0)

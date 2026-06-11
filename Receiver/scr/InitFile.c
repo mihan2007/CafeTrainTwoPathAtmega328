@@ -62,7 +62,7 @@ init_output_pins(void) {
 	PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
 	PORTC &= ~(1 << PATH2_REVERS_PIN);
 #if ALARM_ENABLED
-	DDRB |= (1 << ALARM_PIN);
-	PORTB &= ~(1 << ALARM_PIN);
+	ALARM_DDR |= (1 << ALARM_PIN);
+	ALARM_PORT &= ~(1 << ALARM_PIN);
 #endif
 }

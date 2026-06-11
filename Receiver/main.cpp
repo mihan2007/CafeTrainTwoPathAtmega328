@@ -1,7 +1,7 @@
 #include <avr/io.h>
 #include <stdio.h>
 #include <avr/interrupt.h>
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <util/delay.h>
 #include "include/system_init.h"
 #include "include/lcd.h"
@@ -106,27 +106,27 @@ void handleSensorEvent(uint8_t path, uint8_t mask, uint8_t stopSensor, uint8_t s
 	if (mask & stopSensor) {
 		uint8_t arrivedTable = pathSelectedTable[path];
 		if (arrivedTable == 0 || getTablePath(arrivedTable) != path) return;
-		
+
 		triggeredBitsHistory = 0;
-		
+
 		arrivedBlockedTable[path] = arrivedTable;
 		pendingRouteTable[path] = 0;
 		if (routeSetupInProgress && getTablePath(SelectedTable) == path) {
 			routeSetupInProgress = 0;
 		}
-		
+
+		send_command(CMD_ARRIVED, arrivedTable, 0x00);
+		_delay_ms(20);
 		LocoStopTable(arrivedTable);
 		pathSelectedTable[path] = arrivedTable;
 		pathMode[path] = PATH_MODE_STOP;
 		pathDirection[path] = PATH_DIRECTION_STOP;
 		isLocoMoving = (pathMode[1] != PATH_MODE_STOP || pathMode[2] != PATH_MODE_STOP);
-		
-		send_command(CMD_ARRIVED, arrivedTable, 0x00);
 		update_lcd(CMD_ARRIVED, arrivedTable);
-		
+
 	} else if ((mask & slowSensor) && pathMode[path] != PATH_MODE_STOP) {
 		SlowModePath(path);
-		
+
 	} else {
 		triggeredBitsHistory |= mask;
 	}
@@ -153,10 +153,10 @@ void checkSensorsState(void) {
 	}
 }
 void process_packet(UART_Packet packet) {
-	
-	if (emergencyStopActive) return;
-	
+
 	if (!packet.valid)	return;
+
+	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_CLEAR_EMERGENCY) return;
 
 	if (packet.cmd == lastCmd && packet.table_id == SelectedTable && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && routeSetupInProgress)
 	return;  // Игнорируем повтор той же команды, кроме STOP
@@ -165,35 +165,48 @@ void process_packet(UART_Packet packet) {
 
 	switch (packet.cmd) {
 		case CMD_STOP:
+			send_ack(packet.cmd, packet.param);
+			_delay_ms(20);
 			arrivedBlockedTable[1] = 0;
 			arrivedBlockedTable[2] = 0;
 			pathDirection[1] = PATH_DIRECTION_STOP;
 			pathDirection[2] = PATH_DIRECTION_STOP;
 			LocoStop();
-			send_ack(packet.cmd, packet.param);
+			clear_overload_emergency(0);
 			resetLocoTimer();
 			break;
 
 		case CMD_STOP_PATH1:
+			send_ack(packet.cmd, packet.param);
+			_delay_ms(20);
 			arrivedBlockedTable[1] = 0;
 			pathDirection[1] = PATH_DIRECTION_STOP;
 			LocoStopPath(1);
 			if (routeSetupInProgress && getTablePath(SelectedTable) == 1) {
 				routeSetupInProgress = 0;
 			}
-			send_ack(packet.cmd, packet.param);
+
+			clear_overload_emergency(0);
 			resetLocoTimer();
 			break;
 
 		case CMD_STOP_PATH2:
+			send_ack(packet.cmd, packet.param);
+			_delay_ms(20);
 			arrivedBlockedTable[2] = 0;
 			pathDirection[2] = PATH_DIRECTION_STOP;
 			LocoStopPath(2);
 			if (routeSetupInProgress && getTablePath(SelectedTable) == 2) {
 				routeSetupInProgress = 0;
 			}
-			send_ack(packet.cmd, packet.param);
+
+			clear_overload_emergency(0);
 			resetLocoTimer();
+			break;
+
+		case CMD_CLEAR_EMERGENCY:
+			send_ack(packet.cmd, packet.param);
+			clear_overload_emergency(0);
 			break;
 
 		case CMD_FORWARD: {
@@ -220,12 +233,13 @@ void process_packet(UART_Packet packet) {
 		break;
 		}
 		case CMD_BACKWARD:
+			send_ack(packet.cmd, packet.param);
+			_delay_ms(20);
 			arrivedBlockedTable[getTablePath(packet.table_id)] = 0;
 			SelectedTable = packet.table_id;
 			pathSelectedTable[getTablePath(packet.table_id)] = packet.table_id;
 			pathDirection[getTablePath(packet.table_id)] = PATH_DIRECTION_BACKWARD;
 			MoveLocoBackward(SelectedTable);
-			send_ack(packet.cmd, packet.param);
 			isLocoMoving = 1;
 		break;
 
@@ -262,39 +276,39 @@ void run_output_shift_register_test(void) {
 	LCD_PrintTwoLines("Waiting for Cmd", "", 0);
 }
 int main(void) {
-	
+
 	system_init();
 	//run_output_shift_register_test();
 
 	while (1) {
-		
+
 		checkSensorsState();
 		check_and_send_overload_stop();
 		overload_led_sync();
 		checkLocoMovementTimeout();
-		
+
 		if (sensorStates != previousSensorStates) {
 			previousSensorStates = sensorStates;
 			print_triggered_sensor(sensorStates);
 		}
-		
+
 		UART_Packet packet = UART_receive_full_packet();
 		process_packet(packet);
 
-		processPWMUp();  
+		processPWMUp();
 		updatePathModesAfterPwm();
-		
+
 		update_adc_display_if_due();
-		
+
 		if (routeSetupInProgress) {
 			uint8_t wasRouteSetupInProgress = routeSetupInProgress;
-			
+
 			activate_route_non_blocking(SelectedTable);
 			if (wasRouteSetupInProgress && !routeSetupInProgress) {
 				update_lcd(lastCmd, SelectedTable);
 			}
 			startPendingRouteSetupIfReady();
-			
+
 		}
 	}
 

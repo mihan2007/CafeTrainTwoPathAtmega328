@@ -88,6 +88,28 @@ static void writeCombinedShiftState(void) {
 	shiftOutMultiple(shiftData, NUM_OF_74HC595);
 }
 
+void clearDiagnosticPathTablePower(uint8_t path) {
+	clearPowerByPath(path);
+	writeCombinedShiftState();
+}
+
+void setDiagnosticPathTablePower(uint8_t path, uint8_t tableIndex) {
+	if (tableIndex == 0 || tableIndex > 9) return;
+	if (get_table_path(tableIndex - 1) != path) return;
+
+	clearPowerByPath(path);
+	applyPowerRoute(tableIndex - 1);
+	writeCombinedShiftState();
+}
+
+void clearDiagnosticPath2TablePower(void) {
+	clearDiagnosticPathTablePower(2);
+}
+
+void setDiagnosticPath2TablePower(uint8_t tableIndex) {
+	setDiagnosticPathTablePower(2, tableIndex);
+}
+
 void LocoStop(void) {
 	PORTB &= ~(1 << REVERS_PIN);
 	PORTC &= ~(1 << PATH2_REVERS_PIN);

@@ -7,6 +7,9 @@
 
 #define TIMEOUT_COUNT (TIMEOUT_MS * (F_CPU / 1000 / 64))
 
+static uint8_t pending_packet[PACKET_SIZE];
+static uint8_t pending_packet_valid = 0;
+
 void UART_init(void) {
     UBRR0H = (UBRR_VALUE >> 8);
     UBRR0L = UBRR_VALUE;
@@ -102,6 +105,24 @@ uint8_t UART_receive_packet(uint8_t *packet_buffer) {
  * ‘ункци€ повтор€ет отправку до MAX_RETRIES раз и возвращает 1, если ACK получен,
  * иначе Ц 0.
  */
+static void save_pending_packet(uint8_t *packet_buffer) {
+    for (uint8_t i = 0; i < PACKET_SIZE; i++) {
+        pending_packet[i] = packet_buffer[i];
+    }
+    pending_packet_valid = 1;
+}
+
+uint8_t UART_get_packet(uint8_t *packet_buffer) {
+    if (pending_packet_valid) {
+        for (uint8_t i = 0; i < PACKET_SIZE; i++) {
+            packet_buffer[i] = pending_packet[i];
+        }
+        pending_packet_valid = 0;
+        return 1;
+    }
+
+    return UART_receive_packet(packet_buffer);
+}
 uint8_t send_command_with_ack(uint8_t cmd, uint8_t table_id, uint8_t data) {
     static uint8_t next_seq = 1;
     uint8_t retries = 0;
@@ -123,6 +144,7 @@ uint8_t send_command_with_ack(uint8_t cmd, uint8_t table_id, uint8_t data) {
                 ack_received = 1;
                 break;
             }
+            save_pending_packet(response);
         }
         retries++;
     }

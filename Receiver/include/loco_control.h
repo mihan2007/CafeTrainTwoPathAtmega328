@@ -23,6 +23,10 @@ extern "C" {
 	void PowerSupplyOn(void);
 	void PowerSupplyOnPath(uint8_t path);
 	void copy_power_shift_state(uint8_t *shiftData);
+	void clearDiagnosticPathTablePower(uint8_t path);
+	void setDiagnosticPathTablePower(uint8_t path, uint8_t tableIndex);
+	void clearDiagnosticPath2TablePower(void);
+	void setDiagnosticPath2TablePower(uint8_t tableIndex);
 
 	#ifdef __cplusplus
 }

@@ -25,12 +25,15 @@ uint8_t path2_moving = 0;
 uint8_t arrivedTableByPath[3] = {0, 0, 0};
 char path1Status[10] = "WAIT";
 char path2Status[10] = "WAIT";
+uint8_t diagnosticResultByPath[3] = {DIAG_RESULT_OK, DIAG_RESULT_OK, DIAG_RESULT_OK};
+uint8_t transmitterEmergencyActive = 0;
 
 static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
 	return !(pinState & (1 << buttonPin));
 }
 
 void update_shift_register_for_tables(void);
+void display_diagnostic_results(void);
 
 uint16_t ADC_Read_Button(uint8_t channel) {
 	ADMUX = (1 << REFS0) | (channel & 0x07);
@@ -170,6 +173,8 @@ void format_table_status_line(char *buffer, uint8_t bufferSize, const char *path
 }
 
 void update_lcd_for_tables(void) {
+	if (transmitterEmergencyActive) return;
+
 	char line1[17];
 	char line2[17];
 
@@ -180,7 +185,7 @@ void update_lcd_for_tables(void) {
 }
 
 void handle_path1_table_change(int8_t newTable) {
-	if (is_moving) return;	
+	if (is_moving) return;
 	if (newTable <= 0) return;
 	if (newTable == selectedPath1Table) return;
 
@@ -205,6 +210,8 @@ void handle_path2_table_change(int8_t newTable) {
 }
 
 void handle_table_inputs(uint8_t states) {
+	if (transmitterEmergencyActive) return;
+
 	int8_t path1Table = get_detected_path1_table(states);
 	int8_t path2Table = get_detected_path2_table(states);
 	uint8_t newPath2TableMask = get_path2_table_mask(states);
@@ -240,7 +247,56 @@ void set_path2_command_status(const char *cmdText, uint8_t ack) {
 	update_lcd_for_tables();
 }
 
+uint8_t has_active_diagnostic_error(void) {
+	return diagnosticResultByPath[1] != DIAG_RESULT_OK || diagnosticResultByPath[2] != DIAG_RESULT_OK;
+}
+
+void refresh_emergency_display_or_unlock(void) {
+	if (has_active_diagnostic_error()) {
+		display_diagnostic_results();
+		return;
+	}
+
+	transmitterEmergencyActive = 0;
+	update_lcd_for_tables();
+}
+
+uint8_t handle_emergency_stop_buttons(void) {
+	uint8_t pinState = PINC;
+	uint8_t handled = 0;
+	uint8_t ack = 0;
+
+	bool stopPressed = is_button_pressed(pinState, BUTTON_STOP_PIN);
+	bool path2StopPressed = PATH2_CONTROL_BUTTONS_ENABLED && is_adc_button_pressed(PATH2_BUTTON_STOP_ADC);
+
+	if (stopPressed) {
+		ack = send_command_with_ack(CMD_STOP_PATH1, selectedPath1Table > 0 ? selectedPath1Table : 0x00, 0x00);
+		(void)ack;
+		clear_motion_state();
+		diagnosticResultByPath[1] = DIAG_RESULT_OK;
+		transmitterEmergencyActive = 0;
+		refresh_emergency_display_or_unlock();
+		handled = 1;
+	}
+
+	if (path2StopPressed) {
+		ack = send_command_with_ack(CMD_STOP_PATH2, selectedPath2Table > 0 ? selectedPath2Table : 0x00, 0x00);
+		(void)ack;
+		clear_path2_motion_state();
+		diagnosticResultByPath[2] = DIAG_RESULT_OK;
+		transmitterEmergencyActive = 0;
+		refresh_emergency_display_or_unlock();
+		handled = 1;
+	}
+
+	return handled;
+}
 void handle_control_buttons(void) {
+	if (transmitterEmergencyActive) {
+		handle_emergency_stop_buttons();
+		return;
+	}
+
 	uint8_t pinState = PINC;
 	uint8_t ack = 0;
 
@@ -306,15 +362,35 @@ void handle_control_buttons(void) {
 }
 
 void display_overload_error(void) {
-	snprintf(path1Status, sizeof(path1Status), "ERR");
-	snprintf(path2Status, sizeof(path2Status), "ERR");
-	update_lcd_for_tables();
+	transmitterEmergencyActive = 1;
+	LCD_Clear();
+	LCD_PrintTwoLines((char*)"EMERGENCY", (char*)"OVERLOAD", 0);
+}
+
+void format_diagnostic_result_line(char *buffer, uint8_t bufferSize, uint8_t path, uint8_t result) {
+	if (result == DIAG_RESULT_OK) {
+		snprintf(buffer, bufferSize, "P%u OK", path);
+	} else if (result == DIAG_RESULT_RAIL) {
+		snprintf(buffer, bufferSize, "P%u SHORTED RAIL", path);
+	} else {
+		snprintf(buffer, bufferSize, "P%u SHORTED T%u", path, result);
+	}
+}
+
+void display_diagnostic_results(void) {
+	transmitterEmergencyActive = 1;
+	char line1[17];
+	char line2[17];
+	format_diagnostic_result_line(line1, sizeof(line1), 1, diagnosticResultByPath[1]);
+	format_diagnostic_result_line(line2, sizeof(line2), 2, diagnosticResultByPath[2]);
+	LCD_Clear();
+	LCD_PrintTwoLines(line1, line2, 0);
 }
 
 void handle_incoming_uart_packets(void) {
 	uint8_t packet_buffer[PACKET_SIZE];
 
-	if (UART_receive_packet(packet_buffer)) {
+	if (UART_get_packet(packet_buffer)) {
 		uint8_t cmd = packet_buffer[1];
 		uint8_t table_id = packet_buffer[2];
 		uint8_t seq = packet_buffer[3];
@@ -326,12 +402,23 @@ void handle_incoming_uart_packets(void) {
 				clear_motion_state();
 				clear_path2_motion_state();
 			break;
-			
+
 			case CMD_CLEAR_EMERGENCY:
 				send_command(ACK_CMD, cmd, seq);
+				transmitterEmergencyActive = 0;
+				diagnosticResultByPath[1] = DIAG_RESULT_OK;
+				diagnosticResultByPath[2] = DIAG_RESULT_OK;
 				update_lcd_for_tables();
 			break;
-			
+
+			case CMD_DIAG_RESULT:
+				send_command(ACK_CMD, cmd, seq);
+				if (table_id >= 1 && table_id <= 2) {
+					diagnosticResultByPath[table_id] = seq;
+					display_diagnostic_results();
+				}
+			break;
+
 			case CMD_ARRIVED: {
 				uint8_t arrivedCommand = currentCommand;
 				uint8_t path2ArrivedCommand = path2Command;
@@ -375,12 +462,12 @@ int main(void) {
 	activate_ext_logic();
 	//run_output_register_startup_test();
 	update_lcd_for_tables();
-	
+
 	send_command_with_ack(CMD_STOP, 0x00, 0x00);
-		
+
 	while (1) {
 		checkLocoMovementTimeout();
-		
+
 		uint8_t rawBits = read_74HC165();
 		uint8_t invertedBits = ~rawBits;
 

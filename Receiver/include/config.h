@@ -10,6 +10,8 @@
 #define OVERLOAD_HYSTERESIS     30    // гистерезис отпускания
 #define OVERLOAD_HOLD_TICKS     50    // сколько тиков выше порога до срабатывания
 #define OVERLOAD_RESEND_TICKS   60000     // период повтора команды в перегрузе
+#define OVERLOAD_DISPLAY_TICKS  1000      // сколько держать OVERLOAD на экране перед проверкой
+#define OVERLOAD_TEST_PULSE_TICKS 1       // короткий импульс A3 для проверки КЗ
 
 // Защита по времени от работы на холостом ходу 
 #define TICKS_PER_UNIT 10000
@@ -63,9 +65,11 @@
 #define CLOCK_74HC595   PD3
 #define LATCH_74HC595   PD4
 
-// Alarm
-#define ALARM_ENABLED 0
-#define ALARM_PIN PB3
+// Alarm / overload indicator on A1
+#define ALARM_ENABLED 1
+#define ALARM_DDR DDRC
+#define ALARM_PORT PORTC
+#define ALARM_PIN PC1
 
 // Определение маршрутов
 #define ROUTE_TO_TABLE_1 0b00000000000000001UL
@@ -100,6 +104,9 @@
 #define CMD_CLEAR_EMERGENCY 0x33
 #define CMD_STOP_PATH1 0x34
 #define CMD_STOP_PATH2 0x35
+#define CMD_DIAG_RESULT 0x36
+#define DIAG_RESULT_OK 0
+#define DIAG_RESULT_RAIL 10
 
 #define PATH_MODE_STOP 0
 #define PATH_MODE_ROUTE_SETUP 1
