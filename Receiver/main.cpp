@@ -27,6 +27,30 @@ static uint8_t isSamePath(uint8_t firstTable, uint8_t secondTable) {
 static uint8_t pendingRouteTable[3] = {0, 0, 0};
 static uint8_t arrivedBlockedTable[3] = {0, 0, 0};
 
+static void send_menu_data(uint8_t menuItem) {
+	uint8_t value = 0;
+
+	switch (menuItem) {
+		case MENU_ITEM_SENSORS:
+			sensorStates = ~read_74HC165();
+			value = sensorStates;
+			break;
+
+		case MENU_ITEM_OVERLOAD_THRESHOLD:
+			value = (uint8_t)(OVERLOAD_THRESHOLD / 10);
+			break;
+
+		case MENU_ITEM_PWM_SLOW_PATH1:
+		case MENU_ITEM_PWM_SLOW_PATH2:
+			value = PWM_SLOW_DUTY;
+			break;
+
+		default:
+			return;
+	}
+
+	send_command(CMD_MENU_DATA, menuItem, value);
+}
 static void startRouteSetup(uint8_t tableId) {
 	uint8_t path = getTablePath(tableId);
 
@@ -156,9 +180,9 @@ void process_packet(UART_Packet packet) {
 
 	if (!packet.valid)	return;
 
-	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_CLEAR_EMERGENCY) return;
+	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_CLEAR_EMERGENCY && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT) return;
 
-	if (packet.cmd == lastCmd && packet.table_id == SelectedTable && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && routeSetupInProgress)
+	if (packet.cmd == lastCmd && packet.table_id == SelectedTable && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && routeSetupInProgress)
 	return;  // Игнорируем повтор той же команды, кроме STOP
 
 	lastCmd = packet.cmd;
@@ -207,6 +231,25 @@ void process_packet(UART_Packet packet) {
 		case CMD_CLEAR_EMERGENCY:
 			send_ack(packet.cmd, packet.param);
 			clear_overload_emergency(0);
+			break;
+
+		case CMD_MENU_ENTER:
+			send_ack(packet.cmd, packet.param);
+			serviceModeActive = 1;
+			LCD_Clear();
+			update_lcd(packet.cmd, SelectedTable);
+			break;
+
+		case CMD_MENU_EXIT:
+			send_ack(packet.cmd, packet.param);
+			serviceModeActive = 0;
+			LCD_Clear();
+			update_lcd(packet.cmd, SelectedTable);
+			break;
+
+		case CMD_MENU_REQUEST:
+			send_ack(packet.cmd, packet.param);
+			send_menu_data(packet.table_id);
 			break;
 
 		case CMD_FORWARD: {

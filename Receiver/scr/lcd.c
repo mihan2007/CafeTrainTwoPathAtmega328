@@ -191,6 +191,14 @@ void update_lcd(uint8_t cmd, uint8_t table_id) {
 	(void)cmd;
 	(void)table_id;
 
+	if (serviceModeActive) {
+		LCD_SetCursor(0, 0);
+		LCD_Print((char*)"SERVICE         ");
+		LCD_SetCursor(0, 1);
+		LCD_Print((char*)"                ");
+		return;
+	}
+
 	format_path_lcd_line(line1, sizeof(line1), 1);
 	format_path_lcd_line(line2, sizeof(line2), 2);
 

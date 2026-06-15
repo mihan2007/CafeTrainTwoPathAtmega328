@@ -105,8 +105,18 @@
 #define CMD_STOP_PATH1 0x34
 #define CMD_STOP_PATH2 0x35
 #define CMD_DIAG_RESULT 0x36
+#define CMD_MENU_REQUEST 0x37
+#define CMD_MENU_DATA 0x38
+#define CMD_MENU_ENTER 0x39
+#define CMD_MENU_EXIT 0x3A
 #define DIAG_RESULT_OK 0
 #define DIAG_RESULT_RAIL 10
+
+#define MENU_ITEM_SENSORS 1
+#define MENU_ITEM_OVERLOAD_THRESHOLD 2
+#define MENU_ITEM_PWM_SLOW_PATH1 3
+#define MENU_ITEM_PWM_SLOW_PATH2 4
+#define MENU_ITEM_LAST MENU_ITEM_PWM_SLOW_PATH2
 
 #define PATH_MODE_STOP 0
 #define PATH_MODE_ROUTE_SETUP 1
@@ -121,6 +131,7 @@ extern uint8_t routeSetupInProgress;
 extern uint8_t pathMode[3];
 extern uint8_t pathSelectedTable[3];
 extern uint8_t pathDirection[3];
+extern uint8_t serviceModeActive;
 
 // Sensors bytes from 74HC165
 #define PATH1_TABLE_STOP_SENSOR   (1 << 0)

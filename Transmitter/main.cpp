@@ -11,6 +11,7 @@
 #define PATH1_LAST_TABLE 4
 #define PATH2_FIRST_TABLE 5
 #define PATH2_LAST_TABLE 9
+#define MENU_HOLD_TICKS 50
 
 uint8_t shiftRegisterState[NUM_OF_74HC595] = {0};
 int8_t selectedPath1Table = -1;
@@ -27,6 +28,13 @@ char path1Status[10] = "WAIT";
 char path2Status[10] = "WAIT";
 uint8_t diagnosticResultByPath[3] = {DIAG_RESULT_OK, DIAG_RESULT_OK, DIAG_RESULT_OK};
 uint8_t transmitterEmergencyActive = 0;
+uint8_t menuModeActive = 0;
+uint8_t menuHoldCounter = 0;
+uint8_t menuHoldArmed = 1;
+uint8_t menuNavArmed = 1;
+uint8_t menuItem = MENU_ITEM_SENSORS;
+uint8_t menuData[MENU_ITEM_LAST + 1] = {0};
+uint8_t menuDataValid[MENU_ITEM_LAST + 1] = {0};
 
 static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
 	return !(pinState & (1 << buttonPin));
@@ -34,6 +42,7 @@ static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
 
 void update_shift_register_for_tables(void);
 void display_diagnostic_results(void);
+void display_menu_screen(void);
 
 uint16_t ADC_Read_Button(uint8_t channel) {
 	ADMUX = (1 << REFS0) | (channel & 0x07);
@@ -173,7 +182,7 @@ void format_table_status_line(char *buffer, uint8_t bufferSize, const char *path
 }
 
 void update_lcd_for_tables(void) {
-	if (transmitterEmergencyActive) return;
+	if (transmitterEmergencyActive || menuModeActive) return;
 
 	char line1[17];
 	char line2[17];
@@ -210,7 +219,7 @@ void handle_path2_table_change(int8_t newTable) {
 }
 
 void handle_table_inputs(uint8_t states) {
-	if (transmitterEmergencyActive) return;
+	if (transmitterEmergencyActive || menuModeActive) return;
 
 	int8_t path1Table = get_detected_path1_table(states);
 	int8_t path2Table = get_detected_path2_table(states);
@@ -247,6 +256,157 @@ void set_path2_command_status(const char *cmdText, uint8_t ack) {
 	update_lcd_for_tables();
 }
 
+void request_menu_data(uint8_t item) {
+	if (item < MENU_ITEM_SENSORS || item > MENU_ITEM_LAST) return;
+	send_command_with_ack(CMD_MENU_REQUEST, item, 0x00);
+}
+
+void update_menu_data(uint8_t item, uint8_t value) {
+	if (item < MENU_ITEM_SENSORS || item > MENU_ITEM_LAST) return;
+	menuData[item] = value;
+	menuDataValid[item] = 1;
+}
+
+char bit_char(uint8_t value, uint8_t bit) {
+	return (value & (1 << bit)) ? '1' : '0';
+}
+
+void format_menu_value_line(char *buffer, uint8_t bufferSize, uint8_t item) {
+	if (!menuDataValid[item]) {
+		snprintf(buffer, bufferSize, "WAIT DATA");
+		return;
+	}
+
+	switch (item) {
+		case MENU_ITEM_SENSORS:
+			snprintf(buffer, bufferSize, "P1:%c%c%c%c P2:%c%c%c%c",
+				bit_char(menuData[item], 0),
+				bit_char(menuData[item], 1),
+				bit_char(menuData[item], 2),
+				bit_char(menuData[item], 3),
+				bit_char(menuData[item], 4),
+				bit_char(menuData[item], 5),
+				bit_char(menuData[item], 6),
+				bit_char(menuData[item], 7));
+			break;
+
+		case MENU_ITEM_OVERLOAD_THRESHOLD:
+			snprintf(buffer, bufferSize, "ADC %u", (uint16_t)menuData[item] * 10);
+			break;
+
+		default:
+			snprintf(buffer, bufferSize, "PWM %u", menuData[item]);
+			break;
+	}
+}
+
+void display_menu_screen(void) {
+	char line1[17];
+	char line2[17];
+
+	switch (menuItem) {
+		case MENU_ITEM_SENSORS:
+			snprintf(line1, sizeof(line1), "SENSORS");
+			break;
+
+		case MENU_ITEM_OVERLOAD_THRESHOLD:
+			snprintf(line1, sizeof(line1), "SHORT LIMIT");
+			break;
+
+		case MENU_ITEM_PWM_SLOW_PATH1:
+			snprintf(line1, sizeof(line1), "P1 SLOW PWM");
+			break;
+
+		case MENU_ITEM_PWM_SLOW_PATH2:
+			snprintf(line1, sizeof(line1), "P2 SLOW PWM");
+			break;
+
+		default:
+			snprintf(line1, sizeof(line1), "MENU");
+			break;
+	}
+
+	format_menu_value_line(line2, sizeof(line2), menuItem);
+	LCD_Clear();
+	LCD_PrintTwoLines(line1, line2, 0);
+}
+
+void enter_menu_mode(void) {
+	menuModeActive = 1;
+	menuHoldArmed = 0;
+	menuHoldCounter = 0;
+	menuNavArmed = 0;
+	menuItem = MENU_ITEM_SENSORS;
+	display_menu_screen();
+	send_command_with_ack(CMD_MENU_ENTER, 0x00, 0x00);
+	request_menu_data(menuItem);
+}
+
+void exit_menu_mode(void) {
+	send_command_with_ack(CMD_MENU_EXIT, 0x00, 0x00);
+	menuModeActive = 0;
+	menuHoldArmed = 0;
+	menuHoldCounter = 0;
+	update_lcd_for_tables();
+}
+
+uint8_t handle_menu_buttons(uint8_t stopPressed, uint8_t path2StopPressed) {
+	uint8_t bothStopPressed = stopPressed && path2StopPressed;
+
+	if (!bothStopPressed) {
+		menuHoldCounter = 0;
+		menuHoldArmed = 1;
+		return menuModeActive;
+	}
+
+	if (!menuHoldArmed) {
+		return 1;
+	}
+
+	if (menuHoldCounter < MENU_HOLD_TICKS) {
+		menuHoldCounter++;
+	}
+
+	if (menuHoldCounter >= MENU_HOLD_TICKS) {
+		if (menuModeActive) {
+			exit_menu_mode();
+		} else {
+			enter_menu_mode();
+		}
+		menuHoldArmed = 0;
+		menuHoldCounter = 0;
+	}
+
+	return 1;
+}
+
+void handle_menu_navigation(uint8_t forwardPressed, uint8_t backwardPressed) {
+	if (!menuModeActive) return;
+
+	if (!forwardPressed && !backwardPressed) {
+		menuNavArmed = 1;
+		return;
+	}
+
+	if (!menuNavArmed) return;
+
+	if (forwardPressed) {
+		menuItem++;
+		if (menuItem > MENU_ITEM_LAST) {
+			menuItem = MENU_ITEM_SENSORS;
+		}
+	} else if (backwardPressed) {
+		if (menuItem <= MENU_ITEM_SENSORS) {
+			menuItem = MENU_ITEM_LAST;
+		} else {
+			menuItem--;
+		}
+	}
+
+	menuNavArmed = 0;
+	display_menu_screen();
+	request_menu_data(menuItem);
+}
 uint8_t has_active_diagnostic_error(void) {
 	return diagnosticResultByPath[1] != DIAG_RESULT_OK || diagnosticResultByPath[2] != DIAG_RESULT_OK;
 }
@@ -268,7 +428,6 @@ uint8_t handle_emergency_stop_buttons(void) {
 
 	bool stopPressed = is_button_pressed(pinState, BUTTON_STOP_PIN);
 	bool path2StopPressed = PATH2_CONTROL_BUTTONS_ENABLED && is_adc_button_pressed(PATH2_BUTTON_STOP_ADC);
-
 	if (stopPressed) {
 		ack = send_command_with_ack(CMD_STOP_PATH1, selectedPath1Table > 0 ? selectedPath1Table : 0x00, 0x00);
 		(void)ack;
@@ -306,6 +465,13 @@ void handle_control_buttons(void) {
 	bool path2ForwardPressed = is_button_pressed(pinState, PATH2_BUTTON_FORWARD_PIN);
 	bool path2BackwardPressed = PATH2_CONTROL_BUTTONS_ENABLED && is_adc_button_pressed(PATH2_BUTTON_BACKWARD_ADC);
 	bool path2StopPressed = PATH2_CONTROL_BUTTONS_ENABLED && is_adc_button_pressed(PATH2_BUTTON_STOP_ADC);
+
+	if (handle_menu_buttons(stopPressed, path2StopPressed)) {
+		if (menuModeActive) {
+			handle_menu_navigation(forwardPressed, backwardPressed);
+		}
+		return;
+	}
 
 	if (stopPressed) {
 		ack = send_command_with_ack(CMD_STOP_PATH1, selectedPath1Table > 0 ? selectedPath1Table : 0x00, 0x00);
@@ -416,6 +582,14 @@ void handle_incoming_uart_packets(void) {
 				if (table_id >= 1 && table_id <= 2) {
 					diagnosticResultByPath[table_id] = seq;
 					display_diagnostic_results();
+				}
+			break;
+
+			case CMD_MENU_DATA:
+				send_command(ACK_CMD, cmd, seq);
+				update_menu_data(table_id, seq);
+				if (menuModeActive && table_id == menuItem) {
+					display_menu_screen();
 				}
 			break;
 
