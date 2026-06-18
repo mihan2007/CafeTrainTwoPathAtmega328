@@ -131,7 +131,6 @@ extern uint8_t routeSetupInProgress;
 extern uint8_t pathMode[3];
 extern uint8_t pathSelectedTable[3];
 extern uint8_t pathDirection[3];
-extern uint8_t serviceModeActive;
 
 // Sensors bytes from 74HC165
 #define PATH1_TABLE_STOP_SENSOR   (1 << 0)

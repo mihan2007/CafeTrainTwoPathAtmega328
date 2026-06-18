@@ -22,7 +22,6 @@
 	uint8_t pathMode[3] = {PATH_MODE_STOP, PATH_MODE_STOP, PATH_MODE_STOP};
 	uint8_t pathSelectedTable[3] = {0, 0, 0};
 	uint8_t pathDirection[3] = {PATH_DIRECTION_STOP, PATH_DIRECTION_STOP, PATH_DIRECTION_STOP};
-	uint8_t serviceModeActive = 0;
 	
 void system_init(void) {
 	I2C_Init();

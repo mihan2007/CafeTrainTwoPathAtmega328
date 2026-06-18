@@ -123,6 +123,12 @@ uint8_t UART_get_packet(uint8_t *packet_buffer) {
 
     return UART_receive_packet(packet_buffer);
 }
+void UART_discard_pending(void) {
+    pending_packet_valid = 0;
+    while (UCSR0A & (1 << RXC0)) {
+        (void)UDR0;
+    }
+}
 uint8_t send_command_with_ack(uint8_t cmd, uint8_t table_id, uint8_t data) {
     static uint8_t next_seq = 1;
     uint8_t retries = 0;

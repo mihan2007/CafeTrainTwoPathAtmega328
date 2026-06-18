@@ -12,6 +12,7 @@
 #define PATH2_FIRST_TABLE 5
 #define PATH2_LAST_TABLE 9
 #define MENU_HOLD_TICKS 50
+#define MENU_REQUEST_TICKS 5
 
 uint8_t shiftRegisterState[NUM_OF_74HC595] = {0};
 int8_t selectedPath1Table = -1;
@@ -35,6 +36,7 @@ uint8_t menuNavArmed = 1;
 uint8_t menuItem = MENU_ITEM_SENSORS;
 uint8_t menuData[MENU_ITEM_LAST + 1] = {0};
 uint8_t menuDataValid[MENU_ITEM_LAST + 1] = {0};
+uint8_t menuRequestCounter = 0;
 
 static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
 	return !(pinState & (1 << buttonPin));
@@ -43,6 +45,7 @@ static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
 void update_shift_register_for_tables(void);
 void display_diagnostic_results(void);
 void display_menu_screen(void);
+void poll_menu_data_if_due(void);
 
 uint16_t ADC_Read_Button(uint8_t channel) {
 	ADMUX = (1 << REFS0) | (channel & 0x07);
@@ -333,22 +336,26 @@ void display_menu_screen(void) {
 
 void enter_menu_mode(void) {
 	if (is_moving || path2_moving) return;
-	if (!send_command_with_ack(CMD_MENU_ENTER, 0x00, 0x00)) return;
 
 	menuModeActive = 1;
 	menuHoldArmed = 0;
 	menuHoldCounter = 0;
 	menuNavArmed = 0;
 	menuItem = MENU_ITEM_SENSORS;
+	menuRequestCounter = 0;
 	display_menu_screen();
 	request_menu_data(menuItem);
 }
 
 void exit_menu_mode(void) {
-	send_command_with_ack(CMD_MENU_EXIT, 0x00, 0x00);
+	UART_discard_pending();
 	menuModeActive = 0;
 	menuHoldArmed = 0;
 	menuHoldCounter = 0;
+	currentCommand = CMD_STOP;
+	path2Command = CMD_STOP;
+	is_moving = 0;
+	path2_moving = 0;
 	update_lcd_for_tables();
 }
 
@@ -406,7 +413,23 @@ void handle_menu_navigation(uint8_t forwardPressed, uint8_t backwardPressed) {
 	}
 
 	menuNavArmed = 0;
+	menuRequestCounter = 0;
 	display_menu_screen();
+	request_menu_data(menuItem);
+}
+
+void poll_menu_data_if_due(void) {
+	if (!menuModeActive) {
+		menuRequestCounter = 0;
+		return;
+	}
+
+	if (menuRequestCounter < MENU_REQUEST_TICKS) {
+		menuRequestCounter++;
+		return;
+	}
+
+	menuRequestCounter = 0;
 	request_menu_data(menuItem);
 }
 uint8_t has_active_diagnostic_error(void) {
@@ -649,6 +672,7 @@ int main(void) {
 		handle_table_inputs(invertedBits);
 		handle_control_buttons();
 		handle_incoming_uart_packets();
+		poll_menu_data_if_due();
 	}
 
 	return 0;
