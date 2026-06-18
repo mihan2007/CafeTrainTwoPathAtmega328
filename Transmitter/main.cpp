@@ -258,7 +258,7 @@ void set_path2_command_status(const char *cmdText, uint8_t ack) {
 
 void request_menu_data(uint8_t item) {
 	if (item < MENU_ITEM_SENSORS || item > MENU_ITEM_LAST) return;
-	send_command_with_ack(CMD_MENU_REQUEST, item, 0x00);
+	send_command(CMD_MENU_REQUEST, item, 0x00);
 }
 
 void update_menu_data(uint8_t item, uint8_t value) {
@@ -332,13 +332,15 @@ void display_menu_screen(void) {
 }
 
 void enter_menu_mode(void) {
+	if (is_moving || path2_moving) return;
+	if (!send_command_with_ack(CMD_MENU_ENTER, 0x00, 0x00)) return;
+
 	menuModeActive = 1;
 	menuHoldArmed = 0;
 	menuHoldCounter = 0;
 	menuNavArmed = 0;
 	menuItem = MENU_ITEM_SENSORS;
 	display_menu_screen();
-	send_command_with_ack(CMD_MENU_ENTER, 0x00, 0x00);
 	request_menu_data(menuItem);
 }
 
@@ -586,7 +588,6 @@ void handle_incoming_uart_packets(void) {
 			break;
 
 			case CMD_MENU_DATA:
-				send_command(ACK_CMD, cmd, seq);
 				update_menu_data(table_id, seq);
 				if (menuModeActive && table_id == menuItem) {
 					display_menu_screen();

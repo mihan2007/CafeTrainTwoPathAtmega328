@@ -27,6 +27,10 @@ static uint8_t isSamePath(uint8_t firstTable, uint8_t secondTable) {
 static uint8_t pendingRouteTable[3] = {0, 0, 0};
 static uint8_t arrivedBlockedTable[3] = {0, 0, 0};
 
+static uint8_t service_allowed(void) {
+	return !routeSetupInProgress && pathMode[1] == PATH_MODE_STOP && pathMode[2] == PATH_MODE_STOP;
+}
+
 static void send_menu_data(uint8_t menuItem) {
 	uint8_t value = 0;
 
@@ -234,6 +238,9 @@ void process_packet(UART_Packet packet) {
 			break;
 
 		case CMD_MENU_ENTER:
+			if (!service_allowed()) {
+				break;
+			}
 			send_ack(packet.cmd, packet.param);
 			serviceModeActive = 1;
 			LCD_Clear();
@@ -248,8 +255,9 @@ void process_packet(UART_Packet packet) {
 			break;
 
 		case CMD_MENU_REQUEST:
-			send_ack(packet.cmd, packet.param);
-			send_menu_data(packet.table_id);
+			if (serviceModeActive && service_allowed()) {
+				send_menu_data(packet.table_id);
+			}
 			break;
 
 		case CMD_FORWARD: {
