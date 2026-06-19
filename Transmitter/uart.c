@@ -158,40 +158,4 @@ uint8_t send_command_with_ack(uint8_t cmd, uint8_t table_id, uint8_t data) {
     return ack_received;
 }
 
-// Пример функции обработки входящего пакета (на стороне передатчика, если требуется)
-void process_command(uint8_t *data) {
-    if (data == NULL) {
-        return;
-    }
 
-    uint8_t cmd = data[1];
-    uint8_t table_id = data[2];
-    uint8_t param = data[3];
-    uint8_t received_crc = data[4];
-
-    if (crc8(&data[1], 3) != received_crc) {
-        return;
-    }
-
-    switch (cmd) {
-        case 0x20: // MOVE_FORWARD
-            setRouteByIndex(table_id);
-            moveLocomotive(1);
-            // Отправляем ACK для команды MOVE_FORWARD
-            send_command(ACK_CMD, 0x20, param);
-            break;
-
-        case 0x21: // MOVE_BACKWARD
-            moveLocomotive(0);
-            send_command(ACK_CMD, 0x21, param);
-            break;
-
-        case 0x30: // EMERGENCY_STOP
-            stopLocomotive();
-            send_command(ACK_CMD, 0x30, param);
-            return;
-    }
-
-    // Отчет о завершении команды (COMMAND_COMPLETE)
-    send_command(0x50, cmd, table_id);
-}

@@ -71,6 +71,7 @@
 #define CMD_MENU_DATA 0x38
 #define CMD_MENU_ENTER 0x39
 #define CMD_MENU_EXIT 0x3A
+#define CMD_MENU_SET  0x3B
 #define DIAG_RESULT_OK 0
 #define DIAG_RESULT_RAIL 10
 
@@ -79,6 +80,7 @@
 #define MENU_ITEM_PWM_SLOW_PATH1 3
 #define MENU_ITEM_PWM_SLOW_PATH2 4
 #define MENU_ITEM_LAST MENU_ITEM_PWM_SLOW_PATH2
+#define PWM_SLOW_DUTY 120
 
 // Sensors bytes
 #define TABLE_1 (1 << 0)
@@ -87,7 +89,4 @@
 #define TABLE_4 (1 << 3)
 #define TABLE_5 (1 << 4)
 #define TABLE_6 (1 << 5)
-#define TABLE_7 (1 << 6)
-#define TABLE_8 (1 << 7)
-
-#endif /* CONFIG_H_ */
+#define TABLE_7 (1 << 6

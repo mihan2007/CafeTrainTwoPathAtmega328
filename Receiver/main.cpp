@@ -14,6 +14,7 @@
 #include "include/shift_registers.h"
 #include "include/adcRead.h"
 #include "include/protection.h"
+#include "include/eeprom_settings.h"
 
 static uint8_t getTablePath(uint8_t tableId) {
 	return (tableId >= 1 && tableId <= 4) ? 1 : 2;
@@ -41,8 +42,11 @@ static void send_menu_data(uint8_t menuItem) {
 			break;
 
 		case MENU_ITEM_PWM_SLOW_PATH1:
+			value = eeprom_slow_pwm_read(1);
+			break;
+
 		case MENU_ITEM_PWM_SLOW_PATH2:
-			value = PWM_SLOW_DUTY;
+			value = eeprom_slow_pwm_read(2);
 			break;
 
 		default:
@@ -119,11 +123,11 @@ void SlowModePath(uint8_t path) {
 		PORTB |= (1 << PWM_PATH2_SWITCH_PIN);
 		PORTC &= ~(1 << PATH2_RAIL_POWER_ENABLE);
 		enablePWMPath(2);
-		OCR1B = PWM_SLOW_DUTY;
+		OCR1B = eeprom_slow_pwm_read(2);
 	} else {
 		PORTB |= (1 << PWM_PATH1_SWITCH_PIN);
 		enablePWMPath(1);
-		OCR1A = PWM_SLOW_DUTY;
+		OCR1A = eeprom_slow_pwm_read(1);
 	}
 }
 void handleSensorEvent(uint8_t path, uint8_t mask, uint8_t stopSensor, uint8_t slowSensor) {
@@ -180,7 +184,7 @@ void process_packet(UART_Packet packet) {
 
 	if (!packet.valid)	return;
 
-	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_CLEAR_EMERGENCY && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT) return;
+	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_CLEAR_EMERGENCY && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && packet.cmd != CMD_MENU_SET) return;
 
 	if (packet.cmd == lastCmd && packet.table_id == SelectedTable && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && routeSetupInProgress)
 	return;  // Игнорируем повтор той же команды, кроме STOP
@@ -264,16 +268,30 @@ void process_packet(UART_Packet packet) {
 			isLocoMoving = 1;
 		break;
 		}
-		case CMD_BACKWARD:
+		case CMD_BACKWARD: {
+			uint8_t bwdPath = getTablePath(packet.table_id);
 			send_ack(packet.cmd, packet.param);
+			// If already moving backward on this path/table, just re-ACK, don't restart
+			if ((pathMode[bwdPath] == PATH_MODE_ACCELERATION || pathMode[bwdPath] == PATH_MODE_MOVING) &&
+				pathDirection[bwdPath] == PATH_DIRECTION_BACKWARD &&
+				pathSelectedTable[bwdPath] == packet.table_id) {
+				break;
+			}
 			_delay_ms(20);
-			arrivedBlockedTable[getTablePath(packet.table_id)] = 0;
+			arrivedBlockedTable[bwdPath] = 0;
 			SelectedTable = packet.table_id;
-			pathSelectedTable[getTablePath(packet.table_id)] = packet.table_id;
-			pathDirection[getTablePath(packet.table_id)] = PATH_DIRECTION_BACKWARD;
+			pathSelectedTable[bwdPath] = packet.table_id;
+			pathDirection[bwdPath] = PATH_DIRECTION_BACKWARD;
 			MoveLocoBackward(SelectedTable);
 			isLocoMoving = 1;
+			resetLocoTimer();
 		break;
+		}
+
+		case CMD_MENU_SET:
+			eeprom_slow_pwm_write(packet.table_id, packet.param);
+			send_ack(packet.cmd, packet.param);
+			break;
 
 		default:
 		break;

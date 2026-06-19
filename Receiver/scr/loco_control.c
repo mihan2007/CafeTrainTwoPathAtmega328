@@ -3,6 +3,7 @@
 #include "../include/shift_registers.h"
 #include "../include/railroad_control.h"
 #include "../include/PWM.h"
+#include <util/delay.h>
 
 static uint8_t powerShiftState[NUM_OF_74HC595] = {0};
 
@@ -200,6 +201,13 @@ void MoveLocoBackward(uint8_t tableIndex) {
 	uint8_t path = get_table_path(shiftRegisterMask);
 
 	LocoStopTable(tableIndex);
+
+	/* Wait for motor to shed inertia and for the forward relay
+	 * contacts to fully open before energising the reverse relay.
+	 * Without this delay the relay is mid-switch when power
+	 * returns, causing a momentary short that trips the overload. */
+	_delay_ms(150);
+
 	pathSelectedTable[path] = tableIndex;
 	pathDirection[path] = PATH_DIRECTION_BACKWARD;
 	if (path == 1) {
@@ -207,6 +215,10 @@ void MoveLocoBackward(uint8_t tableIndex) {
 	} else {
 		PORTC |= (1 << PATH2_REVERS_PIN);
 	}
+
+	/* Allow relay contacts to fully close before applying rail power. */
+	_delay_ms(80);
+
 	PowerSupplyOnPath(path);
 	startPWMUpForPath(path);
 
@@ -229,25 +241,4 @@ void SlowMode(void){
 void PowerSupplyOnPath(uint8_t path) {
 	if (path == 2) {
 		if (pathMode[1] != PATH_MODE_MOVING) {
-			PORTB |= (1 << PWM_PATH1_SWITCH_PIN);
-		}
-		PORTB |= (1 << RAIL_POWER_ENABLE);
-		PORTB |= (1 << PWM_PATH2_SWITCH_PIN);
-		return;
-	}
-
-	PORTB |= (1 << RAIL_POWER_ENABLE);
-	PORTB |= (1 << PWM_PATH1_SWITCH_PIN);
-}
-
-void PowerSupplyOn() {
-	PowerSupplyOnPath(1);
-}
-
-void PowerSupplyOff() {
-	PORTB &= ~ (1 << RAIL_POWER_ENABLE);
-}
-
-void ReversOn(){
-	PORTB |= (1 << REVERS_PIN);
-}
+			PORTB |= (1 << PWM_PATH1_SWITCH_

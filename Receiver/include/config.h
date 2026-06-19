@@ -109,6 +109,7 @@
 #define CMD_MENU_DATA 0x38
 #define CMD_MENU_ENTER 0x39
 #define CMD_MENU_EXIT 0x3A
+#define CMD_MENU_SET  0x3B
 #define DIAG_RESULT_OK 0
 #define DIAG_RESULT_RAIL 10
 
