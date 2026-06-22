@@ -38,7 +38,7 @@ static void send_menu_data(uint8_t menuItem) {
 			break;
 
 		case MENU_ITEM_OVERLOAD_THRESHOLD:
-			value = (uint8_t)(OVERLOAD_THRESHOLD / 10);
+			value = eeprom_overload_threshold_read();
 			break;
 
 		case MENU_ITEM_PWM_SLOW_PATH1:
@@ -187,7 +187,7 @@ void process_packet(UART_Packet packet) {
 	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_CLEAR_EMERGENCY && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && packet.cmd != CMD_MENU_SET) return;
 
 	if (packet.cmd == lastCmd && packet.table_id == SelectedTable && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && routeSetupInProgress)
-	return;  // Игнорируем повтор той же команды, кроме STOP
+	return;  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ STOP
 
 	lastCmd = packet.cmd;
 
@@ -289,7 +289,20 @@ void process_packet(UART_Packet packet) {
 		}
 
 		case CMD_MENU_SET:
-			eeprom_slow_pwm_write(packet.table_id, packet.param);
+			switch (packet.table_id) {
+				case MENU_ITEM_OVERLOAD_THRESHOLD:
+					eeprom_overload_threshold_write(packet.param);
+					overload_update_threshold(packet.param);
+					break;
+				case MENU_ITEM_PWM_SLOW_PATH1:
+					eeprom_slow_pwm_write(1, packet.param);
+					break;
+				case MENU_ITEM_PWM_SLOW_PATH2:
+					eeprom_slow_pwm_write(2, packet.param);
+					break;
+				default:
+					break;
+			}
 			send_ack(packet.cmd, packet.param);
 			break;
 
@@ -328,6 +341,7 @@ void run_output_shift_register_test(void) {
 int main(void) {
 
 	system_init();
+	overload_update_threshold(eeprom_overload_threshold_read());
 	//run_output_shift_register_test();
 
 	while (1) {

@@ -299,7 +299,11 @@ void format_menu_value_line(char *buffer, uint8_t bufferSize, uint8_t item) {
 			break;
 
 		case MENU_ITEM_OVERLOAD_THRESHOLD:
-			snprintf(buffer, bufferSize, "ADC %u", (uint16_t)menuData[item] * 10);
+			if (menuEditMode) {
+				snprintf(buffer, bufferSize, "ADC %u *", (uint16_t)menuEditValue * 10u);
+			} else {
+				snprintf(buffer, bufferSize, "ADC %u", (uint16_t)menuData[item] * 10u);
+			}
 			break;
 
 		default:
@@ -406,7 +410,9 @@ uint8_t handle_menu_buttons(uint8_t stopPressed, uint8_t path2StopPressed) {
 void handle_menu_navigation(uint8_t forwardPressed, uint8_t backwardPressed) {
 	if (!menuModeActive) return;
 
-	// In edit mode: FWD/BWD adjust the value by ±10
+	// In edit mode: FWD/BWD adjust the value
+	// Overload threshold: step 1 (each unit = 10 ADC counts, max stored = 102 = 1020 ADC)
+	// PWM items: step 10
 	if (menuEditMode) {
 		if (!forwardPressed && !backwardPressed) {
 			menuNavArmed = 1;
@@ -414,12 +420,21 @@ void handle_menu_navigation(uint8_t forwardPressed, uint8_t backwardPressed) {
 		}
 		if (!menuNavArmed) return;
 		menuNavArmed = 0;
-		if (forwardPressed) {
-			if ((uint16_t)menuEditValue + 10u <= 255u) menuEditValue += 10u;
-			else menuEditValue = 255u;
-		} else if (backwardPressed) {
-			if (menuEditValue >= 10u) menuEditValue -= 10u;
-			else menuEditValue = 0u;
+		if (menuItem == MENU_ITEM_OVERLOAD_THRESHOLD) {
+			uint8_t maxVal = 102u; // 102 * 10 = 1020, within 10-bit ADC range
+			if (forwardPressed) {
+				if (menuEditValue < maxVal) menuEditValue++;
+			} else if (backwardPressed) {
+				if (menuEditValue > 0) menuEditValue--;
+			}
+		} else {
+			if (forwardPressed) {
+				if ((uint16_t)menuEditValue + 10u <= 255u) menuEditValue += 10u;
+				else menuEditValue = 255u;
+			} else if (backwardPressed) {
+				if (menuEditValue >= 10u) menuEditValue -= 10u;
+				else menuEditValue = 0u;
+			}
 		}
 		display_menu_screen();
 		return;
@@ -464,24 +479,29 @@ void handle_menu_stop(uint8_t stopPressed) {
 	if (!menuStopArmed) return;
 	menuStopArmed = 0;
 
-	// Only PWM items are editable
-	if (menuItem != MENU_ITEM_PWM_SLOW_PATH1 && menuItem != MENU_ITEM_PWM_SLOW_PATH2) return;
+	// Editable items: overload threshold and both slow-PWM values
+	if (menuItem != MENU_ITEM_OVERLOAD_THRESHOLD &&
+	    menuItem != MENU_ITEM_PWM_SLOW_PATH1 &&
+	    menuItem != MENU_ITEM_PWM_SLOW_PATH2) return;
 
 	if (!menuEditMode) {
-		// Enter edit mode.
-		// If data not yet received from Receiver, start from default value.
+		// Enter edit mode. Use received value if valid, else compile-time default.
 		menuEditMode = 1;
-		menuEditValue = menuDataValid[menuItem] ? menuData[menuItem] : PWM_SLOW_DUTY;
+		if (menuItem == MENU_ITEM_OVERLOAD_THRESHOLD) {
+			menuEditValue = menuDataValid[menuItem] ? menuData[menuItem] : OVERLOAD_THRESHOLD_DEFAULT_STORED;
+		} else {
+			menuEditValue = menuDataValid[menuItem] ? menuData[menuItem] : PWM_SLOW_DUTY;
+		}
 		menuNavArmed = 0;
 		display_menu_screen();
 	} else {
-		// Save: send CMD_MENU_SET directly so the actual PWM value is sent (not seq number)
-		uint8_t path = (menuItem == MENU_ITEM_PWM_SLOW_PATH1) ? 1u : 2u;
+		// Save: send CMD_MENU_SET with menuItem as table_id so Receiver
+		// can distinguish overload threshold from PWM paths.
 		uint8_t ack = 0;
 		{
 			uint8_t response[PACKET_SIZE];
 			for (uint8_t retry = 0; retry < MAX_RETRIES && !ack; retry++) {
-				send_command(CMD_MENU_SET, path, menuEditValue);
+				send_command(CMD_MENU_SET, menuItem, menuEditValue);
 				if (UART_receive_packet(response)) {
 					if (response[1] == ACK_CMD && response[2] == CMD_MENU_SET) {
 						ack = 1;
@@ -767,3 +787,5 @@ int main(void) {
 
 	return 0;
 }
+
+

@@ -81,6 +81,8 @@
 #define MENU_ITEM_PWM_SLOW_PATH2 4
 #define MENU_ITEM_LAST MENU_ITEM_PWM_SLOW_PATH2
 #define PWM_SLOW_DUTY 120
+// Overload threshold default as stored in EEPROM (real_threshold / 10)
+#define OVERLOAD_THRESHOLD_DEFAULT_STORED 90
 
 // Sensors bytes
 #define TABLE_1 (1 << 0)
@@ -89,4 +91,7 @@
 #define TABLE_4 (1 << 3)
 #define TABLE_5 (1 << 4)
 #define TABLE_6 (1 << 5)
-#define TABLE_7 (1 << 6
+#define TABLE_7 (1 << 6)
+#define TABLE_8 (1 << 7)
+
+#endif /* CONFIG_H_ */
