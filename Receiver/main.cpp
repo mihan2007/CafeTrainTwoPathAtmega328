@@ -184,7 +184,7 @@ void process_packet(UART_Packet packet) {
 
 	if (!packet.valid)	return;
 
-	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_CLEAR_EMERGENCY && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && packet.cmd != CMD_MENU_SET) return;
+	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_IDEL_STOP && packet.cmd != CMD_CLEAR_EMERGENCY && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && packet.cmd != CMD_MENU_SET) return;
 
 	if (packet.cmd == lastCmd && packet.table_id == SelectedTable && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && routeSetupInProgress)
 	return;  // ���������� ������ ��� �� �������, ����� STOP
@@ -229,6 +229,29 @@ void process_packet(UART_Packet packet) {
 			}
 
 			clear_overload_emergency(0);
+			resetLocoTimer();
+			break;
+
+		case CMD_SLOW_MODE: {
+			/* Transmitter requests slow mode for the path of the given table.
+			 * SlowModePath() switches from direct DC to PWM at the stored
+			 * slow-duty value without stopping the train. */
+			uint8_t slowPath = getTablePath(packet.table_id);
+			send_ack(packet.cmd, packet.param);
+			SlowModePath(slowPath);
+			break;
+		}
+
+		case CMD_IDEL_STOP:
+			/* Receiver → Transmitter: movement stopped due to idle timeout.
+			 * Treated the same as CMD_STOP on the Receiver side so the
+			 * Transmitter can also send it as a graceful stop command. */
+			send_ack(packet.cmd, packet.param);
+			arrivedBlockedTable[1] = 0;
+			arrivedBlockedTable[2] = 0;
+			pathDirection[1] = PATH_DIRECTION_STOP;
+			pathDirection[2] = PATH_DIRECTION_STOP;
+			LocoStop();
 			resetLocoTimer();
 			break;
 
@@ -350,11 +373,6 @@ int main(void) {
 		check_and_send_overload_stop();
 		overload_led_sync();
 		checkLocoMovementTimeout();
-
-		if (sensorStates != previousSensorStates) {
-			previousSensorStates = sensorStates;
-			print_triggered_sensor(sensorStates);
-		}
 
 		UART_Packet packet = UART_receive_full_packet();
 		process_packet(packet);
