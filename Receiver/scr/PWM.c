@@ -1,6 +1,7 @@
 #include "../include/PWM.h"
 #include "../include/config.h"
 #include "../include/timer0.h"
+#include "../include/eeprom_settings.h"
 #include <util/delay.h>
 
 static uint8_t pwmIncreasingPath1 = 0;
@@ -9,6 +10,8 @@ static uint16_t currentDutyPath1 = PWM_INITIAL_DUTY;
 static uint16_t currentDutyPath2 = PWM_INITIAL_DUTY;
 static uint32_t pwmLastTickPath1 = 0;
 static uint32_t pwmLastTickPath2 = 0;
+static uint8_t pwmDelayPath1 = PWM_DELAY;
+static uint8_t pwmDelayPath2 = PWM_DELAY;
 
 void initPWM(void) {
 	DDRB |= (1 << PWM_PATH1_PIN) | (1 << PWM_PATH2_PIN);
@@ -65,12 +68,14 @@ void startPWMUpForPath(uint8_t path) {
 		currentDutyPath2 = 0;
 		OCR1B = 0;
 		enablePWMPath(2);
+		pwmDelayPath2 = eeprom_accel_delay_read(2);
 		pwmLastTickPath2 = rail_switch_step_counter;
 		pwmIncreasingPath2 = 1;
 	} else {
 		currentDutyPath1 = 0;
 		OCR1A = 0;
 		enablePWMPath(1);
+		pwmDelayPath1 = eeprom_accel_delay_read(1);
 		pwmLastTickPath1 = rail_switch_step_counter;
 		pwmIncreasingPath1 = 1;
 	}
@@ -83,7 +88,7 @@ void startPWMUp(void) {
 static void processPWMUpPath1(void) {
 	if (!pwmIncreasingPath1) return;
 
-	if ((rail_switch_step_counter - pwmLastTickPath1) >= PWM_DELAY) {
+	if ((rail_switch_step_counter - pwmLastTickPath1) >= pwmDelayPath1) {
 		pwmLastTickPath1 = rail_switch_step_counter;
 
 		if (currentDutyPath1 <= PWM_MAX) {
@@ -99,7 +104,7 @@ static void processPWMUpPath1(void) {
 static void processPWMUpPath2(void) {
 	if (!pwmIncreasingPath2) return;
 
-	if ((rail_switch_step_counter - pwmLastTickPath2) >= PWM_DELAY) {
+	if ((rail_switch_step_counter - pwmLastTickPath2) >= pwmDelayPath2) {
 		pwmLastTickPath2 = rail_switch_step_counter;
 
 		if (currentDutyPath2 <= PWM_MAX) {

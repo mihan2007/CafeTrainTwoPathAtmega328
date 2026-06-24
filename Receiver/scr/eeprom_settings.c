@@ -6,6 +6,8 @@
 #define EEPROM_SLOW_PWM_PATH1_ADDR 0
 #define EEPROM_SLOW_PWM_PATH2_ADDR 1
 #define EEPROM_OVERLOAD_THR_ADDR   2
+#define EEPROM_ACCEL_PATH1_ADDR    3
+#define EEPROM_ACCEL_PATH2_ADDR    4
 
 static uint8_t eeprom_default_if_empty(uint8_t value, uint8_t defaultValue) {
 	return (value == 0xFF) ? defaultValue : value;
@@ -27,6 +29,19 @@ uint8_t eeprom_slow_pwm_read(uint8_t path) {
 void eeprom_slow_pwm_write(uint8_t path, uint8_t value) {
 	uint8_t address = (path == 2) ? EEPROM_SLOW_PWM_PATH2_ADDR : EEPROM_SLOW_PWM_PATH1_ADDR;
 	value = clamp_u8(value, MENU_PWM_SLOW_MIN, MENU_PWM_SLOW_MAX);
+	eeprom_update_byte((uint8_t *)(uintptr_t)address, value);
+}
+
+uint8_t eeprom_accel_delay_read(uint8_t path) {
+	uint8_t address = (path == 2) ? EEPROM_ACCEL_PATH2_ADDR : EEPROM_ACCEL_PATH1_ADDR;
+	uint8_t value = eeprom_read_byte((const uint8_t *)(uintptr_t)address);
+	value = eeprom_default_if_empty(value, PWM_DELAY);
+	return clamp_u8(value, MENU_ACCEL_DELAY_MIN, MENU_ACCEL_DELAY_MAX);
+}
+
+void eeprom_accel_delay_write(uint8_t path, uint8_t value) {
+	uint8_t address = (path == 2) ? EEPROM_ACCEL_PATH2_ADDR : EEPROM_ACCEL_PATH1_ADDR;
+	value = clamp_u8(value, MENU_ACCEL_DELAY_MIN, MENU_ACCEL_DELAY_MAX);
 	eeprom_update_byte((uint8_t *)(uintptr_t)address, value);
 }
 

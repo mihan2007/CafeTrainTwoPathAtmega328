@@ -269,23 +269,35 @@ void request_menu_data(uint8_t item) {
 }
 
 uint8_t menu_item_is_editable(uint8_t item) {
-	return item == MENU_ITEM_OVERLOAD_THRESHOLD || item == MENU_ITEM_PWM_SLOW_PATH1 || item == MENU_ITEM_PWM_SLOW_PATH2;
+	return item == MENU_ITEM_OVERLOAD_THRESHOLD
+		|| item == MENU_ITEM_PWM_SLOW_PATH1
+		|| item == MENU_ITEM_PWM_SLOW_PATH2
+		|| item == MENU_ITEM_ACCEL_PATH1
+		|| item == MENU_ITEM_ACCEL_PATH2;
 }
 
 uint8_t menu_default_value(uint8_t item) {
-	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? 90 : PWM_SLOW_DUTY;
+	if (item == MENU_ITEM_OVERLOAD_THRESHOLD) return 90;
+	if (item == MENU_ITEM_ACCEL_PATH1 || item == MENU_ITEM_ACCEL_PATH2) return PWM_DELAY;
+	return PWM_SLOW_DUTY;
 }
 
 uint8_t menu_edit_step(uint8_t item) {
-	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? (MENU_OVERLOAD_ADC_STEP / 10) : MENU_PWM_SLOW_STEP;
+	if (item == MENU_ITEM_OVERLOAD_THRESHOLD) return (MENU_OVERLOAD_ADC_STEP / 10);
+	if (item == MENU_ITEM_ACCEL_PATH1 || item == MENU_ITEM_ACCEL_PATH2) return MENU_ACCEL_DELAY_STEP;
+	return MENU_PWM_SLOW_STEP;
 }
 
 uint8_t menu_edit_min(uint8_t item) {
-	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? (MENU_OVERLOAD_ADC_MIN / 10) : MENU_PWM_SLOW_MIN;
+	if (item == MENU_ITEM_OVERLOAD_THRESHOLD) return (MENU_OVERLOAD_ADC_MIN / 10);
+	if (item == MENU_ITEM_ACCEL_PATH1 || item == MENU_ITEM_ACCEL_PATH2) return MENU_ACCEL_DELAY_MIN;
+	return MENU_PWM_SLOW_MIN;
 }
 
 uint8_t menu_edit_max(uint8_t item) {
-	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? (MENU_OVERLOAD_ADC_MAX / 10) : MENU_PWM_SLOW_MAX;
+	if (item == MENU_ITEM_OVERLOAD_THRESHOLD) return (MENU_OVERLOAD_ADC_MAX / 10);
+	if (item == MENU_ITEM_ACCEL_PATH1 || item == MENU_ITEM_ACCEL_PATH2) return MENU_ACCEL_DELAY_MAX;
+	return MENU_PWM_SLOW_MAX;
 }
 
 uint8_t menu_clamp_value(uint8_t item, uint8_t value) {
@@ -348,6 +360,11 @@ void format_menu_value_line(char *buffer, uint8_t bufferSize, uint8_t item) {
 			snprintf(buffer, bufferSize, menuEditMode ? "ADC %u *" : "ADC %u", (uint16_t)value * 10);
 			break;
 
+		case MENU_ITEM_ACCEL_PATH1:
+		case MENU_ITEM_ACCEL_PATH2:
+			snprintf(buffer, bufferSize, menuEditMode ? "DLY %u *" : "DLY %u", value);
+			break;
+
 		default:
 			snprintf(buffer, bufferSize, menuEditMode ? "PWM %u *" : "PWM %u", value);
 			break;
@@ -373,6 +390,14 @@ void display_menu_screen(void) {
 
 		case MENU_ITEM_PWM_SLOW_PATH2:
 			snprintf(line1, sizeof(line1), "P2 SLOW PWM");
+			break;
+
+		case MENU_ITEM_ACCEL_PATH1:
+			snprintf(line1, sizeof(line1), "P1 ACCEL");
+			break;
+
+		case MENU_ITEM_ACCEL_PATH2:
+			snprintf(line1, sizeof(line1), "P2 ACCEL");
 			break;
 
 		default:

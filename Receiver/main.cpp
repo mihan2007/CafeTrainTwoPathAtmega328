@@ -49,6 +49,14 @@ static void send_menu_data(uint8_t menuItem) {
 			value = eeprom_slow_pwm_read(2);
 			break;
 
+		case MENU_ITEM_ACCEL_PATH1:
+			value = eeprom_accel_delay_read(1);
+			break;
+
+		case MENU_ITEM_ACCEL_PATH2:
+			value = eeprom_accel_delay_read(2);
+			break;
+
 		default:
 			return;
 	}
@@ -258,6 +266,14 @@ void process_packet(UART_Packet packet) {
 
 				case MENU_ITEM_PWM_SLOW_PATH2:
 					eeprom_slow_pwm_write(2, packet.param);
+					break;
+
+				case MENU_ITEM_ACCEL_PATH1:
+					eeprom_accel_delay_write(1, packet.param);
+					break;
+
+				case MENU_ITEM_ACCEL_PATH2:
+					eeprom_accel_delay_write(2, packet.param);
 					break;
 
 				default:
