@@ -277,15 +277,24 @@ uint8_t menu_default_value(uint8_t item) {
 }
 
 uint8_t menu_edit_step(uint8_t item) {
-	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? 1 : 5;
+	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? (MENU_OVERLOAD_ADC_STEP / 10) : MENU_PWM_SLOW_STEP;
 }
 
 uint8_t menu_edit_min(uint8_t item) {
-	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? 1 : 0;
+	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? (MENU_OVERLOAD_ADC_MIN / 10) : MENU_PWM_SLOW_MIN;
 }
 
 uint8_t menu_edit_max(uint8_t item) {
-	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? 102 : 255;
+	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? (MENU_OVERLOAD_ADC_MAX / 10) : MENU_PWM_SLOW_MAX;
+}
+
+uint8_t menu_clamp_value(uint8_t item, uint8_t value) {
+	uint8_t minValue = menu_edit_min(item);
+	uint8_t maxValue = menu_edit_max(item);
+
+	if (value < minValue) return minValue;
+	if (value > maxValue) return maxValue;
+	return value;
 }
 
 uint8_t send_menu_set_with_ack(uint8_t item, uint8_t value) {
@@ -306,7 +315,7 @@ uint8_t send_menu_set_with_ack(uint8_t item, uint8_t value) {
 
 void update_menu_data(uint8_t item, uint8_t value) {
 	if (item < MENU_ITEM_SENSORS || item > MENU_ITEM_LAST) return;
-	menuData[item] = value;
+	menuData[item] = menu_item_is_editable(item) ? menu_clamp_value(item, value) : value;
 	menuDataValid[item] = 1;
 }
 
@@ -497,11 +506,13 @@ void handle_menu_stop(uint8_t stopPressed) {
 	if (!menuEditMode) {
 		menuEditMode = 1;
 		menuEditValue = menuDataValid[menuItem] ? menuData[menuItem] : menu_default_value(menuItem);
+		menuEditValue = menu_clamp_value(menuItem, menuEditValue);
 		menuNavArmed = 0;
 		display_menu_screen();
 		return;
 	}
 
+	menuEditValue = menu_clamp_value(menuItem, menuEditValue);
 	if (send_menu_set_with_ack(menuItem, menuEditValue)) {
 		menuData[menuItem] = menuEditValue;
 		menuDataValid[menuItem] = 1;

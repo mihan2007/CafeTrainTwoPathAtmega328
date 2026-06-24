@@ -249,7 +249,7 @@ void process_packet(UART_Packet packet) {
 			switch (packet.table_id) {
 				case MENU_ITEM_OVERLOAD_THRESHOLD:
 					eeprom_overload_threshold_write(packet.param);
-					overload_update_threshold(packet.param);
+					overload_update_threshold(eeprom_overload_threshold_read());
 					break;
 
 				case MENU_ITEM_PWM_SLOW_PATH1:
