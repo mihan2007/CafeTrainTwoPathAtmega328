@@ -28,6 +28,122 @@ static uint8_t isSamePath(uint8_t firstTable, uint8_t secondTable) {
 static uint8_t pendingRouteTable[3] = {0, 0, 0};
 static uint8_t arrivedBlockedTable[3] = {0, 0, 0};
 
+typedef enum {
+	PACKET_TABLE_NONE,
+	PACKET_TABLE_1_TO_9,
+	PACKET_TABLE_PATH1_OR_ZERO,
+	PACKET_TABLE_PATH2_OR_ZERO,
+	PACKET_TABLE_MENU_ANY,
+	PACKET_TABLE_MENU_SET
+} PacketTableRule;
+
+typedef enum {
+	PACKET_PARAM_ANY,
+	PACKET_PARAM_ZERO,
+	PACKET_PARAM_MENU_VALUE
+} PacketParamRule;
+
+typedef struct {
+	uint8_t cmd;
+	PacketTableRule tableRule;
+	PacketParamRule paramRule;
+} PacketValidationRule;
+
+static const PacketValidationRule packetRules[] = {
+	{CMD_FORWARD,         PACKET_TABLE_1_TO_9,       PACKET_PARAM_ANY},
+	{CMD_BACKWARD,        PACKET_TABLE_1_TO_9,       PACKET_PARAM_ANY},
+	{CMD_STOP,            PACKET_TABLE_NONE,         PACKET_PARAM_ANY},
+	{CMD_STOP_PATH1,      PACKET_TABLE_PATH1_OR_ZERO, PACKET_PARAM_ANY},
+	{CMD_STOP_PATH2,      PACKET_TABLE_PATH2_OR_ZERO, PACKET_PARAM_ANY},
+	{CMD_CLEAR_EMERGENCY, PACKET_TABLE_NONE,         PACKET_PARAM_ANY},
+	{CMD_MENU_ENTER,      PACKET_TABLE_NONE,         PACKET_PARAM_ZERO},
+	{CMD_MENU_EXIT,       PACKET_TABLE_NONE,         PACKET_PARAM_ZERO},
+	{CMD_MENU_REQUEST,    PACKET_TABLE_MENU_ANY,     PACKET_PARAM_ZERO},
+	{CMD_MENU_SET,        PACKET_TABLE_MENU_SET,     PACKET_PARAM_MENU_VALUE}
+};
+
+static uint8_t is_menu_item(uint8_t item) {
+	return item >= MENU_ITEM_SENSORS && item <= MENU_ITEM_LAST;
+}
+
+static uint8_t is_menu_set_item(uint8_t item) {
+	return item == MENU_ITEM_OVERLOAD_THRESHOLD
+		|| item == MENU_ITEM_PWM_SLOW_PATH1
+		|| item == MENU_ITEM_PWM_SLOW_PATH2
+		|| item == MENU_ITEM_ACCEL_PATH1
+		|| item == MENU_ITEM_ACCEL_PATH2;
+}
+
+static uint8_t is_menu_value_valid(uint8_t item, uint8_t value) {
+	switch (item) {
+		case MENU_ITEM_OVERLOAD_THRESHOLD:
+			return value >= (MENU_OVERLOAD_ADC_MIN / 10) && value <= (MENU_OVERLOAD_ADC_MAX / 10);
+
+		case MENU_ITEM_PWM_SLOW_PATH1:
+		case MENU_ITEM_PWM_SLOW_PATH2:
+			return value >= MENU_PWM_SLOW_MIN && value <= MENU_PWM_SLOW_MAX;
+
+		case MENU_ITEM_ACCEL_PATH1:
+		case MENU_ITEM_ACCEL_PATH2:
+			return value >= MENU_ACCEL_DELAY_MIN && value <= MENU_ACCEL_DELAY_MAX;
+
+		default:
+			return 0;
+	}
+}
+
+static uint8_t is_table_valid_for_rule(PacketTableRule rule, uint8_t tableId) {
+	switch (rule) {
+		case PACKET_TABLE_NONE:
+			return tableId == 0;
+
+		case PACKET_TABLE_1_TO_9:
+			return tableId >= 1 && tableId <= 9;
+
+		case PACKET_TABLE_PATH1_OR_ZERO:
+			return tableId == 0 || (tableId >= 1 && tableId <= 4);
+
+		case PACKET_TABLE_PATH2_OR_ZERO:
+			return tableId == 0 || (tableId >= 5 && tableId <= 9);
+
+		case PACKET_TABLE_MENU_ANY:
+			return is_menu_item(tableId);
+
+		case PACKET_TABLE_MENU_SET:
+			return is_menu_set_item(tableId);
+
+		default:
+			return 0;
+	}
+}
+
+static uint8_t is_param_valid_for_rule(PacketParamRule rule, uint8_t tableId, uint8_t param) {
+	switch (rule) {
+		case PACKET_PARAM_ANY:
+			return 1;
+
+		case PACKET_PARAM_ZERO:
+			return param == 0;
+
+		case PACKET_PARAM_MENU_VALUE:
+			return is_menu_value_valid(tableId, param);
+
+		default:
+			return 0;
+	}
+}
+
+static uint8_t is_valid_packet_by_rules(UART_Packet packet) {
+	for (uint8_t i = 0; i < (sizeof(packetRules) / sizeof(packetRules[0])); i++) {
+		if (packetRules[i].cmd != packet.cmd) continue;
+
+		return is_table_valid_for_rule(packetRules[i].tableRule, packet.table_id)
+			&& is_param_valid_for_rule(packetRules[i].paramRule, packet.table_id, packet.param);
+	}
+
+	return 0;
+}
+
 static void send_menu_data(uint8_t menuItem) {
 	uint8_t value = 0;
 
@@ -191,6 +307,8 @@ void checkSensorsState(void) {
 void process_packet(UART_Packet packet) {
 
 	if (!packet.valid)	return;
+
+	if (!is_valid_packet_by_rules(packet)) return;
 
 	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_CLEAR_EMERGENCY && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && packet.cmd != CMD_MENU_SET) return;
 
