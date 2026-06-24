@@ -144,6 +144,54 @@ static uint8_t is_valid_packet_by_rules(UART_Packet packet) {
 	return 0;
 }
 
+typedef enum {
+	PACKET_RATE_ACCEPT,
+	PACKET_RATE_ACK_ONLY,
+	PACKET_RATE_DROP
+} PacketRateDecision;
+
+static uint8_t is_rate_limited_command(uint8_t cmd) {
+	return cmd == CMD_FORWARD
+		|| cmd == CMD_BACKWARD
+		|| cmd == CMD_MENU_SET;
+}
+
+static uint8_t is_same_rate_limited_packet(UART_Packet first, UART_Packet second) {
+	if (first.cmd != second.cmd || first.table_id != second.table_id) return 0;
+
+	if (first.cmd == CMD_MENU_SET) {
+		return first.param == second.param;
+	}
+
+	return 1;
+}
+
+static PacketRateDecision check_packet_rate(UART_Packet packet) {
+	static uint8_t hasLastAcceptedPacket = 0;
+	static UART_Packet lastAcceptedPacket = {0, 0, 0, 0};
+	static uint16_t lastAcceptedTick = 0;
+
+	if (!is_rate_limited_command(packet.cmd)) {
+		return PACKET_RATE_ACCEPT;
+	}
+
+	uint16_t now = rail_switch_step_counter;
+	uint16_t elapsed = (uint16_t)(now - lastAcceptedTick);
+
+	if (hasLastAcceptedPacket && elapsed < PACKET_CONTROL_MIN_INTERVAL_TICKS) {
+		if (is_same_rate_limited_packet(packet, lastAcceptedPacket)) {
+			return PACKET_RATE_ACK_ONLY;
+		}
+
+		return PACKET_RATE_DROP;
+	}
+
+	lastAcceptedPacket = packet;
+	lastAcceptedTick = now;
+	hasLastAcceptedPacket = 1;
+	return PACKET_RATE_ACCEPT;
+}
+
 static void send_menu_data(uint8_t menuItem) {
 	uint8_t value = 0;
 
@@ -309,6 +357,13 @@ void process_packet(UART_Packet packet) {
 	if (!packet.valid)	return;
 
 	if (!is_valid_packet_by_rules(packet)) return;
+
+	PacketRateDecision rateDecision = check_packet_rate(packet);
+	if (rateDecision == PACKET_RATE_ACK_ONLY) {
+		send_ack(packet.cmd, packet.param);
+		return;
+	}
+	if (rateDecision == PACKET_RATE_DROP) return;
 
 	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_CLEAR_EMERGENCY && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && packet.cmd != CMD_MENU_SET) return;
 
