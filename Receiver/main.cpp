@@ -341,8 +341,8 @@ int main(void) {
 	while (1) {
 
 		checkSensorsState();
-		//check_and_send_overload_stop();
-		//overload_led_sync();
+		check_and_send_overload_stop();
+		overload_led_sync();
 		checkLocoMovementTimeout();
 
 		if (sensorStates != previousSensorStates) {
