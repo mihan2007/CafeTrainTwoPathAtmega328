@@ -71,18 +71,17 @@
 #define CMD_MENU_DATA 0x38
 #define CMD_MENU_ENTER 0x39
 #define CMD_MENU_EXIT 0x3A
-#define CMD_MENU_SET  0x3B
+#define CMD_MENU_SET 0x3B
 #define DIAG_RESULT_OK 0
 #define DIAG_RESULT_RAIL 10
+
+#define PWM_SLOW_DUTY 120
 
 #define MENU_ITEM_SENSORS 1
 #define MENU_ITEM_OVERLOAD_THRESHOLD 2
 #define MENU_ITEM_PWM_SLOW_PATH1 3
 #define MENU_ITEM_PWM_SLOW_PATH2 4
 #define MENU_ITEM_LAST MENU_ITEM_PWM_SLOW_PATH2
-#define PWM_SLOW_DUTY 120
-// Overload threshold default as stored in EEPROM (real_threshold / 10)
-#define OVERLOAD_THRESHOLD_DEFAULT_STORED 90
 
 // Sensors bytes
 #define TABLE_1 (1 << 0)

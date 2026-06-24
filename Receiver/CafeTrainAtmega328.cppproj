@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
@@ -174,6 +174,9 @@
     <Compile Include="include\config.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="include\eeprom_settings.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="include\lcd.h">
       <SubType>compile</SubType>
     </Compile>
@@ -205,6 +208,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="scr\adcRead.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="scr\eeprom_settings.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="scr\InitFile.c">

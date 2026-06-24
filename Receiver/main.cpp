@@ -184,10 +184,10 @@ void process_packet(UART_Packet packet) {
 
 	if (!packet.valid)	return;
 
-	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_IDEL_STOP && packet.cmd != CMD_CLEAR_EMERGENCY && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && packet.cmd != CMD_MENU_SET) return;
+	if (emergencyStopActive && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_CLEAR_EMERGENCY && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && packet.cmd != CMD_MENU_SET) return;
 
-	if (packet.cmd == lastCmd && packet.table_id == SelectedTable && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && routeSetupInProgress)
-	return;  // ���������� ������ ��� �� �������, ����� STOP
+	if (packet.cmd == lastCmd && packet.table_id == SelectedTable && packet.cmd != CMD_STOP && packet.cmd != CMD_STOP_PATH1 && packet.cmd != CMD_STOP_PATH2 && packet.cmd != CMD_MENU_REQUEST && packet.cmd != CMD_MENU_ENTER && packet.cmd != CMD_MENU_EXIT && packet.cmd != CMD_MENU_SET && routeSetupInProgress)
+	return;  // ?????????? ?????? ??? ?? ???????, ????? STOP
 
 	lastCmd = packet.cmd;
 
@@ -232,29 +232,6 @@ void process_packet(UART_Packet packet) {
 			resetLocoTimer();
 			break;
 
-		case CMD_SLOW_MODE: {
-			/* Transmitter requests slow mode for the path of the given table.
-			 * SlowModePath() switches from direct DC to PWM at the stored
-			 * slow-duty value without stopping the train. */
-			uint8_t slowPath = getTablePath(packet.table_id);
-			send_ack(packet.cmd, packet.param);
-			SlowModePath(slowPath);
-			break;
-		}
-
-		case CMD_IDEL_STOP:
-			/* Receiver → Transmitter: movement stopped due to idle timeout.
-			 * Treated the same as CMD_STOP on the Receiver side so the
-			 * Transmitter can also send it as a graceful stop command. */
-			send_ack(packet.cmd, packet.param);
-			arrivedBlockedTable[1] = 0;
-			arrivedBlockedTable[2] = 0;
-			pathDirection[1] = PATH_DIRECTION_STOP;
-			pathDirection[2] = PATH_DIRECTION_STOP;
-			LocoStop();
-			resetLocoTimer();
-			break;
-
 		case CMD_CLEAR_EMERGENCY:
 			send_ack(packet.cmd, packet.param);
 			clear_overload_emergency(0);
@@ -266,6 +243,27 @@ void process_packet(UART_Packet packet) {
 
 		case CMD_MENU_REQUEST:
 			send_menu_data(packet.table_id);
+			break;
+
+		case CMD_MENU_SET:
+			switch (packet.table_id) {
+				case MENU_ITEM_OVERLOAD_THRESHOLD:
+					eeprom_overload_threshold_write(packet.param);
+					overload_update_threshold(packet.param);
+					break;
+
+				case MENU_ITEM_PWM_SLOW_PATH1:
+					eeprom_slow_pwm_write(1, packet.param);
+					break;
+
+				case MENU_ITEM_PWM_SLOW_PATH2:
+					eeprom_slow_pwm_write(2, packet.param);
+					break;
+
+				default:
+					break;
+			}
+			send_ack(packet.cmd, packet.param);
 			break;
 
 		case CMD_FORWARD: {
@@ -291,43 +289,16 @@ void process_packet(UART_Packet packet) {
 			isLocoMoving = 1;
 		break;
 		}
-		case CMD_BACKWARD: {
-			uint8_t bwdPath = getTablePath(packet.table_id);
+		case CMD_BACKWARD:
 			send_ack(packet.cmd, packet.param);
-			// If already moving backward on this path/table, just re-ACK, don't restart
-			if ((pathMode[bwdPath] == PATH_MODE_ACCELERATION || pathMode[bwdPath] == PATH_MODE_MOVING) &&
-				pathDirection[bwdPath] == PATH_DIRECTION_BACKWARD &&
-				pathSelectedTable[bwdPath] == packet.table_id) {
-				break;
-			}
 			_delay_ms(20);
-			arrivedBlockedTable[bwdPath] = 0;
+			arrivedBlockedTable[getTablePath(packet.table_id)] = 0;
 			SelectedTable = packet.table_id;
-			pathSelectedTable[bwdPath] = packet.table_id;
-			pathDirection[bwdPath] = PATH_DIRECTION_BACKWARD;
+			pathSelectedTable[getTablePath(packet.table_id)] = packet.table_id;
+			pathDirection[getTablePath(packet.table_id)] = PATH_DIRECTION_BACKWARD;
 			MoveLocoBackward(SelectedTable);
 			isLocoMoving = 1;
-			resetLocoTimer();
 		break;
-		}
-
-		case CMD_MENU_SET:
-			switch (packet.table_id) {
-				case MENU_ITEM_OVERLOAD_THRESHOLD:
-					eeprom_overload_threshold_write(packet.param);
-					overload_update_threshold(packet.param);
-					break;
-				case MENU_ITEM_PWM_SLOW_PATH1:
-					eeprom_slow_pwm_write(1, packet.param);
-					break;
-				case MENU_ITEM_PWM_SLOW_PATH2:
-					eeprom_slow_pwm_write(2, packet.param);
-					break;
-				default:
-					break;
-			}
-			send_ack(packet.cmd, packet.param);
-			break;
 
 		default:
 		break;
@@ -370,9 +341,14 @@ int main(void) {
 	while (1) {
 
 		checkSensorsState();
-		check_and_send_overload_stop();
-		overload_led_sync();
+		//check_and_send_overload_stop();
+		//overload_led_sync();
 		checkLocoMovementTimeout();
+
+		if (sensorStates != previousSensorStates) {
+			previousSensorStates = sensorStates;
+			print_triggered_sensor(sensorStates);
+		}
 
 		UART_Packet packet = UART_receive_full_packet();
 		process_packet(packet);

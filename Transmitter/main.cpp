@@ -1,7 +1,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdio.h>
-#include <string.h>
 #include "system_init.h"
 #include "lcd.h"
 #include "shift_registers.h"
@@ -38,9 +37,9 @@ uint8_t menuItem = MENU_ITEM_SENSORS;
 uint8_t menuData[MENU_ITEM_LAST + 1] = {0};
 uint8_t menuDataValid[MENU_ITEM_LAST + 1] = {0};
 uint8_t menuRequestCounter = 0;
-uint8_t menuEditMode = 0;   // 1 = editing a PWM value
-uint8_t menuEditValue = 0;  // value being edited
-uint8_t menuStopArmed = 1;  // debounce for PATH1-STOP in menu
+uint8_t menuEditMode = 0;
+uint8_t menuEditValue = 0;
+uint8_t menuStopArmed = 1;
 
 static inline bool is_button_pressed(uint8_t pinState, uint8_t buttonPin) {
 	return !(pinState & (1 << buttonPin));
@@ -74,7 +73,7 @@ void run_output_register_startup_test(void) {
 	}
 	write_shift_register_state();
 	LCD_Clear();
-	LCD_PrintTwoLines((char*)"OUTPUT TEST", (char*)"Press STOP", 0);
+	LCD_PrintTwoLines("OUTPUT TEST", "Press STOP", 0);
 
 	while (!is_button_pressed(PINC, BUTTON_STOP_PIN)) {
 		_delay_ms(20);
@@ -269,6 +268,42 @@ void request_menu_data(uint8_t item) {
 	send_command(CMD_MENU_REQUEST, item, 0x00);
 }
 
+uint8_t menu_item_is_editable(uint8_t item) {
+	return item == MENU_ITEM_OVERLOAD_THRESHOLD || item == MENU_ITEM_PWM_SLOW_PATH1 || item == MENU_ITEM_PWM_SLOW_PATH2;
+}
+
+uint8_t menu_default_value(uint8_t item) {
+	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? 90 : PWM_SLOW_DUTY;
+}
+
+uint8_t menu_edit_step(uint8_t item) {
+	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? 1 : 5;
+}
+
+uint8_t menu_edit_min(uint8_t item) {
+	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? 1 : 0;
+}
+
+uint8_t menu_edit_max(uint8_t item) {
+	return (item == MENU_ITEM_OVERLOAD_THRESHOLD) ? 102 : 255;
+}
+
+uint8_t send_menu_set_with_ack(uint8_t item, uint8_t value) {
+	uint8_t response[PACKET_SIZE];
+
+	for (uint8_t retry = 0; retry < MAX_RETRIES; retry++) {
+		send_command(CMD_MENU_SET, item, value);
+
+		if (UART_receive_packet(response)) {
+			if (response[1] == ACK_CMD && response[2] == CMD_MENU_SET && response[3] == value) {
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
 void update_menu_data(uint8_t item, uint8_t value) {
 	if (item < MENU_ITEM_SENSORS || item > MENU_ITEM_LAST) return;
 	menuData[item] = value;
@@ -280,7 +315,9 @@ char bit_char(uint8_t value, uint8_t bit) {
 }
 
 void format_menu_value_line(char *buffer, uint8_t bufferSize, uint8_t item) {
-	if (!menuDataValid[item]) {
+	uint8_t value = menuEditMode ? menuEditValue : menuData[item];
+
+	if (!menuEditMode && !menuDataValid[item]) {
 		snprintf(buffer, bufferSize, "WAIT DATA");
 		return;
 	}
@@ -299,19 +336,11 @@ void format_menu_value_line(char *buffer, uint8_t bufferSize, uint8_t item) {
 			break;
 
 		case MENU_ITEM_OVERLOAD_THRESHOLD:
-			if (menuEditMode) {
-				snprintf(buffer, bufferSize, "ADC %u *", (uint16_t)menuEditValue * 10u);
-			} else {
-				snprintf(buffer, bufferSize, "ADC %u", (uint16_t)menuData[item] * 10u);
-			}
+			snprintf(buffer, bufferSize, menuEditMode ? "ADC %u *" : "ADC %u", (uint16_t)value * 10);
 			break;
 
 		default:
-			if (menuEditMode) {
-				snprintf(buffer, bufferSize, "PWM %u *", menuEditValue);
-			} else {
-				snprintf(buffer, bufferSize, "PWM %u", menuData[item]);
-			}
+			snprintf(buffer, bufferSize, menuEditMode ? "PWM %u *" : "PWM %u", value);
 			break;
 	}
 }
@@ -354,11 +383,11 @@ void enter_menu_mode(void) {
 	menuHoldArmed = 0;
 	menuHoldCounter = 0;
 	menuNavArmed = 0;
-	menuItem = MENU_ITEM_SENSORS;
-	menuRequestCounter = 0;
+	menuStopArmed = 0;
 	menuEditMode = 0;
 	menuEditValue = 0;
-	menuStopArmed = 0;  // don't fire immediately on the stop that opened the menu
+	menuItem = MENU_ITEM_SENSORS;
+	menuRequestCounter = 0;
 	display_menu_screen();
 	request_menu_data(menuItem);
 }
@@ -366,10 +395,10 @@ void enter_menu_mode(void) {
 void exit_menu_mode(void) {
 	UART_discard_pending();
 	menuModeActive = 0;
-	menuEditMode = 0;
-	menuEditValue = 0;
 	menuHoldArmed = 0;
 	menuHoldCounter = 0;
+	menuEditMode = 0;
+	menuEditValue = 0;
 	currentCommand = CMD_STOP;
 	path2Command = CMD_STOP;
 	is_moving = 0;
@@ -410,42 +439,28 @@ uint8_t handle_menu_buttons(uint8_t stopPressed, uint8_t path2StopPressed) {
 void handle_menu_navigation(uint8_t forwardPressed, uint8_t backwardPressed) {
 	if (!menuModeActive) return;
 
-	// In edit mode: FWD/BWD adjust the value
-	// Overload threshold: step 1 (each unit = 10 ADC counts, max stored = 102 = 1020 ADC)
-	// PWM items: step 10
-	if (menuEditMode) {
-		if (!forwardPressed && !backwardPressed) {
-			menuNavArmed = 1;
-			return;
-		}
-		if (!menuNavArmed) return;
-		menuNavArmed = 0;
-		if (menuItem == MENU_ITEM_OVERLOAD_THRESHOLD) {
-			uint8_t maxVal = 102u; // 102 * 10 = 1020, within 10-bit ADC range
-			if (forwardPressed) {
-				if (menuEditValue < maxVal) menuEditValue++;
-			} else if (backwardPressed) {
-				if (menuEditValue > 0) menuEditValue--;
-			}
-		} else {
-			if (forwardPressed) {
-				if ((uint16_t)menuEditValue + 10u <= 255u) menuEditValue += 10u;
-				else menuEditValue = 255u;
-			} else if (backwardPressed) {
-				if (menuEditValue >= 10u) menuEditValue -= 10u;
-				else menuEditValue = 0u;
-			}
-		}
-		display_menu_screen();
-		return;
-	}
-
 	if (!forwardPressed && !backwardPressed) {
 		menuNavArmed = 1;
 		return;
 	}
 
 	if (!menuNavArmed) return;
+
+	if (menuEditMode) {
+		uint8_t step = menu_edit_step(menuItem);
+		uint8_t minValue = menu_edit_min(menuItem);
+		uint8_t maxValue = menu_edit_max(menuItem);
+
+		if (forwardPressed) {
+			menuEditValue = (menuEditValue > maxValue - step) ? maxValue : menuEditValue + step;
+		} else if (backwardPressed) {
+			menuEditValue = (menuEditValue < minValue + step) ? minValue : menuEditValue - step;
+		}
+
+		menuNavArmed = 0;
+		display_menu_screen();
+		return;
+	}
 
 	if (forwardPressed) {
 		menuItem++;
@@ -466,8 +481,6 @@ void handle_menu_navigation(uint8_t forwardPressed, uint8_t backwardPressed) {
 	request_menu_data(menuItem);
 }
 
-// Called with PATH1-STOP alone (not both stops) while in menu mode.
-// First press enters edit mode for PWM items; second press saves and exits edit.
 void handle_menu_stop(uint8_t stopPressed) {
 	if (!menuModeActive) return;
 
@@ -479,54 +492,30 @@ void handle_menu_stop(uint8_t stopPressed) {
 	if (!menuStopArmed) return;
 	menuStopArmed = 0;
 
-	// Editable items: overload threshold and both slow-PWM values
-	if (menuItem != MENU_ITEM_OVERLOAD_THRESHOLD &&
-	    menuItem != MENU_ITEM_PWM_SLOW_PATH1 &&
-	    menuItem != MENU_ITEM_PWM_SLOW_PATH2) return;
+	if (!menu_item_is_editable(menuItem)) return;
 
 	if (!menuEditMode) {
-		// Enter edit mode. Use received value if valid, else compile-time default.
 		menuEditMode = 1;
-		if (menuItem == MENU_ITEM_OVERLOAD_THRESHOLD) {
-			menuEditValue = menuDataValid[menuItem] ? menuData[menuItem] : OVERLOAD_THRESHOLD_DEFAULT_STORED;
-		} else {
-			menuEditValue = menuDataValid[menuItem] ? menuData[menuItem] : PWM_SLOW_DUTY;
-		}
+		menuEditValue = menuDataValid[menuItem] ? menuData[menuItem] : menu_default_value(menuItem);
 		menuNavArmed = 0;
 		display_menu_screen();
-	} else {
-		// Save: send CMD_MENU_SET with menuItem as table_id so Receiver
-		// can distinguish overload threshold from PWM paths.
-		uint8_t ack = 0;
-		{
-			uint8_t response[PACKET_SIZE];
-			for (uint8_t retry = 0; retry < MAX_RETRIES && !ack; retry++) {
-				send_command(CMD_MENU_SET, menuItem, menuEditValue);
-				if (UART_receive_packet(response)) {
-					if (response[1] == ACK_CMD && response[2] == CMD_MENU_SET) {
-						ack = 1;
-					}
-				}
-			}
-		}
-
-		if (ack) {
-			// Confirmed — update local cache and exit edit mode
-			menuData[menuItem] = menuEditValue;
-			menuDataValid[menuItem] = 1;
-			menuEditMode = 0;
-			LCD_Clear();
-			LCD_PrintTwoLines((char*)"SAVED!", (char*)"", 0);
-			_delay_ms(600);
-		} else {
-			// No ACK — stay in edit mode so user can press STOP again to retry
-			LCD_Clear();
-			LCD_PrintTwoLines((char*)"SAVE FAILED", (char*)"press STOP again", 0);
-			_delay_ms(800);
-			// menuStopArmed already 0 → next press is ignored until STOP released
-		}
-		display_menu_screen();
+		return;
 	}
+
+	if (send_menu_set_with_ack(menuItem, menuEditValue)) {
+		menuData[menuItem] = menuEditValue;
+		menuDataValid[menuItem] = 1;
+		menuEditMode = 0;
+		LCD_Clear();
+		LCD_PrintTwoLines((char*)"SAVED", (char*)"", 0);
+		_delay_ms(300);
+	} else {
+		LCD_Clear();
+		LCD_PrintTwoLines((char*)"SAVE FAILED", (char*)"", 0);
+		_delay_ms(500);
+	}
+
+	display_menu_screen();
 }
 
 void poll_menu_data_if_due(void) {
@@ -535,9 +524,7 @@ void poll_menu_data_if_due(void) {
 		return;
 	}
 
-	// Continuous polling only for SENSORS (real-time).
-	// Other items are static — one request on navigation is enough.
-	if (menuItem != MENU_ITEM_SENSORS) {
+	if (menuEditMode || menuItem != MENU_ITEM_SENSORS) {
 		menuRequestCounter = 0;
 		return;
 	}
@@ -611,8 +598,8 @@ void handle_control_buttons(void) {
 
 	if (handle_menu_buttons(stopPressed, path2StopPressed)) {
 		if (menuModeActive) {
+			handle_menu_stop(stopPressed && !path2StopPressed);
 			handle_menu_navigation(forwardPressed, backwardPressed);
-			handle_menu_stop(stopPressed);
 		}
 		return;
 	}
@@ -700,82 +687,91 @@ void display_diagnostic_results(void) {
 void handle_incoming_uart_packets(void) {
 	uint8_t packet_buffer[PACKET_SIZE];
 
-	if (!UART_get_packet(packet_buffer)) return;
+	if (UART_get_packet(packet_buffer)) {
+		uint8_t cmd = packet_buffer[1];
+		uint8_t table_id = packet_buffer[2];
+		uint8_t seq = packet_buffer[3];
 
-	uint8_t cmd      = packet_buffer[1];
-	uint8_t table_id = packet_buffer[2];
-	uint8_t data     = packet_buffer[3];
-
-	switch (cmd) {
-		case CMD_OVER_LOAD_STOP:
-			send_command(ACK_CMD, cmd, data);
-			display_overload_error();
-			clear_motion_state();
-			clear_path2_motion_state();
-			break;
-
-		case CMD_CLEAR_EMERGENCY:
-			send_command(ACK_CMD, cmd, data);
-			transmitterEmergencyActive = 0;
-			diagnosticResultByPath[1] = 0;
-			diagnosticResultByPath[2] = 0;
-			update_lcd_for_tables();
-			break;
-
-		case CMD_DIAG_RESULT:
-			send_command(ACK_CMD, cmd, data);
-			if (table_id >= 1 && table_id <= 2) {
-				diagnosticResultByPath[table_id] = data;
-			}
-			display_diagnostic_results();
-			break;
-
-		case CMD_MENU_DATA:
-			update_menu_data(table_id, data);
-			if (menuModeActive && table_id == menuItem) {
-				display_menu_screen();
-			}
-			break;
-
-		case CMD_ARRIVED:
-			if (table_id == (uint8_t)selectedPath1Table) {
-				if (currentCommand == CMD_BACKWARD) {
-					arrivedTableByPath[1] = 0;
-					memcpy(path1Status, "KITCHEN", 8);
-				} else {
-					arrivedTableByPath[1] = table_id;
-					memcpy(path1Status, "AT TABLE", 9);
-				}
+		switch (cmd) {
+			case CMD_OVER_LOAD_STOP:
+				send_command(ACK_CMD, cmd, seq);
+				display_overload_error();
 				clear_motion_state();
-				update_lcd_for_tables();
-				return;
-			}
-			if (table_id == (uint8_t)selectedPath2Table) {
-				if (path2Command == CMD_BACKWARD) {
-					arrivedTableByPath[2] = 0;
-					memcpy(path2Status, "KITCHEN", 8);
-				} else {
-					arrivedTableByPath[2] = table_id;
-					memcpy(path2Status, "AT TABLE", 9);
-				}
 				clear_path2_motion_state();
-			}
-			update_lcd_for_tables();
 			break;
 
-		default: break;
+			case CMD_CLEAR_EMERGENCY:
+				send_command(ACK_CMD, cmd, seq);
+				transmitterEmergencyActive = 0;
+				diagnosticResultByPath[1] = DIAG_RESULT_OK;
+				diagnosticResultByPath[2] = DIAG_RESULT_OK;
+				update_lcd_for_tables();
+			break;
+
+			case CMD_DIAG_RESULT:
+				send_command(ACK_CMD, cmd, seq);
+				if (table_id >= 1 && table_id <= 2) {
+					diagnosticResultByPath[table_id] = seq;
+					display_diagnostic_results();
+				}
+			break;
+
+			case CMD_MENU_DATA:
+				update_menu_data(table_id, seq);
+				if (menuModeActive && table_id == menuItem) {
+					display_menu_screen();
+				}
+			break;
+
+			case CMD_ARRIVED: {
+				uint8_t arrivedCommand = currentCommand;
+				uint8_t path2ArrivedCommand = path2Command;
+
+				if (table_id == selectedPath1Table) {
+					if (arrivedCommand == CMD_BACKWARD) {
+						arrivedTableByPath[1] = 0;
+						snprintf(path1Status, sizeof(path1Status), "KITCHEN");
+					} else {
+						arrivedTableByPath[1] = table_id;
+						snprintf(path1Status, sizeof(path1Status), "AT TABLE");
+					}
+					clear_motion_state();
+				} else if (table_id == selectedPath2Table) {
+					if (path2ArrivedCommand == CMD_BACKWARD) {
+						arrivedTableByPath[2] = 0;
+						snprintf(path2Status, sizeof(path2Status), "KITCHEN");
+					} else {
+						arrivedTableByPath[2] = table_id;
+						snprintf(path2Status, sizeof(path2Status), "AT TABLE");
+					}
+					clear_path2_motion_state();
+				}
+				update_lcd_for_tables();
+			break;
+			}
+
+			default:
+			break;
+		}
 	}
+}
+
+void checkLocoMovementTimeout(void) {
+	if (!is_moving && !path2_moving) return;
 }
 
 int main(void) {
 	system_init();
 	LCD_Clear();
 	activate_ext_logic();
+	//run_output_register_startup_test();
 	update_lcd_for_tables();
 
 	send_command_with_ack(CMD_STOP, 0x00, 0x00);
 
 	while (1) {
+		checkLocoMovementTimeout();
+
 		uint8_t rawBits = read_74HC165();
 		uint8_t invertedBits = ~rawBits;
 
@@ -787,5 +783,3 @@ int main(void) {
 
 	return 0;
 }
-
-

@@ -13,35 +13,32 @@
 
 typedef enum { OL_ARMED, OL_ACTIVE, OL_DIAG_START, OL_DIAG_PULSE, OL_LATCHED } OL_State;
 static OL_State   ol_state        = OL_ARMED;
-static uint16_t   holdStartTick   = 0;   // c ������ ���� �������� ? thrHigh
-static uint16_t   lastResendTick  = 0;   // ����� ��������� ��� ����� STOP
-static uint16_t   overloadStartTick = 0;  // ����� ���������� ���������
-static uint16_t   testPulseStartTick = 0; // ����� �������� �������� A3
-static uint8_t    diagnosticPath = 1;     // 1..2 = ����������� ����
-static uint8_t    diagnosticTable = 0;    // 0 = ���� ��� ������, ����� ����� �����
+static uint16_t   holdStartTick   = 0;   // c ?????? ???? ???????? ? thrHigh
+static uint16_t   lastResendTick  = 0;   // ????? ????????? ??? ????? STOP
+static uint16_t   overloadStartTick = 0;  // ????? ?????????? ?????????
+static uint16_t   testPulseStartTick = 0; // ????? ???????? ???????? A3
+static uint8_t    diagnosticPath = 1;     // 1..2 = ??????????? ????
+static uint8_t    diagnosticTable = 0;    // 0 = ???? ??? ??????, ????? ????? ?????
 #define DIAG_SHORT_NONE 0xFF
 static uint8_t    diagnosticShortTable[3] = {DIAG_SHORT_NONE, DIAG_SHORT_NONE, DIAG_SHORT_NONE};
 static uint8_t    diagnosticTxResult[3] = {DIAG_RESULT_OK, DIAG_RESULT_OK, DIAG_RESULT_OK};
-static uint16_t   filt            = 0;   // EMA-������ ����
-static uint8_t    filtInit        = 0;   // ������������� EMA
+static uint16_t   filt            = 0;   // EMA-?????? ????
+static uint8_t    filtInit        = 0;   // ????????????? EMA
+static uint8_t    runtimeThresholdStored = (uint8_t)(OVERLOAD_THRESHOLD / 10);
 
-
-// Runtime threshold cache (storedVal = real_threshold / 10).
-// Initialised to compile-time default; updated from EEPROM at startup
-// and immediately when user saves a new value via the service menu.
-static uint8_t runtimeThresholdStored = (uint8_t)(OVERLOAD_THRESHOLD / 10);
-
-void overload_update_threshold(uint8_t storedVal) {
-	runtimeThresholdStored = storedVal;
-	filtInit = 0;  // reset EMA filter so new threshold takes effect cleanly
-}
 
 static inline uint16_t thr_high(void) {
 	return (uint16_t)runtimeThresholdStored * 10u;
 }
 static inline uint16_t thr_low(void) {
-	uint16_t hi = thr_high();
-	return (hi > (uint16_t)OVERLOAD_HYSTERESIS) ? (hi - (uint16_t)OVERLOAD_HYSTERESIS) : 0u;
+	uint16_t high = thr_high();
+	return (uint16_t)((high > OVERLOAD_HYSTERESIS)
+	? (high - OVERLOAD_HYSTERESIS) : 0);
+}
+
+void overload_update_threshold(uint8_t storedVal) {
+	runtimeThresholdStored = storedVal;
+	filtInit = 0;
 }
 
 
@@ -64,7 +61,7 @@ static inline uint8_t overload_confirmed(uint16_t high_thr) {
 		uint16_t held = (uint16_t)(rail_switch_step_counter - holdStartTick);
 		return (held >= OVERLOAD_HOLD_TICKS);
 		} else {
-		// ���� ������ � ���������� ����������
+		// ???? ?????? ? ?????????? ??????????
 		holdStartTick = 0;
 		return 0;
 	}
@@ -84,7 +81,7 @@ static void overload_enter_active(void) {
 
 	lastResendTick = rail_switch_step_counter;
 	overloadStartTick = rail_switch_step_counter;
-	holdStartTick  = 0; // ������ �� ����� � ACTIVE
+	holdStartTick  = 0; // ?????? ?? ????? ? ACTIVE
 	ol_state = OL_ACTIVE;
 }
 
@@ -283,11 +280,11 @@ void check_and_send_overload_stop(void) {
 	const uint16_t hi = thr_high();
 	const uint16_t lo = thr_low();
 
-	// --- ������ ���� (EMA 1/8) ---
+	// --- ?????? ???? (EMA 1/8) ---
 	uint16_t raw = ADC_Read(0);
 	filt = ema8_update(filt, raw, &filtInit);
 
-	// --- ������ ��������� ---
+	// --- ?????? ????????? ---
 	switch (ol_state) {
 		case OL_ARMED:
 		if (overload_confirmed(hi)) {
